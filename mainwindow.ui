@@ -19,8 +19,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>701</width>
-      <height>171</height>
+      <width>691</width>
+      <height>521</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -32,6 +32,17 @@
     <property name="showGrid">
      <bool>true</bool>
     </property>
+    <column>
+     <property name="text">
+      <string>ID</string>
+     </property>
+     <property name="font">
+      <font>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+    </column>
     <column>
      <property name="text">
       <string>Service name</string>

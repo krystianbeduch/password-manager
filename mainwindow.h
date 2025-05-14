@@ -9,8 +9,11 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QWidget>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFile>
 
-#include "PasswordData.h"
+#include "databasemanager.h"
 #include "passwordmanager.h"
 #include "ui_mainwindow.h"
 
@@ -29,13 +32,22 @@ public:
 
 private slots:
     void addPassword();
+    void removePasswordAtIndex(int index);
     void deletePassword();
 
 private:
     Ui::MainWindow *ui;
-    QVector<PasswordManager*> passwordList;
-    int idCounter = 1;
+    QVector<PasswordManager*> m_passwordList;
+    int m_idCounter = 1;
+    DatabaseManager *m_dbManager;
+    QString m_host;
+    int m_port;
+    QString m_dbName;
+    QString m_username;
+    QString m_password;
 
     void updatePasswordTable();
+    void loadPasswordsToTable();
+    bool loadDatabaseConfig(const QString &configFilePath);
 };
 #endif // MAINWINDOW_H

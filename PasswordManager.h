@@ -21,20 +21,20 @@ public:
     QString getAdditionalDate() const;
     QString getGroup() const;
 
-    void setId(int value);
-    void setServiceName(const QString &value);
-    void setUsername(const QString &value);
-    void setPassword(const QString &value);
-    void setAdditionalDate(const QString &value);
-    void setGroup(const QString &value);
+    void setId(int id);
+    void setServiceName(const QString &serviceName);
+    void setUsername(const QString &username);
+    void setPassword(const QString &password);
+    void setAdditionalDate(const QString &additionalDate);
+    void setGroup(const QString &group);
 
 private:
-    int id;
-    QString serviceName;
-    QString username;
-    QString password;
-    QString additionalDate;
-    QString group;
+    int m_id;
+    QString m_serviceName;
+    QString m_username;
+    QString m_password;
+    QString m_additionalDate;
+    QString m_group;
 };
 
 #endif // PASSWORDMANAGER_H

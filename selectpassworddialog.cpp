@@ -1,0 +1,50 @@
+#include "selectpassworddialog.h"
+#include "ui_selectpassworddialog.h"
+
+SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
+                                           const QVector<PasswordManager*> passwordList,
+                                           PasswordMode mode)
+    : QDialog(parent)
+    , ui(new Ui::SelectPasswordDialog)
+{
+    ui->setupUi(this);
+
+    for (PasswordManager *p : passwordList) {
+        QString entry = QString("%1 | %2 | %3")
+                            .arg(QString::number(p->getId()), p->getServiceName(), p->getUsername());
+        ui->comboBox->addItem(entry);
+    }
+
+    QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
+    if (mode == PasswordMode::EditMode){
+        setWindowTitle("Edit Password");
+        ui->label->setText("Select the password you want to edit");
+        // if (okButton) {
+            okButton->setText("Edit");
+        // }
+    }
+    else if (mode == PasswordMode::DeleteMode) {
+        setWindowTitle("Delete Password");
+        ui->label->setText("Select the password you want to delete");
+        // if (okButton) {
+            okButton->setText("Delete");
+        // }
+    }
+
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [=]() {
+        if (ui->comboBox->currentIndex() == -1) {
+            QMessageBox::warning(this, "No Selection", "Please select a password");
+            return;
+        }
+    });
+
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+}
+
+SelectPasswordDialog::~SelectPasswordDialog() {
+    delete ui;
+}
+
+int SelectPasswordDialog::getSelectedIndex() const {
+    return ui->comboBox->currentIndex();
+}

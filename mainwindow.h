@@ -15,6 +15,7 @@
 
 #include "databasemanager.h"
 #include "passwordmanager.h"
+#include "PasswordMode.h"
 #include "ui_mainwindow.h"
 
 QT_BEGIN_NAMESPACE
@@ -32,8 +33,11 @@ public:
 
 private slots:
     void addPassword();
-    void removePasswordAtIndex(int index);
-    void deletePassword();
+    void handlePasswordSelection(PasswordMode mode);
+    void seletePasswordToEdit();
+    void selectPasswordToDelete();
+    void editPassword(int index);
+    void deletePassword(int index);
 
 private:
     Ui::MainWindow *ui;
@@ -48,6 +52,7 @@ private:
 
     void updatePasswordTable();
     void loadPasswordsToTable();
+
     bool loadDatabaseConfig(const QString &configFilePath);
 };
 #endif // MAINWINDOW_H

@@ -108,6 +108,42 @@ bool DatabaseManager::addPassword(const QString &service, const QString &usernam
     return success;
 }
 
+bool DatabaseManager::editPassword(PasswordManager *password) {
+    if (!connect() || !password) {
+        return false;
+    }
+
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        UPDATE public.passwords
+        SET service_name = :service,
+            username = :username,
+            password = :password,
+            group_name = :group
+        WHERE id = :id
+    )");
+
+    query.bindValue(":service", password->getServiceName());
+    query.bindValue(":username", password->getUsername());
+    query.bindValue(":password", password->getPassword());
+    query.bindValue(":group", password->getGroup());
+    query.bindValue(":id", password->getId());
+
+    qDebug() << password->getServiceName() << " " << password->getUsername() << " " << password->getPassword() << " " << password->getGroup() << " " << password->getId();
+
+    bool success = false;
+    if (query.exec()) {
+        qDebug() << "Password upadated";
+        success = true;
+    }
+    else {
+        qDebug() << "Failed to update password:" << query.lastError().text();
+    }
+
+    disconnect();
+    return success;
+}
+
 bool DatabaseManager::deletePasswordById(int id) {
     if (!connect()) {
         return false;
@@ -118,7 +154,6 @@ bool DatabaseManager::deletePasswordById(int id) {
     query.bindValue(":id", id);
 
     bool success = false;
-
     if (query.exec()) {
         if (query.numRowsAffected() > 0) {
             qDebug() << "Deleted password with ID:" << id;

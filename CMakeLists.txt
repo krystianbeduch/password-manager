@@ -12,14 +12,15 @@ qt_add_executable(password_manager
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    addpassworddialog.h addpassworddialog.cpp
-    addpassworddialog.h addpassworddialog.cpp
-    addpassworddialog.h addpassworddialog.cpp addpassworddialog.ui
-    deletepassworddialog.h deletepassworddialog.cpp deletepassworddialog.ui
+    passwordformdialog.h passwordformdialog.cpp
+    passwordformdialog.h passwordformdialog.cpp
+    passwordformdialog.h passwordformdialog.cpp passwordformdialog.ui
+    selectpassworddialog.h selectpassworddialog.cpp selectpassworddialog.ui
 
     PasswordManager.h
     passwordmanager.h passwordmanager.cpp
     databasemanager.h databasemanager.cpp
+    PasswordMode.h
 )
 
 qt_add_translations(

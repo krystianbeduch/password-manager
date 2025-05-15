@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QVector>
 #include <QVariant>
+#include "passwordmanager.h"
 
 class DatabaseManager {
 public:
@@ -22,7 +23,13 @@ public:
     void disconnect();
     // bool isConnected() const;
     QVector<QVector<QVariant>> fetchAllPasswords();
-    bool addPassword(const QString &service, const QString &username, const QString &password, const QString &group, const QDateTime &date, int &insertedId);
+    bool addPassword(const QString &service,
+                     const QString &username,
+                     const QString &password,
+                     const QString &group,
+                     const QDateTime &date,
+                     int &insertedId);
+    bool editPassword(PasswordManager *password);
     bool deletePasswordById(int id);
 
     // QSqlQuery executeQuery(const QString &queryStr);
@@ -31,8 +38,6 @@ public:
     void insertSamplePasswordsData();
     QString createUsersTable();
     void createTable(const QString &queryStr, const QString &tableName);
-
-
 
 private:
     QString m_host;

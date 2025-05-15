@@ -113,7 +113,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPasswords">
@@ -121,6 +121,7 @@
      <string>Passwords</string>
     </property>
     <addaction name="actionAddPassword"/>
+    <addaction name="actionEditPassword"/>
     <addaction name="actionDeletePassword"/>
    </widget>
    <addaction name="menuPasswords"/>
@@ -155,6 +156,20 @@
    </property>
    <property name="shortcut">
     <string>Del</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionEditPassword">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+   </property>
+   <property name="text">
+    <string>Edit Password</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit selected password</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

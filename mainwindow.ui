@@ -118,11 +118,14 @@
    </property>
    <widget class="QMenu" name="menuPasswords">
     <property name="title">
-     <string>Passwords</string>
+     <string>Management</string>
     </property>
     <addaction name="actionAddPassword"/>
     <addaction name="actionEditPassword"/>
     <addaction name="actionDeletePassword"/>
+    <addaction name="separator"/>
+    <addaction name="actionExportPassword"/>
+    <addaction name="actionDeleteAllPasswords"/>
    </widget>
    <addaction name="menuPasswords"/>
   </widget>
@@ -155,7 +158,7 @@
     <string>Delete selected password</string>
    </property>
    <property name="shortcut">
-    <string>Del</string>
+    <string>Ctrl+Del</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
@@ -170,6 +173,34 @@
    </property>
    <property name="toolTip">
     <string>Edit selected password</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionExportPassword">
+   <property name="text">
+    <string>Export Password...</string>
+   </property>
+   <property name="toolTip">
+    <string>Select passwords and export to preset formats</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionDeleteAllPasswords">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditClear"/>
+   </property>
+   <property name="text">
+    <string>Delete All Passwords</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete all password from the manager</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

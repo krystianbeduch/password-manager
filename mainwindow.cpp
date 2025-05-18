@@ -7,8 +7,10 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_crypto(new EncryptionUtils)
 {
     ui->setupUi(this);
+
 
     // ui->tableWidget->setHorizontalHeaderLabels({"Name", "Username", "Password", "Addition date"});
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -21,10 +23,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAddPassword, &QAction::triggered, this, &MainWindow::addPassword);
     connect(ui->actionDeletePassword, &QAction::triggered, this, &MainWindow::selectPasswordToDelete);
     connect(ui->actionEditPassword, &QAction::triggered, this, &MainWindow::seletePasswordToEdit);
+    connect(ui->actionExportPassword, &QAction::triggered, this, &MainWindow::selectPasswordToExport);
+    connect(ui->actionDeleteAllPasswords, &QAction::triggered, this, &MainWindow::deleteAllPasswords);
 
     if (loadDatabaseConfig("config.json")) {
         m_dbManager = new DatabaseManager(m_host, m_port, m_dbName, m_username, m_password);
+        m_dbManager->insertSamplePasswordsData(m_crypto);
         loadPasswordsToTable();
+
     }
     else {
         QMessageBox::critical(this, "Configuration Error", "Failed to load database configuration");
@@ -71,11 +77,10 @@ void MainWindow::loadPasswordsToTable() {
         int id = row[0].toInt();
         QString service = row[1].toString();
         QString user = row[2].toString();
-        QString pass = row[3].toString();
-        QString group = row[4].toString();
-        QString date = row[5].toDateTime().toString(QStringLiteral("dd-MM-yyyy HH:mm"));
+        QString group = row[3].toString();
+        QDateTime date = row[4].toDateTime();
 
-        PasswordManager *password = new PasswordManager(service, user, pass, date, group, id);
+        PasswordManager *password = new PasswordManager(service, user, date, group, id);
         m_passwordList.append(password);
     }
     updatePasswordTable();
@@ -88,8 +93,8 @@ void MainWindow::updatePasswordTable() {
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QString::number(password->getId())));
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(password->getServiceName()));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(password->getUsername()));
-        ui->tableWidget->setItem(i, 3, new QTableWidgetItem(password->getPassword()));
-        ui->tableWidget->setItem(i, 4, new QTableWidgetItem(password->getAdditionalDate()));
+        ui->tableWidget->setItem(i, 3, new QTableWidgetItem(QString(15, QChar(0x2022))));
+        ui->tableWidget->setItem(i, 4, new QTableWidgetItem(password->getFormattedDate()));
         ui->tableWidget->setItem(i, 5, new QTableWidgetItem(password->getGroup()));
 
         QWidget *actionWidget = new QWidget();
@@ -129,16 +134,20 @@ void MainWindow::addPassword() {
         QString username = dialog.getUsername();
         QString password = dialog.getPassword();
         QString group = dialog.getGroup();
-        QDateTime currentDateTime = QDateTime::currentDateTime();
-        QString formattedDate = currentDateTime.toString(QStringLiteral("dd-MM-yyyy HH:mm"));
 
-        int newId = -1;
-        if (!m_dbManager->addPassword(serviceName, username, password, group, currentDateTime, newId)) {
-            qDebug() << "Failed to add a password to the database!";
+        QByteArray salt = m_crypto->generateSaltToEncrypt();
+        if (!m_crypto->generateKeyFromPassword("1234", salt)) {
+            qWarning() << "Key derivation failed!";
             return;
         }
 
-        PasswordManager *newPassword = new PasswordManager(serviceName, username, password, formattedDate, group, newId);
+        QByteArray nonce;
+        QByteArray encryptedPassword = m_crypto->encrypt(password.toUtf8(), nonce);
+        PasswordManager *newPassword = new PasswordManager(serviceName, username, group);
+        if (!m_dbManager->addPassword(newPassword, encryptedPassword, nonce, salt)) {
+            qDebug() << "Failed to add a password to the database!";
+            return;
+        }
         m_passwordList.append(newPassword);
         updatePasswordTable();
         QMessageBox::information(this, "Password added", "The password has been added to the manager");
@@ -225,5 +234,63 @@ void MainWindow::deletePassword(int index) {
         else {
             QMessageBox::critical(this, "Error", "Failed to delete password");
         }
+    }
+}
+
+
+//////////////////////////////////////////////////////
+void MainWindow::selectPasswordToExport() {
+    ExportPasswordDialog dialog(this, m_passwordList);
+    if (dialog.exec() == QDialog::Accepted) {
+        QVector<PasswordManager*> selectedPasswords = dialog.selectPasswords();
+        QMap<int, QString> decryptedMap = m_dbManager->fetchPasswordsToExport(selectedPasswords, m_crypto);
+
+        if (dialog.isCSVChcecked()) {
+            QString path = dialog.dir() + "/" + dialog.csvFileName() + ".csv";
+            ExportService::exportToCSV(path, selectedPasswords, decryptedMap);
+        }
+        if (dialog.isJSONChcecked()) {
+            QString path = dialog.dir() + "/" + dialog.jsonFileName() + ".json";
+            ExportService::exportToJSON(path, selectedPasswords, decryptedMap);
+        }
+        if (dialog.isXMLChcecked()) {
+            QString path = dialog.dir() + "/" + dialog.xmlFileName() + ".xml";
+            ExportService::exportToXML(path, selectedPasswords, decryptedMap);
+        }
+
+        QMessageBox::information(this, "Export succes", "Passwords saved to files");
+    }
+}
+
+void MainWindow::deleteAllPasswords() {
+    QMessageBox::StandardButton reply = QMessageBox::question(this,
+                                                              "Backup",
+                                                              "Whether to perform an export of passwords before deleting them?",
+                                                              QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                                              QMessageBox::Yes);
+    if (reply == QMessageBox::Cancel) {
+        return;
+    }
+
+    if (reply == QMessageBox::Yes) {
+        ExportPasswordDialog dialog(this, m_passwordList);
+        if (dialog.exec() != QDialog::Accepted) {
+            QMessageBox::warning(this, "Aborted", "Password removal aborted");
+            return;
+        }
+    }
+
+    reply = QMessageBox::question(this, "WARNIG",
+                                        "WARNING!\nAre you sure you want to delete all passwords?",
+                                        QMessageBox::Yes | QMessageBox::No,
+                                        QMessageBox::No);
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    if (m_dbManager->truncatePasswords()) {
+        QMessageBox::information(this, "Success", "All password has been deleted");
+        m_passwordList.clear();
+        updatePasswordTable();
     }
 }

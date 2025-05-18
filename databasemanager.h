@@ -1,6 +1,8 @@
 #ifndef DATABASEMANAGER_H
 #define DATABASEMANAGER_H
 
+#include "passwordmanager.h"
+#include "encryptionutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -9,7 +11,10 @@
 #include <QDebug>
 #include <QVector>
 #include <QVariant>
-#include "passwordmanager.h"
+#include <QByteArray>
+#include <QDateTime>
+#include <QTimeZone>
+#include <QMap>
 
 class DatabaseManager {
 public:
@@ -23,19 +28,18 @@ public:
     void disconnect();
     // bool isConnected() const;
     QVector<QVector<QVariant>> fetchAllPasswords();
-    bool addPassword(const QString &service,
-                     const QString &username,
-                     const QString &password,
-                     const QString &group,
-                     const QDateTime &date,
-                     int &insertedId);
+    bool addPassword(PasswordManager *newPassword,
+                     const QByteArray &encryptedPassword,
+                     const QByteArray &nonce,
+                     const QByteArray &salt);
     bool editPassword(PasswordManager *password);
     bool deletePasswordById(int id);
+    bool truncatePasswords();
+    QMap<int, QString> fetchPasswordsToExport(QVector<PasswordManager*> passwords, EncryptionUtils *crypto);
 
-    // QSqlQuery executeQuery(const QString &queryStr);
 
     QString createPasswordsTable();
-    void insertSamplePasswordsData();
+    void insertSamplePasswordsData(EncryptionUtils *crypto);
     QString createUsersTable();
     void createTable(const QString &queryStr, const QString &tableName);
 

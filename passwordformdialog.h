@@ -3,6 +3,7 @@
 
 #include "ui_passwordformdialog.h"
 #include "PasswordMode.h"
+#include "encryptionutils.h"
 #include <QMainWindow>
 #include <QObject>
 #include <QWidget>
@@ -21,7 +22,8 @@ QT_END_NAMESPACE
 class PasswordFormDialog : public QDialog {
     Q_OBJECT
 public:
-    PasswordFormDialog(QWidget *parent = nullptr, PasswordMode mode = PasswordMode::AddMode);
+    PasswordFormDialog(QWidget *parent = nullptr,
+                       PasswordMode mode = PasswordMode::AddMode);
     PasswordFormDialog(QWidget *parent,
                        const QString &serviceName,
                        const QString &username,
@@ -35,8 +37,11 @@ public:
     QString getPassword() const;
     QString getGroup() const;
 
+private slots:
+    void onButtonClicked();
+
 private:
-    Ui::PasswordFormDialog *ui;
+    Ui::PasswordFormDialog *ui;    
     PasswordMode m_mode;
 
     void initUI();

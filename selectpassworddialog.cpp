@@ -19,26 +19,22 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
     if (mode == PasswordMode::EditMode){
         setWindowTitle("Edit Password");
         ui->label->setText("Select the password you want to edit");
-        // if (okButton) {
-            okButton->setText("Edit");
-        // }
+        okButton->setText("Edit");
     }
     else if (mode == PasswordMode::DeleteMode) {
         setWindowTitle("Delete Password");
         ui->label->setText("Select the password you want to delete");
-        // if (okButton) {
-            okButton->setText("Delete");
-        // }
+        okButton->setText("Delete");
     }
 
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [=]() {
-        if (ui->comboBox->currentIndex() == -1) {
-            QMessageBox::warning(this, "No Selection", "Please select a password");
-            return;
-        }
-    });
+    // connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [=]() {
+    //     if (ui->comboBox->currentIndex() == -1) {
+    //         QMessageBox::warning(this, "No Selection", "Please select a password");
+    //         return;
+    //     }
+    // });
 
-    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    // connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 SelectPasswordDialog::~SelectPasswordDialog() {

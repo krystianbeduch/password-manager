@@ -1,5 +1,6 @@
 #include "mainwindow.h"
-
+// #include <sodium.h>
+// #include <QDebug>
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
@@ -16,6 +17,13 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
+
+    // if (sodium_init() < 0) {
+    //     qFatal("libsodium initialization failed");
+    //     return 1;
+    // }
+
+
     MainWindow w;
     w.show();
     return a.exec();

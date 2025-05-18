@@ -1,6 +1,23 @@
 cmake_minimum_required(VERSION 3.19)
 project(password_manager LANGUAGES CXX)
 
+# set(OPENSSL_ROOT_DIR "C:/Program Files/OpenSSL-Win64")
+# set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
+# set(OPENSSL_LIBRARIES "${OPENSSL_ROOT_DIR}/lib")
+
+# include_directories("C:/Program Files/OpenSSL-Win64/include")
+# link_directories("C:/Program Files/OpenSSL-Win64/lib")
+
+# find_package(OpenSSL REQUIRED)
+
+find_path(LIBSODIUM_INCLUDE_DIR sodium.h PATHS "C:/libsodium/include")
+find_library(LIBSODIUM_LIBRARY sodium PATHS "C:/libsodium/lib")
+if(NOT LIBSODIUM_INCLUDE_DIR OR NOT LIBSODIUM_LIBRARY)
+    message(FATAL_ERROR "libsodium not found")
+endif()
+
+include_directories(${LIBSODIUM_INCLUDE_DIR})
+
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools Sql)
 # find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools)
 
@@ -21,6 +38,10 @@ qt_add_executable(password_manager
     passwordmanager.h passwordmanager.cpp
     databasemanager.h databasemanager.cpp
     PasswordMode.h
+    exportpassworddialog.h exportpassworddialog.cpp exportpassworddialog.ui
+    EncryptionUtils.cpp
+    encryptionutils.h encryptionutils.cpp
+    exportservice.h exportservice.cpp
 )
 
 qt_add_translations(
@@ -33,7 +54,11 @@ target_link_libraries(password_manager
         Qt::Core
         Qt::Widgets
         Qt6::Sql
+        ${LIBSODIUM_LIBRARY}
         # Qt6::QPSQLDriverPlugin
+        # OpenSSL::SSL
+        # OpenSSL::Crypto
+        # libssl libcrypto
 )
 
 include(GNUInstallDirs)
@@ -50,3 +75,7 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
+
+
+# target_link_libraries(password_manager libssl libcrypto)
+

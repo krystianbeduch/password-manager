@@ -16,10 +16,8 @@ class SelectPasswordDialog : public QDialog {
     Q_OBJECT
 
 public:
-
-
     SelectPasswordDialog(QWidget *parent = nullptr,
-                         const QVector<PasswordManager*> passwords = {},
+                         const QVector<PasswordManager*> passwordList = {},
                          PasswordMode mode = PasswordMode::EditMode);
     ~SelectPasswordDialog();
     int getSelectedIndex() const;

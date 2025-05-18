@@ -1,6 +1,7 @@
 #include "passwordformdialog.h"
 
-PasswordFormDialog::PasswordFormDialog(QWidget *parent, PasswordMode mode)
+PasswordFormDialog::PasswordFormDialog(QWidget *parent,
+                                       PasswordMode mode)
     : QDialog(parent)
     , ui(new Ui::PasswordFormDialog)
     , m_mode(mode)
@@ -8,26 +9,6 @@ PasswordFormDialog::PasswordFormDialog(QWidget *parent, PasswordMode mode)
     ui->setupUi(this);
     initUI();
     connectSignals();
-
-
-    // QRegularExpression regex("^[a-zA-Z0-9!@#$%^&*()_+=\\-\\[\\]{};:'\"\\\\|,.<>/?]*$");
-    // QValidator *validator = new QRegularExpressionValidator(regex, this);
-    // ui->passwordLineEdit->setValidator(validator);
-
-    // QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
-    // disconnect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    // connect(okButton, &QPushButton::clicked, this, [this]() {
-    //     if (ui->serviceNameLineEdit->text().trimmed().isEmpty() ||
-    //         ui->usernameLineEdit->text().trimmed().isEmpty() ||
-    //         ui->passwordLineEdit->text().trimmed().isEmpty()
-    //     ) {
-    //         QMessageBox::warning(this, "Input Error", "All fields are required");
-    //         return;
-    //     }
-    //     accept();
-    // });
-
-    // connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 PasswordFormDialog::PasswordFormDialog(QWidget *parent,
@@ -43,30 +24,11 @@ PasswordFormDialog::PasswordFormDialog(QWidget *parent,
     ui->setupUi(this);
     initUI();
 
-
-    // QRegularExpression regex("^[a-zA-Z0-9!@#$%^&*()_+=\\-\\[\\]{};:'\"\\\\|,.<>/?]*$");
-    // QValidator *validator = new QRegularExpressionValidator(regex, this);
-    // ui->passwordLineEdit->setValidator(validator);
-
     ui->serviceNameLineEdit->setText(serviceName);
     ui->usernameLineEdit->setText(username);
     ui->passwordLineEdit->setText(password);
     ui->groupComboBox->setCurrentText(group);
 
-    // QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
-    // disconnect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    // connect(okButton, &QPushButton::clicked, this, [this]() {
-    //     if (ui->serviceNameLineEdit->text().trimmed().isEmpty() ||
-    //         ui->usernameLineEdit->text().trimmed().isEmpty() ||
-    //         ui->passwordLineEdit->text().trimmed().isEmpty()
-    //         ) {
-    //         QMessageBox::warning(this, "Input Error", "All fields are required");
-    //         return;
-    //     }
-    //     accept();
-    // });
-
-    // connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connectSignals();
 }
 
@@ -87,27 +49,18 @@ void PasswordFormDialog::connectSignals() {
     disconnect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
     if (m_mode == PasswordMode::AddMode) {
+        setWindowTitle("Add password");
         ui->headerLabel->setText("Add new password");
         okButton->setText("Add");
     }
-
     else if (m_mode == PasswordMode::EditMode) {
-        ui->headerLabel->setText("Edit password");
+        setWindowTitle("Edit password");
+        ui->headerLabel->setText("Edit selected password");
         okButton->setText("Edit");
     }
 
-    connect(okButton, &QPushButton::clicked, this, [this]() {
-        if (ui->serviceNameLineEdit->text().trimmed().isEmpty() ||
-            ui->usernameLineEdit->text().trimmed().isEmpty() ||
-            ui->passwordLineEdit->text().trimmed().isEmpty()
-        ) {
-            QMessageBox::warning(this, "Input Error", "All fields are required");
-            return;
-        }
-        accept();
-    });
-
-    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(okButton, &QPushButton::clicked, this, &PasswordFormDialog::onButtonClicked);
+    // connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 PasswordFormDialog::~PasswordFormDialog() {
@@ -127,4 +80,16 @@ QString PasswordFormDialog::getPassword() const {
 }
 QString PasswordFormDialog::getGroup() const {
     return ui->groupComboBox->currentText();
+}
+
+void PasswordFormDialog::onButtonClicked() {
+    if (ui->serviceNameLineEdit->text().trimmed().isEmpty() ||
+        ui->usernameLineEdit->text().trimmed().isEmpty() ||
+        ui->passwordLineEdit->text().trimmed().isEmpty()
+        ) {
+        QMessageBox::warning(this, "Input Error", "All fields are required");
+        return;
+    }
+
+    accept();
 }

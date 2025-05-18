@@ -1,6 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "ui_mainwindow.h"
+#include "databasemanager.h"
+#include "passwordmanager.h"
+#include "PasswordMode.h"
+#include "exportpassworddialog.h"
+#include "encryptionutils.h"
+#include "exportservice.h"
+
 #include <QMainWindow>
 #include <QDateTime>
 #include <QMessageBox>
@@ -12,11 +20,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
-
-#include "databasemanager.h"
-#include "passwordmanager.h"
-#include "PasswordMode.h"
-#include "ui_mainwindow.h"
+#include <QByteArray>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -39,6 +43,9 @@ private slots:
     void editPassword(int index);
     void deletePassword(int index);
 
+    void selectPasswordToExport();
+    void deleteAllPasswords();
+
 private:
     Ui::MainWindow *ui;
     QVector<PasswordManager*> m_passwordList;
@@ -49,10 +56,15 @@ private:
     QString m_dbName;
     QString m_username;
     QString m_password;
+    EncryptionUtils *m_crypto;
 
     void updatePasswordTable();
     void loadPasswordsToTable();
 
     bool loadDatabaseConfig(const QString &configFilePath);
+
+    // void exportToCSV(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);
+    // void exportToJSON(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);
+    // void exportToXML(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);
 };
 #endif // MAINWINDOW_H

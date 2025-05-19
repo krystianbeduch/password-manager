@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS passwords (
     service_name VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
     group_name VARCHAR(255),
-    addition_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    addition_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    position INTEGER DEFAULT 0
 );
 -- INSERT INTO passwords (service_name, username, password, group_name)
 -- VALUES

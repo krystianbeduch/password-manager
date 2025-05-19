@@ -1,12 +1,12 @@
 #include "mainwindow.h"
-// #include <sodium.h>
-// #include <QDebug>
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QDebug>
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+    qDebug() << __cplusplus;
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -17,12 +17,6 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-
-    // if (sodium_init() < 0) {
-    //     qFatal("libsodium initialization failed");
-    //     return 1;
-    // }
-
 
     MainWindow w;
     w.show();

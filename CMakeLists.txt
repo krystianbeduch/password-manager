@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 project(password_manager LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # set(OPENSSL_ROOT_DIR "C:/Program Files/OpenSSL-Win64")
 # set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
 # set(OPENSSL_LIBRARIES "${OPENSSL_ROOT_DIR}/lib")
@@ -37,11 +40,13 @@ qt_add_executable(password_manager
     PasswordManager.h
     passwordmanager.h passwordmanager.cpp
     databasemanager.h databasemanager.cpp
-    PasswordMode.h
+    passwordMode.h
     exportpassworddialog.h exportpassworddialog.cpp exportpassworddialog.ui
     EncryptionUtils.cpp
     encryptionutils.h encryptionutils.cpp
-    exportservice.h exportservice.cpp
+    fileservice.h fileservice.cpp
+    cryptodata.h
+
 )
 
 qt_add_translations(

@@ -2,8 +2,8 @@
 #define ADDPASSWORDDIALOG_H
 
 #include "ui_passwordformdialog.h"
-#include "PasswordMode.h"
-#include "encryptionutils.h"
+#include "passwordMode.h"
+#include "passwordmanager.h"
 #include <QMainWindow>
 #include <QObject>
 #include <QWidget>
@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QRandomGenerator>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,6 +31,7 @@ public:
                        const QString &password,
                        const QString &group,
                        PasswordMode mode);
+    PasswordFormDialog(QWidget *parent, PasswordManager *password, PasswordMode mode);
      ~PasswordFormDialog();
 
     QString getServiceName() const;
@@ -39,6 +41,7 @@ public:
 
 private slots:
     void onButtonClicked();
+    void onGeneratePasswordClicked();
 
 private:
     Ui::PasswordFormDialog *ui;    
@@ -46,6 +49,7 @@ private:
 
     void initUI();
     void connectSignals();
+    QString generateRandomPassword(int length = 24);
 };
 
 #endif // ADDPASSWORDDIALOG_H

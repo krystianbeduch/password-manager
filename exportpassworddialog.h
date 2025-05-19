@@ -1,6 +1,7 @@
 #ifndef EXPORTPASSWORDDIALOG_H
 #define EXPORTPASSWORDDIALOG_H
 
+#include "passwordmanager.h"
 #include <QDialog>
 #include <QVector>
 #include <QListWidget>
@@ -16,7 +17,6 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
-#include "passwordmanager.h"
 
 namespace Ui {
 class ExportPasswordDialog;

@@ -9,21 +9,20 @@ public:
     PasswordManager() = default;
     PasswordManager(const QString &serviceName,
                     const QString &username,
-                    // const QString &password,
                     const QDateTime &additionalDate,
                     const QString &group,
                     int id);
     PasswordManager(const QString &serviceName,
                     const QString &username,
-                    // const QString &password,
                     const QDateTime &additionalDate,
                     const QString &group);
     PasswordManager(const QString &serviceName,
                     const QString &username,
                     const QString &group);
-    PasswordManager(const QString &serviceName, // TESTOWY KONSTRUKTOR - domyślnie zostawić 3-parametrowy
+
+    PasswordManager(const QString &serviceName,
                     const QString &username,
-                    const QString &password, // TYLKO DO TESTÓW
+                    const QString &password,
                     const QString &group);
 
     ~PasswordManager() = default;
@@ -31,16 +30,18 @@ public:
     int getId() const;
     QString getServiceName() const;
     QString getUsername() const;
-    QString getPassword() const; // TYLKO DO TESTÓW
+    QString getPassword() const;
     QDateTime getAdditionalDate() const;
-    QString getGroup() const;    
+    QString getGroup() const;
+    int getPosition() const;
 
     void setId(int id);
     void setServiceName(const QString &serviceName);
     void setUsername(const QString &username);
-    void setPassword(const QString &password); // TYLKO DO TESTÓW
+    void setPassword(const QString &password);
     void setAdditionalDate(const QDateTime &additionalDate);
     void setGroup(const QString &group);
+    void setPostition(int position);
 
     QString getFormattedDate() const;
 
@@ -51,6 +52,7 @@ private:
     QString m_password; // TYLKO DO TESTÓW
     QDateTime m_additionalDate;
     QString m_group;
+    int m_position;
 };
 
 #endif // PASSWORDMANAGER_H

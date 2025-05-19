@@ -32,6 +32,27 @@ PasswordFormDialog::PasswordFormDialog(QWidget *parent,
     connectSignals();
 }
 
+PasswordFormDialog::PasswordFormDialog(QWidget *parent,
+                                       PasswordManager *password,
+                                       PasswordMode mode)
+    : QDialog(parent)
+    , ui(new Ui::PasswordFormDialog)
+    , m_mode(mode)
+{
+    ui->setupUi(this);
+    initUI();
+
+    ui->serviceNameLineEdit->setText(password->getServiceName());
+    ui->usernameLineEdit->setText(password->getUsername());
+    ui->groupComboBox->setCurrentText(password->getGroup());
+
+    connectSignals();
+}
+
+PasswordFormDialog::~PasswordFormDialog() {
+    delete ui;
+}
+
 void PasswordFormDialog::initUI() {
     const QRegularExpression regex("^[a-zA-Z0-9!@#$%^&*()_+=\\-\\[\\]{};:'\"\\\\|,.<>/?]*$");
     QValidator *validator = new QRegularExpressionValidator(regex, this);
@@ -60,11 +81,45 @@ void PasswordFormDialog::connectSignals() {
     }
 
     connect(okButton, &QPushButton::clicked, this, &PasswordFormDialog::onButtonClicked);
-    // connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(ui->generatePasswordButton, &QPushButton::clicked, this, &PasswordFormDialog::onGeneratePasswordClicked);
+    connect(ui->showHidePasswordCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+        ui->passwordLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
+        ui->showHidePasswordCheckBox->setText(checked ? "Hide password" : "Show password");
+    });
+
 }
 
-PasswordFormDialog::~PasswordFormDialog() {
-    delete ui;
+QString PasswordFormDialog::generateRandomPassword(int length) {
+    const QString chars = "abcdefghijklmnopqrstuvwxyz"
+                          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                          "0123456789"
+                          "!@#$%^&*()_+-=[]{}|;:',.<>?/";
+    QString randomPassword;
+    for (int i = 0; i < length; i++) {
+        int index = QRandomGenerator::global()->bounded(chars.length());
+        randomPassword.append(chars.at(index));
+    }
+    return randomPassword;
+}
+
+void PasswordFormDialog::onButtonClicked() {
+    if (ui->serviceNameLineEdit->text().trimmed().isEmpty() ||
+        ui->usernameLineEdit->text().trimmed().isEmpty() ||
+        ui->passwordLineEdit->text().trimmed().isEmpty()
+        ) {
+        QMessageBox::warning(this, "Input Error", "All fields are required");
+        return;
+    }
+
+    accept();
+}
+
+void PasswordFormDialog::onGeneratePasswordClicked() {
+    QString generatedPassword = generateRandomPassword();
+    ui->passwordLineEdit->setText(generatedPassword);
+    ui->passwordLineEdit->setEchoMode(QLineEdit::Normal);
+    ui->showHidePasswordCheckBox->setText("Hide password");
+    ui->showHidePasswordCheckBox->setCheckState(Qt::Checked);
 }
 
 QString PasswordFormDialog::getServiceName() const {
@@ -80,16 +135,4 @@ QString PasswordFormDialog::getPassword() const {
 }
 QString PasswordFormDialog::getGroup() const {
     return ui->groupComboBox->currentText();
-}
-
-void PasswordFormDialog::onButtonClicked() {
-    if (ui->serviceNameLineEdit->text().trimmed().isEmpty() ||
-        ui->usernameLineEdit->text().trimmed().isEmpty() ||
-        ui->passwordLineEdit->text().trimmed().isEmpty()
-        ) {
-        QMessageBox::warning(this, "Input Error", "All fields are required");
-        return;
-    }
-
-    accept();
 }

@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include "passwordmanager.h"
-#include "PasswordMode.h"
+#include "passwordMode.h"
 
 namespace Ui {
 class SelectPasswordDialog;

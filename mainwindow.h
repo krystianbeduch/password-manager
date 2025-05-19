@@ -4,16 +4,16 @@
 #include "ui_mainwindow.h"
 #include "databasemanager.h"
 #include "passwordmanager.h"
-#include "PasswordMode.h"
-#include "exportpassworddialog.h"
+#include "passwordMode.h"
 #include "encryptionutils.h"
-#include "exportservice.h"
 
 #include <QMainWindow>
 #include <QDateTime>
 #include <QMessageBox>
 #include <QDebug>
 #include <QVector>
+#include <QMap>
+// #include <QPair>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QWidget>
@@ -21,6 +21,7 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QByteArray>
+#include <QFontMetrics>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -44,7 +45,22 @@ private slots:
     void deletePassword(int index);
 
     void selectPasswordToExport();
+    void importPasswords();
     void deleteAllPasswords();
+    void showPassword(QPushButton *button);
+
+    void moveSelectedRowUp();
+    void moveSelectedRowDown();
+    void moveSelectedRowToTop();
+    void moveSelectedRowToDown();
+    void savePositions();
+
+    void showAboutAuthor();
+    void showAboutTechnologies();
+
+
+
+    // void onRowsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row);
 
 private:
     Ui::MainWindow *ui;
@@ -57,11 +73,18 @@ private:
     QString m_username;
     QString m_password;
     EncryptionUtils *m_crypto;
+    QLabel *m_statusLabel;
 
     void updatePasswordTable();
     void loadPasswordsToTable();
-
     bool loadDatabaseConfig(const QString &configFilePath);
+    QString generateDotStringForPasswordLineEdit(QLineEdit *lineEdit);
+    void resizeEvent(QResizeEvent *e);
+    void moveSelectedRowTo(int targetRow);
+
+
+
+
 
     // void exportToCSV(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);
     // void exportToJSON(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);

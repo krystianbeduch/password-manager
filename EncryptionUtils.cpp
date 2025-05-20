@@ -135,9 +135,26 @@ std::optional<CryptoData> EncryptionUtils::prepareCryptoData(const QString &main
     QByteArray nonce;
     data.cipher = encrypt(passwordToEncrypt.toUtf8(), nonce);
     data.nonce = nonce;
-
     return data;
+}
+
+bool EncryptionUtils::verifyMainPassword(const QString &userPassword, const CryptoData &cryptoData) {
+    if (!generateKeyFromPassword(userPassword, cryptoData.salt)) {
+        qWarning() << "Key derivation failed!";
+        return false;
+    }
+
+    QByteArray decryptedMainPassword = decrypt(cryptoData.cipher, cryptoData.nonce);
+    if (userPassword.toUtf8() == decryptedMainPassword) {
+        m_mainPassword = decryptedMainPassword;
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 void EncryptionUtils::setKey(const QByteArray &key) { m_key = key; }
 QByteArray EncryptionUtils::getKey() const { return m_key; }
+void EncryptionUtils::setMainPassword(const QByteArray &mainPassword) { m_mainPassword = mainPassword; }
+QByteArray EncryptionUtils::getMainPassword() const { return m_mainPassword; }

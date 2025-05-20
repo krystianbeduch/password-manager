@@ -2,11 +2,9 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-#include <QDebug>
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    qDebug() << __cplusplus;
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

@@ -86,7 +86,6 @@ void PasswordFormDialog::connectSignals() {
         ui->passwordLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
         ui->showHidePasswordCheckBox->setText(checked ? "Hide password" : "Show password");
     });
-
 }
 
 QString PasswordFormDialog::generateRandomPassword(int length) {

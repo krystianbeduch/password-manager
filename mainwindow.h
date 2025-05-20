@@ -9,6 +9,7 @@
 
 #include <QMainWindow>
 #include <QDateTime>
+#include <QTimer>
 #include <QMessageBox>
 #include <QDebug>
 #include <QVector>
@@ -57,6 +58,8 @@ private slots:
     void showAboutAuthor();
     void showAboutTechnologies();
 
+    void checkLoginTimeout();
+
 private:
     Ui::MainWindow *ui;
     QVector<PasswordManager*> m_passwordList;
@@ -69,6 +72,9 @@ private:
     QString m_password;
     EncryptionUtils *m_crypto;
     QLabel *m_statusLabel;
+    bool m_isLogged;
+    QDateTime m_lastLoginTime;
+    QTimer *m_authTimer;
 
     void updatePasswordTable();
     void loadPasswordsToTable();

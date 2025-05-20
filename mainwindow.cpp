@@ -4,6 +4,7 @@
 #include "exportpassworddialog.h"
 #include "fileservice.h"
 #include "cryptodata.h"
+#include "logindialog.h"
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 
@@ -12,11 +13,33 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , m_crypto(new EncryptionUtils)
     , m_statusLabel(new QLabel(this))
+    , m_authTimer(new QTimer(this))
 {
+    LoginDialog dialog;
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+
+    if (loadDatabaseConfig("config.json")) {
+        m_dbManager = new DatabaseManager(m_host, m_port, m_dbName, m_username, m_password);
+    }
+    else {
+        QMessageBox::critical(this, "Configuration Error", "Failed to load database configuration");
+        return;
+    }
+
+    CryptoData cryptoMainPassword = m_dbManager->fetchMainPassword();
+    if(!(m_crypto->verifyMainPassword(dialog.getPassword(), cryptoMainPassword))) {
+        QMessageBox::critical(this, "Wrong password", "Incorrect password");
+        return;
+    }
+
+    m_lastLoginTime = QDateTime::currentDateTime();
+    connect(m_authTimer, &QTimer::timeout, this, &MainWindow::checkLoginTimeout);
+    m_authTimer->start(60 * 1000);
+
     ui->setupUi(this);
     ui->statusbar->addPermanentWidget(m_statusLabel);
-
-
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(ui->actionAddPassword, &QAction::triggered, this, &MainWindow::addPassword);
@@ -34,14 +57,20 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAboutAuthor, &QAction::triggered, this, &MainWindow::showAboutAuthor);
     connect(ui->actionAboutTechnologies, &QAction::triggered, this, &MainWindow::showAboutTechnologies);
 
-    if (loadDatabaseConfig("config.json")) {
-        m_dbManager = new DatabaseManager(m_host, m_port, m_dbName, m_username, m_password);
-        // m_dbManager->insertSamplePasswordsData(m_crypto);
-        loadPasswordsToTable();
+    if (!(m_dbManager->insertSamplePasswordsData(m_crypto))) {
+        qDebug() << tr("Sample data password inserted");
+        return;
     }
-    else {
-        QMessageBox::critical(this, "Configuration Error", "Failed to load database configuration");
-    }
+    loadPasswordsToTable();
+
+    // Initializing main password to DB
+    // QString pass = "1234";
+    // QByteArray salt = m_crypto->generateSaltToEncrypt();
+    // m_crypto->generateKeyFromPassword(pass, salt);
+    // QByteArray nonce;
+    // QByteArray mainPassword = m_crypto->encrypt(pass.toUtf8(), nonce);
+    // CryptoData cryptoMainPassword(mainPassword, salt, nonce);
+    // m_dbManager->addMainPassword(cryptoMainPassword);
 }
 
 MainWindow::~MainWindow() {
@@ -82,13 +111,17 @@ bool MainWindow::loadDatabaseConfig(const QString &configFilePath) {
 void MainWindow::loadPasswordsToTable() {
     QVector<QVector<QVariant>> records = m_dbManager->fetchAllPasswords();
     for (const QVector<QVariant> &row : records) {
-        int id = row[0].toInt();
-        QString service = row[1].toString();
-        QString user = row[2].toString();
-        QString group = row[3].toString();
-        QDateTime date = row[4].toDateTime();
+        // int id = ;
+        // QString service = ;
+        // QString user = row[2].toString();
+        // QString group = row[3].toString();
+        // QDateTime date = row[4].toDateTime();
 
-        PasswordManager *password = new PasswordManager(service, user, date, group, id);
+        PasswordManager *password = new PasswordManager(row[0].toInt(),         // ID
+                                                        row[1].toString(),      // Service
+                                                        row[2].toString(),      // User
+                                                        row[3].toString(),      // Group
+                                                        row[4].toDateTime());   // Date
         m_passwordList.append(password);
     }
     updatePasswordTable();
@@ -122,8 +155,8 @@ void MainWindow::updatePasswordTable() {
         passwordEdit->setText(generateDotStringForPasswordLineEdit(passwordEdit));
         ui->tableWidget->setCellWidget(i, 3, passwordEdit);
 
-        ui->tableWidget->setItem(i, 4, new QTableWidgetItem(password->getFormattedDate()));
-        ui->tableWidget->setItem(i, 5, new QTableWidgetItem(password->getGroup()));
+        ui->tableWidget->setItem(i, 4, new QTableWidgetItem(password->getGroup()));
+        ui->tableWidget->setItem(i, 5, new QTableWidgetItem(password->getFormattedDate()));
 
         QWidget *actionWidget = new QWidget();
         QPushButton *editButton = new QPushButton("Edit");
@@ -168,9 +201,9 @@ void MainWindow::updatePasswordTable() {
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);             // Service
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);             // Username
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);             // Password
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);    // Date
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);    // Group
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);    // Buttons
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);    // Group
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);    // Date
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(6, QHeaderView::ResizeToContents);    // Buttons
 
     ui->tableWidget->setDragEnabled(true);
     ui->tableWidget->setAcceptDrops(true);
@@ -189,7 +222,7 @@ void MainWindow::addPassword() {
         QString username = dialog.getUsername();
         QString group = dialog.getGroup();
 
-        std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData("1234", dialog.getPassword());
+        std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData(m_crypto->getMainPassword(), dialog.getPassword());
         if (!cryptoDataOpt.has_value()) {
             qDebug() << "Error during generation of cryptographic data";
             return;
@@ -245,7 +278,7 @@ void MainWindow::editPassword(int index) {
         password->setUsername(dialog.getUsername());
         password->setGroup(dialog.getGroup());
 
-        std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData("1234", dialog.getPassword());
+        std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData(m_crypto->getMainPassword(), dialog.getPassword());
         if (!cryptoDataOpt.has_value()) {
             qDebug() << "Error during generation of cryptographic data";
             return;
@@ -270,11 +303,10 @@ void MainWindow::deletePassword(int index) {
     QString serviceName = m_passwordList[index]->getServiceName();
     QString username = m_passwordList[index]->getUsername();
 
-    QMessageBox::StandardButton confirm = QMessageBox::question(
-        this, "Delete",
-        QString("Are you sure you want to delete:\n%1 | %2 | %3?")
-            .arg(QString::number(id), serviceName, username),
-        QMessageBox::Yes | QMessageBox::No
+    QMessageBox::StandardButton confirm = QMessageBox::question(this, "Delete",
+                                                                QString("Are you sure you want to delete:\n%1 | %2 | %3?")
+                                                                    .arg(QString::number(id), serviceName, username),
+                                                                QMessageBox::Yes | QMessageBox::No
     );
 
     if (confirm == QMessageBox::Yes) {
@@ -334,7 +366,7 @@ void MainWindow::importPasswords() {
     if (!newPasswords.isEmpty()) {
         QHash<PasswordManager*, CryptoData> cryptoMap;
         for (PasswordManager *p : newPasswords) {
-            std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData("1234", p->getPassword());
+            std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData(QString::fromUtf8(m_crypto->getMainPassword()), p->getPassword());
             if (!cryptoDataOpt.has_value()) {
                 qDebug() << "Error during generation of cryptographic data";
                 return;
@@ -425,6 +457,7 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
         if (QLineEdit *passwordEdit = qobject_cast<QLineEdit *>(widget)) {
             QString dots = generateDotStringForPasswordLineEdit(passwordEdit);
             passwordEdit->setText(dots);
+            passwordEdit->setCursorPosition(0);
         }
     }
 }
@@ -480,7 +513,32 @@ void MainWindow::showAboutTechnologies() {
                              "This application was built using:\n"
                              "- Qt 6.9\n"
                              "- C++20:\n"
-                             "      * library: libsodium"
+                             "      * library: libsodium\n"
                              "- PostgreSQL 16 (for password storage)\n"
                              "- QTableWidget and Qt Widgets framework");
+}
+
+void MainWindow::checkLoginTimeout() {
+    const int timeoutMinutes = 5;
+
+    if (m_lastLoginTime.msecsTo(QDateTime::currentDateTime()) >= timeoutMinutes * 60 * 1000) {
+        m_authTimer->stop();
+
+        LoginDialog dialog;
+        if (dialog.exec() == QDialog::Accepted) {
+            CryptoData cryptoMainPassword = m_dbManager->fetchMainPassword();
+            if (!(m_crypto->verifyMainPassword(dialog.getPassword(), cryptoMainPassword))) {
+                QMessageBox::critical(this, "Wrong password", "Incorrect password");
+                qApp->quit();
+                return;
+            }
+
+            m_crypto->setMainPassword(dialog.getPassword().toUtf8());
+            m_lastLoginTime = QDateTime::currentDateTime();
+            m_authTimer->start(60 * 1000);
+        }
+        else {
+            qApp->quit();
+        }
+    }
 }

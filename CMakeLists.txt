@@ -46,6 +46,7 @@ qt_add_executable(password_manager
     encryptionutils.h encryptionutils.cpp
     fileservice.h fileservice.cpp
     cryptodata.h
+    logindialog.h logindialog.cpp logindialog.ui
 
 )
 

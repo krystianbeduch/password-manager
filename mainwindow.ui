@@ -70,21 +70,21 @@
       </column>
       <column>
        <property name="text">
-        <string>Addition date</string>
+        <string>Group</string>
        </property>
        <property name="font">
         <font>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Group</string>
+        <string>Addition date</string>
        </property>
        <property name="font">
         <font>
-         <italic>true</italic>
          <bold>true</bold>
         </font>
        </property>

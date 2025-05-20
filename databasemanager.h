@@ -18,7 +18,8 @@
 #include <QTimeZone>
 
 
-class DatabaseManager {
+class DatabaseManager : public QObject {
+    Q_OBJECT
 public:
     DatabaseManager(const QString &host,
                     int port,
@@ -26,19 +27,21 @@ public:
                     const QString &username,
                     const QString &password);
     ~DatabaseManager();
-    bool connect();
-    void disconnect();
-    void insertSamplePasswordsData(EncryptionUtils *crypto);
+    [[nodiscard]] bool connectDb();
+    void disconnectDb();
+    [[nodiscard]] bool insertSamplePasswordsData(EncryptionUtils *crypto);
     QVector<QVector<QVariant>> fetchAllPasswords();
-    bool addPassword(PasswordManager *newPassword, CryptoData &cryptoData);
-    bool editPassword(PasswordManager *password, CryptoData &cryptoData);
-    bool deletePasswordById(int id);
-    bool truncatePasswords();
+    [[nodiscard]] bool addPassword(PasswordManager *newPassword, CryptoData &cryptoData);
+    [[nodiscard]] bool editPassword(PasswordManager *password, CryptoData &cryptoData);
+    [[nodiscard]] bool deletePasswordById(int id);
+    [[nodiscard]] bool truncatePasswords();
     QMap<int, QString> fetchPasswordsToExport(QVector<PasswordManager*> passwords, EncryptionUtils *crypto);
 
     QString decryptPassword(int passwordId, EncryptionUtils *crypto);
-    bool savePositionsToDatabase(QVector<PasswordManager*> passwords);
-    bool addPasswordList(QHash<PasswordManager*, CryptoData> &passwords);
+    [[nodiscard]] bool savePositionsToDatabase(QVector<PasswordManager*> passwords);
+    [[nodiscard]] bool addPasswordList(QHash<PasswordManager*, CryptoData> &passwords);
+    [[nodiscard]] bool addMainPassword(CryptoData &cryptoData);
+    CryptoData fetchMainPassword();
 
 private:
     QString m_host;

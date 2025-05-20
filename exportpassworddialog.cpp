@@ -83,38 +83,14 @@ void ExportPasswordDialog::onExportClicked() {
     if (m_dir.isEmpty()) {
         return;
     }
-
     accept();
 }
 
-QVector<PasswordManager*> ExportPasswordDialog::selectPasswords() const {
-    return m_selectedPasswords;
-}
-
-bool ExportPasswordDialog::isCSVChcecked() const {
-    return ui->csvCheckBox->isChecked();
-}
-
-QString ExportPasswordDialog::csvFileName() const {
-    return ui->csvFilenameLineEdit->text().trimmed();
-}
-
-bool ExportPasswordDialog::isJSONChcecked() const {
-    return ui->jsonCheckBox->isChecked();
-}
-
-QString ExportPasswordDialog::jsonFileName() const {
-    return ui->jsonFilenameLineEdit->text().trimmed();
-}
-
-bool ExportPasswordDialog::isXMLChcecked() const {
-    return ui->xmlCheckBox->isChecked();
-}
-
-QString ExportPasswordDialog::xmlFileName() const {
-    return ui->xmlFilenameLineEdit->text().trimmed();
-}
-
-QString ExportPasswordDialog::dir() const {
-    return m_dir;
-}
+QVector<PasswordManager*> ExportPasswordDialog::selectPasswords() const { return m_selectedPasswords; }
+bool ExportPasswordDialog::isCSVChcecked() const { return ui->csvCheckBox->isChecked(); }
+QString ExportPasswordDialog::csvFileName() const { return ui->csvFilenameLineEdit->text().trimmed(); }
+bool ExportPasswordDialog::isJSONChcecked() const { return ui->jsonCheckBox->isChecked(); }
+QString ExportPasswordDialog::jsonFileName() const { return ui->jsonFilenameLineEdit->text().trimmed(); }
+bool ExportPasswordDialog::isXMLChcecked() const { return ui->xmlCheckBox->isChecked(); }
+QString ExportPasswordDialog::xmlFileName() const { return ui->xmlFilenameLineEdit->text().trimmed(); }
+QString ExportPasswordDialog::dir() const { return m_dir; }

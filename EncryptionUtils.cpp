@@ -123,10 +123,21 @@ QByteArray EncryptionUtils::decrypt(const QByteArray &cipherText, const QByteArr
     return decrypted;
 }
 
-void EncryptionUtils::setKey(const QByteArray &key) {
-    m_key = key;
+std::optional<CryptoData> EncryptionUtils::prepareCryptoData(const QString &mainPassword, const QString &passwordToEncrypt) {
+    CryptoData data;
+    data.salt = generateSaltToEncrypt();
+
+    if (!generateKeyFromPassword(mainPassword, data.salt)) {
+        qWarning() << "Key derivation failed!";
+        return std::nullopt;
+    }
+
+    QByteArray nonce;
+    data.cipher = encrypt(passwordToEncrypt.toUtf8(), nonce);
+    data.nonce = nonce;
+
+    return data;
 }
 
-QByteArray EncryptionUtils::getKey() const {
-    return m_key;
-}
+void EncryptionUtils::setKey(const QByteArray &key) { m_key = key; }
+QByteArray EncryptionUtils::getKey() const { return m_key; }

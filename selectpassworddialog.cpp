@@ -26,21 +26,10 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
         ui->label->setText("Select the password you want to delete");
         okButton->setText("Delete");
     }
-
-    // connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [=]() {
-    //     if (ui->comboBox->currentIndex() == -1) {
-    //         QMessageBox::warning(this, "No Selection", "Please select a password");
-    //         return;
-    //     }
-    // });
-
-    // connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 SelectPasswordDialog::~SelectPasswordDialog() {
     delete ui;
 }
 
-int SelectPasswordDialog::getSelectedIndex() const {
-    return ui->comboBox->currentIndex();
-}
+int SelectPasswordDialog::getSelectedIndex() const { return ui->comboBox->currentIndex(); }

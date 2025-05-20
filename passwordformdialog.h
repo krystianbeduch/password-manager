@@ -2,7 +2,7 @@
 #define ADDPASSWORDDIALOG_H
 
 #include "ui_passwordformdialog.h"
-#include "passwordMode.h"
+#include "passwordmode.h"
 #include "passwordmanager.h"
 #include <QMainWindow>
 #include <QObject>

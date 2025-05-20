@@ -4,8 +4,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QDebug>
-// #include <QCryptographicHash>
-// #include <QRandomGenerator>
+#include "cryptodata.h"
 #include <sodium.h>
 
 
@@ -18,18 +17,21 @@ public:
 
     EncryptionUtils();
 
-    QByteArray generateSaltToEncrypt();
-    bool generateKey(); // losowy klucz
-    bool generateKeyFromPassword(const QString &password, const QByteArray &salt); // klucz na podstawie hasla logowania
-    QByteArray encrypt(const QByteArray &plainText, QByteArray &nonceOut);
+
     QByteArray decrypt(const QByteArray &cipherText, const QByteArray &nonce);
 
+    std::optional<CryptoData> prepareCryptoData(const QString &mainPassword, const QString &passwordToEncrypt);
 
     void setKey(const QByteArray &key);
     QByteArray getKey() const;
 
 private:
     QByteArray m_key;
+
+    QByteArray generateSaltToEncrypt();
+    bool generateKey(); // losowy klucz
+    bool generateKeyFromPassword(const QString &password, const QByteArray &salt); // klucz na podstawie hasla logowania
+    QByteArray encrypt(const QByteArray &plainText, QByteArray &nonceOut);
 };
 
 #endif // ENCRYPTIONUTILS_H

@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>icons/trash-fill.svg</file>
-        <file>icons/edit.svg</file>
-        <file>icons/preview.png</file>
-        <file>trash-fill.svg</file>
-    </qresource>
-</RCC>

@@ -1,12 +1,12 @@
 #ifndef SELECTPASSWORDDIALOG_H
 #define SELECTPASSWORDDIALOG_H
 
+#include "passwordmanager.h"
+#include "passwordmode.h"
 #include <QDialog>
 #include <QVector>
 #include <QMessageBox>
 #include <QPushButton>
-#include "passwordmanager.h"
-#include "passwordMode.h"
 
 namespace Ui {
 class SelectPasswordDialog;
@@ -24,7 +24,6 @@ public:
 
 private:
     Ui::SelectPasswordDialog *ui;
-    // PasswordMode m_mode;
 };
 
 #endif // SELECTPASSWORDDIALOG_H

@@ -4,7 +4,7 @@
 #include "ui_mainwindow.h"
 #include "databasemanager.h"
 #include "passwordmanager.h"
-#include "passwordMode.h"
+#include "passwordmode.h"
 #include "encryptionutils.h"
 
 #include <QMainWindow>
@@ -13,7 +13,6 @@
 #include <QDebug>
 #include <QVector>
 #include <QMap>
-// #include <QPair>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QWidget>
@@ -58,10 +57,6 @@ private slots:
     void showAboutAuthor();
     void showAboutTechnologies();
 
-
-
-    // void onRowsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row);
-
 private:
     Ui::MainWindow *ui;
     QVector<PasswordManager*> m_passwordList;
@@ -81,13 +76,5 @@ private:
     QString generateDotStringForPasswordLineEdit(QLineEdit *lineEdit);
     void resizeEvent(QResizeEvent *e);
     void moveSelectedRowTo(int targetRow);
-
-
-
-
-
-    // void exportToCSV(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);
-    // void exportToJSON(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);
-    // void exportToXML(const QString &path, QVector<PasswordManager*> &selected, const QMap<int, QString> &decrypted);
 };
 #endif // MAINWINDOW_H

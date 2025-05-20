@@ -110,7 +110,6 @@ void PasswordFormDialog::onButtonClicked() {
         QMessageBox::warning(this, "Input Error", "All fields are required");
         return;
     }
-
     accept();
 }
 
@@ -122,17 +121,7 @@ void PasswordFormDialog::onGeneratePasswordClicked() {
     ui->showHidePasswordCheckBox->setCheckState(Qt::Checked);
 }
 
-QString PasswordFormDialog::getServiceName() const {
-    return ui->serviceNameLineEdit->text().trimmed();
-}
-
-QString PasswordFormDialog::getUsername() const {
-    return ui->usernameLineEdit->text().trimmed();
-}
-
-QString PasswordFormDialog::getPassword() const {
-    return ui->passwordLineEdit->text().trimmed();
-}
-QString PasswordFormDialog::getGroup() const {
-    return ui->groupComboBox->currentText();
-}
+QString PasswordFormDialog::getServiceName() const { return ui->serviceNameLineEdit->text().trimmed(); }
+QString PasswordFormDialog::getUsername() const { return ui->usernameLineEdit->text().trimmed(); }
+QString PasswordFormDialog::getPassword() const { return ui->passwordLineEdit->text().trimmed(); }
+QString PasswordFormDialog::getGroup() const { return ui->groupComboBox->currentText(); }

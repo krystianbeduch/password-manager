@@ -16,22 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->statusbar->addPermanentWidget(m_statusLabel);
 
-    // ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    // ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
-    // ui->tableWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    // ui->tableWidget->setTextElideMode(Qt::ElideNone);
-    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    // ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
-    // ui->tableWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
-    // ui->tableWidget->setTextElideMode(Qt::ElideNone);
-    // ui->tableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    // ui->tableWidget->setColumnWidth(0, 25);
-    // ui->tableWidget->setColumnWidth(0, 150);
-    // ui->tableWidget->setColumnWidth(1, 150);
-    // ui->tableWidget->setColumnWidth(2, 150);
-    // ui->tableWidget->setColumnWidth(4, 100);
-    // ui->tableWidget->setColumnWidth(6, 150);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(ui->actionAddPassword, &QAction::triggered, this, &MainWindow::addPassword);
     connect(ui->actionDeletePassword, &QAction::triggered, this, &MainWindow::selectPasswordToDelete);
@@ -194,10 +180,6 @@ void MainWindow::updatePasswordTable() {
 
     QSize tableSize = ui->tableWidget->sizeHint();
     setMinimumSize(tableSize.width() + 50, tableSize.height() + 100);
-
-
-
-
 }
 
 void MainWindow::addPassword() {
@@ -205,19 +187,17 @@ void MainWindow::addPassword() {
     if (dialog.exec() == QDialog::Accepted) {
         QString serviceName = dialog.getServiceName();
         QString username = dialog.getUsername();
-        QString password = dialog.getPassword();
         QString group = dialog.getGroup();
 
-        QByteArray salt = m_crypto->generateSaltToEncrypt();
-        if (!m_crypto->generateKeyFromPassword("1234", salt)) {
-            qWarning() << "Key derivation failed!";
+        std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData("1234", dialog.getPassword());
+        if (!cryptoDataOpt.has_value()) {
+            qDebug() << "Error during generation of cryptographic data";
             return;
         }
 
-        QByteArray nonce;
-        QByteArray encryptedPassword = m_crypto->encrypt(password.toUtf8(), nonce);
+        CryptoData cryptoData = cryptoDataOpt.value();
         PasswordManager *newPassword = new PasswordManager(serviceName, username, group);
-        if (!m_dbManager->addPassword(newPassword, encryptedPassword, nonce, salt)) {
+        if (!m_dbManager->addPassword(newPassword, cryptoData)) {
             qDebug() << "Failed to add a password to the database!";
             return;
         }
@@ -226,7 +206,6 @@ void MainWindow::addPassword() {
         QMessageBox::information(this, "Password added", "The password has been added to the manager");
     }
 }
-
 
 void MainWindow::handlePasswordSelection(PasswordMode mode) {
     if (m_passwordList.isEmpty()) {
@@ -266,15 +245,14 @@ void MainWindow::editPassword(int index) {
         password->setUsername(dialog.getUsername());
         password->setGroup(dialog.getGroup());
 
-        QByteArray salt = m_crypto->generateSaltToEncrypt();
-        if (!m_crypto->generateKeyFromPassword("1234", salt)) {
-            qWarning() << "Key derivation failed!";
+        std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData("1234", dialog.getPassword());
+        if (!cryptoDataOpt.has_value()) {
+            qDebug() << "Error during generation of cryptographic data";
             return;
         }
 
-        QByteArray nonce;
-        QByteArray encryptedPassword = m_crypto->encrypt(dialog.getPassword().toUtf8(), nonce);
-        if (m_dbManager->editPassword(password, encryptedPassword, nonce, salt )) {
+        CryptoData cryptoData = cryptoDataOpt.value();
+        if (m_dbManager->editPassword(password, cryptoData)) {
             updatePasswordTable();
             QMessageBox::information(this, "Updated", "Password updated succesfully");
         }
@@ -311,8 +289,6 @@ void MainWindow::deletePassword(int index) {
     }
 }
 
-
-//////////////////////////////////////////////////////
 void MainWindow::selectPasswordToExport() {
     ExportPasswordDialog dialog(this, m_passwordList);
     if (dialog.exec() == QDialog::Accepted) {
@@ -343,7 +319,6 @@ void MainWindow::importPasswords() {
     }
 
     QVector<PasswordManager*> newPasswords;
-
     if (filePath.endsWith(".csv", Qt::CaseInsensitive)) {
         newPasswords = FileService::parseCSV(filePath);
     }
@@ -357,40 +332,24 @@ void MainWindow::importPasswords() {
         QMessageBox::warning(this, "Unsupported", "Unsupported file format");
     }
     if (!newPasswords.isEmpty()) {
-        // QMap<PasswordManager*, QPair<QByteArray, QPair<QByteArray, QByteArray>>> cryptoData;
-        // struct CryptoData {
-        //     QByteArray cipher;
-        //     QByteArray salt;
-        //     QByteArray nonce;
-        // };
-
-        QMap<PasswordManager*, CryptoData> cryptoMap;
-
-
-        // QMap<int, QByteArray> newEncryptedPasswords;
-        // QMap<int, QByteArray> newSalts;
-        // QMap<int, QByteArray> newNonces;
-        // int index = 0;
+        QHash<PasswordManager*, CryptoData> cryptoMap;
         for (PasswordManager *p : newPasswords) {
-            QByteArray salt = m_crypto->generateSaltToEncrypt();
-            if (!m_crypto->generateKeyFromPassword("1234", salt)) {
-                qWarning() << "Key derivation failed!";
+            std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData("1234", p->getPassword());
+            if (!cryptoDataOpt.has_value()) {
+                qDebug() << "Error during generation of cryptographic data";
                 return;
             }
-            QByteArray nonce;
-            QByteArray encryptedPassword = m_crypto->encrypt(p->getPassword().toUtf8(), nonce);
-
-            CryptoData cryptoData(encryptedPassword, salt, nonce);
-            cryptoMap.insert(p, cryptoData);
+            cryptoMap.insert(p, cryptoDataOpt.value());
         }
-        if (m_dbManager->importPasswords(cryptoMap)) {
-            QMessageBox::information(this, "Success", "Passwords imported successfully.");
 
+        if (!m_dbManager->addPasswordList(cryptoMap)) {
+            qDebug() << "Failed to import passwords to the database!";
+            return;
         }
+        m_passwordList.append(newPasswords);
+        updatePasswordTable();
+        QMessageBox::information(this, "Import successd", "The password has been added to the manager");
     }
-
-
-
 }
 
 void MainWindow::deleteAllPasswords() {
@@ -425,7 +384,6 @@ void MainWindow::deleteAllPasswords() {
         updatePasswordTable();
     }
 }
-
 
 void MainWindow::showPassword(QPushButton *button) {
     int index = button->property("index").toInt();
@@ -462,7 +420,6 @@ QString MainWindow::generateDotStringForPasswordLineEdit(QLineEdit *lineEdit) {
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
     QMainWindow::resizeEvent(event);
-
     for (int row = 0; row < ui->tableWidget->rowCount(); row++) {
         QWidget *widget = ui->tableWidget->cellWidget(row, 3);
         if (QLineEdit *passwordEdit = qobject_cast<QLineEdit *>(widget)) {
@@ -501,15 +458,12 @@ void MainWindow::moveSelectedRowTo(int targetRow) {
     updatePasswordTable();
     ui->tableWidget->selectRow(targetRow);
     m_statusLabel->setText("Order has been changed - don't forget to save!");
-    // QLabel*
-    // ui->statusbar->showMessage("Order has been changed - don't forget to save!");
     setWindowModified(true);
 }
 
 void MainWindow::savePositions() {
     if (m_dbManager->savePositionsToDatabase(m_passwordList)) {
         m_statusLabel->setText("");
-        // ui->statusbar->clearMessage();
         setWindowModified(false);
     }
 }

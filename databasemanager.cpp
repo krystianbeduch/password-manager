@@ -41,6 +41,28 @@ void DatabaseManager::disconnect() {
     }
 }
 
+void DatabaseManager::insertSamplePasswordsData(EncryptionUtils *crypto) {
+    QVector<PasswordManager*> passwords = {
+        new PasswordManager("Gmail", "user1@gmail.com", "password123", "Email"),
+        new PasswordManager("Facebook", "user2@o2.pl", "mypass456", "Personal"),
+        new PasswordManager("Microsoft Team", "user@outlook.com", "securePassword", "Work")
+    };
+
+    QHash<PasswordManager*, CryptoData> cryptoMap;
+    for (PasswordManager *p : passwords) {
+        std::optional<CryptoData> cryptoDataOpt = crypto->prepareCryptoData("1234", p->getPassword());
+        if (!cryptoDataOpt.has_value()) {
+            qDebug() << "Error during generation of cryptographic data";
+            return;
+        }
+        cryptoMap.insert(p, cryptoDataOpt.value());
+    }
+
+    if (addPasswordList(cryptoMap)) {
+        qDebug() << "Sample data password inserted";
+    }
+}
+
 QVector<QVector<QVariant>> DatabaseManager::fetchAllPasswords() {
     QVector<QVector<QVariant>> data;
     if (!connect()) {
@@ -48,8 +70,8 @@ QVector<QVector<QVariant>> DatabaseManager::fetchAllPasswords() {
         return QVector<QVector<QVariant>>();
     }
 
-    QSqlQuery query(m_db);
-    QString queryStr = QString(R"(
+    QSqlQuery query(m_db);    
+    query.prepare(R"(
         SELECT
             p.id, p.service_name, p.username, p.group_name, p.addition_date, p.position
         FROM
@@ -57,10 +79,8 @@ QVector<QVector<QVariant>> DatabaseManager::fetchAllPasswords() {
         ORDER BY p.position ASC
     )");
 
-
-
-    if (!query.exec(queryStr)) {
-        qDebug() << "SELECT error:" << query.lastError().text();
+    if (!query.exec()) {
+        qDebug() << "Error fetching all passwords:" << query.lastError().text();
         disconnect();
         return QVector<QVector<QVariant>>();
     }
@@ -130,19 +150,23 @@ QMap<int, QString> DatabaseManager::fetchPasswordsToExport(QVector<PasswordManag
     return decryptedMap;
 }
 
-bool DatabaseManager::addPassword(PasswordManager *newPassword, const QByteArray &encryptedPassword,
-                                  const QByteArray &nonce, const QByteArray &salt) {
-    if (!connect()) {
+bool DatabaseManager::addPassword(PasswordManager *newPassword, CryptoData &cryptoData) {
+    if (!connect() || !newPassword) {
         qWarning() << "Failed to connect to database.";
         return false;
     }
 
+    QSqlDatabase::database().transaction();
     {
         QSqlQuery query(m_db);
         query.prepare(R"(
-            INSERT INTO public.passwords (service_name, username, group_name)
-            VALUES (:service, :username, :group)
-            RETURNING id, addition_date
+            WITH next_pos AS (
+                SELECT COALESCE(MAX(position), 0) + 1 AS new_position FROM passwords
+            )
+            INSERT INTO passwords
+                (service_name, username, group_name, position)
+            SELECT :service, :username, :group_name, new_position FROM next_pos
+            RETURNING id, addition_date;
         )");
 
         query.bindValue(":service", newPassword->getServiceName());
@@ -158,6 +182,7 @@ bool DatabaseManager::addPassword(PasswordManager *newPassword, const QByteArray
         }
         else {
             qDebug() << "Failed to insert password:" << query.lastError().text();
+            QSqlDatabase::database().rollback();
             disconnect();
             return false;
         }
@@ -166,36 +191,39 @@ bool DatabaseManager::addPassword(PasswordManager *newPassword, const QByteArray
     {
         QSqlQuery query(m_db);
         query.prepare(R"(
-            INSERT INTO public.encrypted_passwords (password_id, encrypted_password, nonce, salt)
-            VALUES (:password_id, :encrypted_password, :nonce, :salt)
+            INSERT INTO
+                public.encrypted_passwords (password_id, encrypted_password, nonce, salt)
+            VALUES
+                (:password_id, :encrypted_password, :nonce, :salt)
         )");
 
         query.bindValue(":password_id", newPassword->getId());
-        query.bindValue(":encrypted_password", encryptedPassword);
-        query.bindValue(":nonce", nonce);
-        query.bindValue(":salt", salt);
+        query.bindValue(":encrypted_password", cryptoData.cipher);
+        query.bindValue(":nonce", cryptoData.nonce);
+        query.bindValue(":salt", cryptoData.salt);
 
         if (query.exec()) {
             qDebug() << "Password hash added for password with ID:" << newPassword->getId();
         }
         else {
             qDebug() << "Failed to insert password:" << query.lastError().text();
+            QSqlDatabase::database().rollback();
             disconnect();
             return false;
         }
     }
 
+    QSqlDatabase::database().commit();
     disconnect();
     return true;
 }
 
-bool DatabaseManager::editPassword(PasswordManager *password, const QByteArray &encryptedPassword,
-                                   const QByteArray &nonce, const QByteArray &salt) {
+bool DatabaseManager::editPassword(PasswordManager *password, CryptoData &cryptoData) {
     if (!connect() || !password) {
         return false;
     }
         // qDebug() << password->getServiceName() << " " << password->getUsername() << " " << password->getPassword() << " " << password->getGroup() << " " << password->getId();
-
+    QSqlDatabase::database().transaction();
     {
         QSqlQuery query(m_db);
         query.prepare(R"(
@@ -216,6 +244,7 @@ bool DatabaseManager::editPassword(PasswordManager *password, const QByteArray &
         }
         else {
             qDebug() << "Failed to update password:" << query.lastError().text();
+            QSqlDatabase::database().rollback();
             disconnect();
             return false;
         }
@@ -231,9 +260,9 @@ bool DatabaseManager::editPassword(PasswordManager *password, const QByteArray &
             WHERE password_id = :password_id;
         )");
 
-        query.bindValue(":encrypted_password", encryptedPassword);
-        query.bindValue(":nonce", nonce);
-        query.bindValue(":salt", salt);
+        query.bindValue(":encrypted_password", cryptoData.cipher);
+        query.bindValue(":nonce", cryptoData.nonce);
+        query.bindValue(":salt", cryptoData.salt);
         query.bindValue(":password_id", password->getId());
 
         if (query.exec()) {
@@ -241,11 +270,13 @@ bool DatabaseManager::editPassword(PasswordManager *password, const QByteArray &
         }
         else {
             qDebug() << "Failed to edit encrypted password:" << query.lastError().text();
+            QSqlDatabase::database().rollback();
             disconnect();
             return false;
         }
     }
 
+    QSqlDatabase::database().commit();
     disconnect();
     return true;
 }
@@ -255,26 +286,32 @@ bool DatabaseManager::deletePasswordById(int id) {
         return false;
     }
 
+    QSqlDatabase::database().transaction();
     QSqlQuery query(m_db);
     query.prepare("DELETE FROM public.passwords WHERE id = :id");
     query.bindValue(":id", id);
 
-    bool success = false;
     if (query.exec()) {
         if (query.numRowsAffected() > 0) {
             qDebug() << "Deleted password with ID:" << id;
-            success = true;
         }
         else {
-            qDebug() << "No record found with ID:" << id;
+            QMessageBox::warning(nullptr, "No record", "No record found with ID: " + QString::number(id));
+            QSqlDatabase::database().rollback();
+            disconnect();
+            return false;
         }
     }
     else {
         qDebug() << "Failed to delete password:" << query.lastError().text();
+        QSqlDatabase::database().rollback();
+        disconnect();
+        return false;
     }
 
+    QSqlDatabase::database().commit();
     disconnect();
-    return success;
+    return true;
 }
 
 bool DatabaseManager::truncatePasswords() {
@@ -282,32 +319,33 @@ bool DatabaseManager::truncatePasswords() {
         return false;
     }
 
+    QSqlDatabase::database().transaction();
     QSqlQuery query(m_db);
     query.prepare("TRUNCATE public.passwords RESTART IDENTITY CASCADE;");
     // RESTART IDENTITY - restart licznika SERIAL (id) do 1
     // CASCADE - usuwanie rekordow powiazanych FK
 
-    bool success = false;
     if (query.exec()) {
         qDebug() << "Truncated passwords table successfully";
-        success = true;
     }
     else {
-        qDebug() << "Failed to truncate passwords table:" << query.lastError().text();
         QMessageBox::critical(nullptr, "Database Connection Error", "Failed to truncate passwords table: " + m_db.lastError().text());
+        QSqlDatabase::database().rollback();
+        disconnect();
+        return false;
     }
 
+    QSqlDatabase::database().commit();
     disconnect();
-    return success;
+    return true;
 }
 
 QString DatabaseManager::decryptPassword(int passwordId, EncryptionUtils *crypto) {
     QString decryptedPassword;
-
     if (!connect()) {
         return QString();
     }
-    // qDebug() << passwordId;
+
     QSqlQuery query(m_db);
     query.prepare(R"(
         SELECT
@@ -340,74 +378,14 @@ QString DatabaseManager::decryptPassword(int passwordId, EncryptionUtils *crypto
 }
 
 
-
-QString DatabaseManager::createPasswordsTable() {
-    return R"(
-        CREATE TABLE IF NOT EXISTS passwords (
-            id SERIAL PRIMARY KEY,
-            service_name VARCHAR(255) NOT NULL,
-            username VARCHAR(255) NOT NULL,
-            password TEXT NOT NULL,
-            group_name VARCHAR(255),
-            addition_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    )";
-}
-
-void DatabaseManager::insertSamplePasswordsData(EncryptionUtils *crypto) {
-    QVector<PasswordManager*> passwords = {
-        new PasswordManager("Gmail", "user1@gmail.com", "password123", "Email"),
-        new PasswordManager("Facebook", "user2@o2.pl", "mypass456", "Personal"),
-        new PasswordManager("Microsoft Team", "user@outlook.com", "securePassword", "Work")
-    };
-
-    for (const auto &p : passwords) {
-        QByteArray salt = crypto->generateSaltToEncrypt();
-        if (!crypto->generateKeyFromPassword("1234", salt)) {
-            qWarning() << "Key derivation failed!";
-            return;
-        }
-
-        QByteArray nonce;
-        QByteArray encryptedPassword = crypto->encrypt(p->getPassword().toUtf8(), nonce);
-        addPassword(p, encryptedPassword, nonce, salt);
-        // qDebug() << encrypted;
-    }
-}
-
-QString DatabaseManager::createUsersTable() {
-    return R"(
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(255) UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    )";
-}
-
-void DatabaseManager::createTable(const QString &queryStr, const QString &tableName) {
-    QSqlQuery query;
-
-    if (!query.exec(queryStr)) {
-        qDebug() << "Table creation error: " << query.lastError().text();
-        return;
-    }
-    qDebug() << QString("Table '%1%' successfully created").arg(tableName);
-}
-
 bool DatabaseManager::savePositionsToDatabase(QVector<PasswordManager*> passwords) {
     if (!connect() || passwords.isEmpty()) {
         return false;
     }
 
+    QSqlDatabase::database().transaction();
     QSqlQuery query(m_db);
     QString updateQuery = "UPDATE public.passwords SET position = CASE id ";
-    // QString updateQuery = R"(
-    //     UPDATE public.passwords
-    //     SET positions = CASE id
-    // )";
-
     for (int i = 0; i < passwords.size(); i++) {
         updateQuery += QString("WHEN %1 THEN %2 ")
                            .arg(passwords[i]->getId()).arg(i);
@@ -420,32 +398,92 @@ bool DatabaseManager::savePositionsToDatabase(QVector<PasswordManager*> password
         }
     }
     updateQuery += ");";
-    // qDebug() << updateQuery;
 
     if (query.exec(updateQuery)) {
         qDebug() << "Passwords order saved";
     }
     else {
         qDebug() << "Failed to update passwords order:" << query.lastError().text();
+        QSqlDatabase::database().rollback();
         disconnect();
         return false;
     }
 
+    QSqlDatabase::database().commit();
     disconnect();
     return true;
 }
 
-bool DatabaseManager::importPasswords(QMap<PasswordManager*, CryptoData> &passwords) {
-    for (auto it = passwords.begin(); it != passwords.end(); ++it) {
-        PasswordManager* pm = it.key();
-        CryptoData data = it.value();
-        qDebug() << pm->getServiceName();
-        qDebug() << data.cipher;
-        qDebug() << data.salt;
-        qDebug() << data.nonce;
-
-        // Tutaj logika dodawania do bazy
-        // pm->setEncrypted(data.cipher, data.salt, data.nonce);
+bool DatabaseManager::addPasswordList(QHash<PasswordManager*, CryptoData> &passwords) {
+    if (!connect()) {
+            return false;
     }
+
+    QSqlDatabase::database().transaction();
+    for (auto it = passwords.begin(); it != passwords.end(); it++) {
+        PasswordManager* newPassword = it.key();
+        CryptoData cryptoData = it.value();
+
+        if (!newPassword) {
+            qDebug() << "Null password entry";
+            return false;
+        }
+
+        {
+            QSqlQuery query(m_db);
+            query.prepare(R"(
+                INSERT INTO public.passwords
+                    (service_name, username, group_name)
+                VALUES
+                    (:service, :username, :group)
+                RETURNING id, addition_date
+            )");
+
+            query.bindValue(":service", newPassword->getServiceName());
+            query.bindValue(":username", newPassword->getUsername());
+            query.bindValue(":group", newPassword->getGroup());
+
+            if (query.exec() && query.next()) {
+                newPassword->setId(query.value("id").toInt());
+                QDateTime dateTime = query.value("addition_date").toDateTime();
+                dateTime.setTimeZone(QTimeZone("Europe/Warsaw"));
+                newPassword->setAdditionalDate(dateTime);
+                qDebug() << "Password added with ID:" << newPassword->getId();
+            }
+            else {
+                qDebug() << "Failed to insert password:" << query.lastError().text();
+                QSqlDatabase::database().rollback();
+                disconnect();
+                return false;
+            }
+        }
+
+        {
+            QSqlQuery query(m_db);
+            query.prepare(R"(
+                INSERT INTO public.encrypted_passwords
+                    (password_id, encrypted_password, nonce, salt)
+                VALUES
+                    (:password_id, :encrypted_password, :nonce, :salt)
+            )");
+
+            query.bindValue(":password_id", newPassword->getId());
+            query.bindValue(":encrypted_password", cryptoData.cipher);
+            query.bindValue(":nonce", cryptoData.nonce);
+            query.bindValue(":salt", cryptoData.salt);
+
+            if (query.exec()) {
+                qDebug() << "Password hash added for password with ID:" << newPassword->getId();
+            }
+            else {
+                qDebug() << "Failed to insert password:" << query.lastError().text();
+                disconnect();
+                return false;
+            }
+        }
+    }
+
+    QSqlDatabase::database().commit();
+    disconnect();
     return true;
 }

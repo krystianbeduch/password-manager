@@ -42,7 +42,6 @@ public:
     void setAdditionalDate(const QDateTime &additionalDate);
     void setGroup(const QString &group);
     void setPostition(int position);
-
     QString getFormattedDate() const;
 
 private:

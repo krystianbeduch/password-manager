@@ -40,7 +40,7 @@ qt_add_executable(password_manager
     PasswordManager.h
     passwordmanager.h passwordmanager.cpp
     databasemanager.h databasemanager.cpp
-    passwordMode.h
+    passwordmode.h
     exportpassworddialog.h exportpassworddialog.cpp exportpassworddialog.ui
     EncryptionUtils.cpp
     encryptionutils.h encryptionutils.cpp

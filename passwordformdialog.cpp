@@ -42,9 +42,11 @@ PasswordFormDialog::PasswordFormDialog(QWidget *parent,
     ui->setupUi(this);
     initUI();
 
-    ui->serviceNameLineEdit->setText(password->getServiceName());
-    ui->usernameLineEdit->setText(password->getUsername());
-    ui->groupComboBox->setCurrentText(password->getGroup());
+    if (password) {
+        ui->serviceNameLineEdit->setText(password->serviceName());
+        ui->usernameLineEdit->setText(password->username());
+        ui->groupComboBox->setCurrentText(password->group());
+    }
 
     connectSignals();
 }
@@ -58,34 +60,35 @@ void PasswordFormDialog::initUI() {
     QValidator *validator = new QRegularExpressionValidator(regex, this);
     ui->passwordLineEdit->setValidator(validator);
     if (m_mode == PasswordMode::AddMode) {
-        ui->headerLabel->setText("Add new password");
+        ui->headerLabel->setText(tr("Add new password"));
     }
     else if (m_mode == PasswordMode::EditMode) {
-        ui->headerLabel->setText("Edit password");
+        ui->headerLabel->setText(tr("Edit password"));
     }
 }
 
 void PasswordFormDialog::connectSignals() {
-    QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
-    disconnect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    if (QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok)) {
+        disconnect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
-    if (m_mode == PasswordMode::AddMode) {
-        setWindowTitle("Add password");
-        ui->headerLabel->setText("Add new password");
-        okButton->setText("Add");
-    }
-    else if (m_mode == PasswordMode::EditMode) {
-        setWindowTitle("Edit password");
-        ui->headerLabel->setText("Edit selected password");
-        okButton->setText("Edit");
-    }
+        if (m_mode == PasswordMode::AddMode) {
+            setWindowTitle(tr("Add password"));
+            ui->headerLabel->setText(tr("Add new password"));
+            okButton->setText(tr("Add"));
+        }
+        else if (m_mode == PasswordMode::EditMode) {
+            setWindowTitle(tr("Edit password"));
+            ui->headerLabel->setText(tr("Edit selected password"));
+            okButton->setText(tr("Edit"));
+        }
 
-    connect(okButton, &QPushButton::clicked, this, &PasswordFormDialog::onButtonClicked);
-    connect(ui->generatePasswordButton, &QPushButton::clicked, this, &PasswordFormDialog::onGeneratePasswordClicked);
-    connect(ui->showHidePasswordCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
-        ui->passwordLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
-        ui->showHidePasswordCheckBox->setText(checked ? "Hide password" : "Show password");
-    });
+        connect(okButton, &QPushButton::clicked, this, &PasswordFormDialog::onButtonClicked);
+        connect(ui->generatePasswordButton, &QPushButton::clicked, this, &PasswordFormDialog::onGeneratePasswordClicked);
+        connect(ui->showHidePasswordCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+            ui->passwordLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
+            ui->showHidePasswordCheckBox->setText(checked ? tr("Hide password") : tr("Show password"));
+        });
+    }
 }
 
 QString PasswordFormDialog::generateRandomPassword(int length) {
@@ -106,7 +109,7 @@ void PasswordFormDialog::onButtonClicked() {
         ui->usernameLineEdit->text().trimmed().isEmpty() ||
         ui->passwordLineEdit->text().trimmed().isEmpty()
         ) {
-        QMessageBox::warning(this, "Input Error", "All fields are required");
+        QMessageBox::warning(this, tr("Input Error"), tr("All fields are required"));
         return;
     }
     accept();
@@ -116,11 +119,11 @@ void PasswordFormDialog::onGeneratePasswordClicked() {
     QString generatedPassword = generateRandomPassword();
     ui->passwordLineEdit->setText(generatedPassword);
     ui->passwordLineEdit->setEchoMode(QLineEdit::Normal);
-    ui->showHidePasswordCheckBox->setText("Hide password");
+    ui->showHidePasswordCheckBox->setText(tr("Hide password"));
     ui->showHidePasswordCheckBox->setCheckState(Qt::Checked);
 }
 
-QString PasswordFormDialog::getServiceName() const { return ui->serviceNameLineEdit->text().trimmed(); }
-QString PasswordFormDialog::getUsername() const { return ui->usernameLineEdit->text().trimmed(); }
-QString PasswordFormDialog::getPassword() const { return ui->passwordLineEdit->text().trimmed(); }
-QString PasswordFormDialog::getGroup() const { return ui->groupComboBox->currentText(); }
+QString PasswordFormDialog::serviceName() const { return ui->serviceNameLineEdit->text().trimmed(); }
+QString PasswordFormDialog::username() const { return ui->usernameLineEdit->text().trimmed(); }
+QString PasswordFormDialog::password() const { return ui->passwordLineEdit->text().trimmed(); }
+QString PasswordFormDialog::group() const { return ui->groupComboBox->currentText(); }

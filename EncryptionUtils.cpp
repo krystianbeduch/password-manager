@@ -6,59 +6,17 @@ EncryptionUtils::EncryptionUtils() {
     }
 }
 
-// QByteArray EncryptionUtils::generateSalt(int length) {
-//     QByteArray salt(length, 0);
-//     randombytes_buf(salt.data(), length);
-//     return salt;
-// }
-
-// QByteArray EncryptionUtils::hashPasswordArgon(const QString &password, const QByteArray &salt) {
-//     const unsigned long long opslimit = 4;
-//     const size_t memlimit = 1 << 16;
-//     const int hashLength = 32;
-//     QByteArray hash(hashLength, 0);
-
-//     int result = crypto_pwhash(
-//         reinterpret_cast<unsigned char*>(hash.data()), hashLength,
-//         password.toUtf8().constData(), password.toUtf8().size(),
-//         reinterpret_cast<const unsigned char*>(salt.constData()),
-//         opslimit, memlimit,
-//         crypto_pwhash_ALG_ARGON2ID13
-//     );
-
-//     if (result != 0) {
-//         qDebug() << "Hashing failed";
-//         return QByteArray();
-//     }
-
-//     return hash;
-// }
-
-// QByteArray EncryptionUtils::hashPasswordSha512(const QString &password, const QByteArray &salt, int iterations) {
-//     QByteArray result = password.toUtf8() + salt;
-//     for (int i = 0; i < iterations; i++)     {
-//         result = QCryptographicHash::hash(result, QCryptographicHash::Sha512);
-//         result += salt;
-//     }
-//     return result.toHex();
-// }
-
-// bool EncryptionUtils::verifyPassword(const QString &password, const QByteArray &salt, const QByteArray &hash) {
-//     QByteArray calculatedHash = hashPassword(password, salt);
-//     return calculatedHash == hash;
-// }
-
 QByteArray EncryptionUtils::generateSaltToEncrypt() {
     QByteArray salt(crypto_pwhash_SALTBYTES, 0);
     randombytes_buf(salt.data(), salt.size());
     return salt;
 }
 
-bool EncryptionUtils::generateKey() {
-    m_key.resize(crypto_aead_xchacha20poly1305_ietf_KEYBYTES);
-    randombytes_buf(m_key.data(), m_key.size());
-    return true;
-}
+// bool EncryptionUtils::generateKey() {
+//     m_key.resize(crypto_aead_xchacha20poly1305_ietf_KEYBYTES);
+//     randombytes_buf(m_key.data(), m_key.size());
+//     return true;
+// }
 
 bool EncryptionUtils::generateKeyFromPassword(const QString &password, const QByteArray &salt) {
     if (salt.size() != crypto_pwhash_SALTBYTES) {
@@ -155,6 +113,6 @@ bool EncryptionUtils::verifyMainPassword(const QString &userPassword, const Cryp
 }
 
 void EncryptionUtils::setKey(const QByteArray &key) { m_key = key; }
-QByteArray EncryptionUtils::getKey() const { return m_key; }
+QByteArray EncryptionUtils::key() const { return m_key; }
 void EncryptionUtils::setMainPassword(const QByteArray &mainPassword) { m_mainPassword = mainPassword; }
-QByteArray EncryptionUtils::getMainPassword() const { return m_mainPassword; }
+QByteArray EncryptionUtils::mainPassword() const { return m_mainPassword; }

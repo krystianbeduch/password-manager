@@ -19,7 +19,7 @@ public:
     explicit LoginDialog(QWidget *parent = nullptr);
     ~LoginDialog();
 
-    QString getPassword() const;
+    QString password() const;
 
 private:
     Ui::LoginDialog *ui;

@@ -34,10 +34,10 @@ public:
     PasswordFormDialog(QWidget *parent, PasswordManager *password, PasswordMode mode);
      ~PasswordFormDialog();
 
-    QString getServiceName() const;
-    QString getUsername() const;
-    QString getPassword() const;
-    QString getGroup() const;
+    [[nodiscard]] QString serviceName() const;
+    [[nodiscard]] QString username() const;
+    [[nodiscard]] QString password() const;
+    [[nodiscard]] QString group() const;
 
 private slots:
     void onButtonClicked();
@@ -49,7 +49,7 @@ private:
 
     void initUI();
     void connectSignals();
-    QString generateRandomPassword(int length = 24);
+    [[nodiscard]] QString generateRandomPassword(int length = 24);
 };
 
 #endif // ADDPASSWORDDIALOG_H

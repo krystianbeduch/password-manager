@@ -13,18 +13,21 @@ ExportPasswordDialog::ExportPasswordDialog(QWidget *parent,
     connect(ui->csvCheckBox, &QCheckBox::toggled, ui->csvFilenameLineEdit, &QLineEdit::setVisible);
     connect(ui->jsonCheckBox, &QCheckBox::toggled, ui->jsonFilenameLineEdit, &QLineEdit::setVisible);
     connect(ui->xmlCheckBox, &QCheckBox::toggled, ui->xmlFilenameLineEdit, &QLineEdit::setVisible);
-
     disconnect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
-    okButton->setText("Export");
-    connect(okButton, &QPushButton::clicked, this, &ExportPasswordDialog::onExportClicked);
+    if (QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok)) {
+        okButton->setText("Export");
+        connect(okButton, &QPushButton::clicked, this, &ExportPasswordDialog::onExportClicked);
+    }
 
     ui->csvFilenameLineEdit->setVisible(false);
     ui->jsonFilenameLineEdit->setVisible(false);
     ui->xmlFilenameLineEdit->setVisible(false);
 
-    for (PasswordManager *p : m_passwords) {
-        QString label = QString::number(p->getId()) + " | " + p->getServiceName() + " | " + p->getUsername();
+    for (const auto *p : std::as_const(m_passwords)) {
+        QString label = QString("%1 | %2 | %3")
+                            .arg(QString::number(p->id()),
+                                 p->serviceName(),
+                                 p->username());
         QListWidgetItem *item = new QListWidgetItem(label);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
@@ -61,19 +64,10 @@ void ExportPasswordDialog::onExportClicked() {
         return;
     }
 
-    bool fileNameCorrected = true;
-    if (ui->csvCheckBox->isChecked() && ui->csvFilenameLineEdit->text().isEmpty()) {
-        QMessageBox::warning(this, "No filename", "Enter the name of the CSV file");
-        fileNameCorrected = false;
-    }
-    if (ui->jsonCheckBox->isChecked() && ui->jsonFilenameLineEdit->text().isEmpty()) {
-        QMessageBox::warning(this, "No filename", "Enter the name of the JSON file");
-        fileNameCorrected = false;
-    }
-    if (ui->xmlCheckBox->isChecked() && ui->xmlFilenameLineEdit->text().isEmpty()) {
-        QMessageBox::warning(this, "No filename", "Enter the name of the XML file");
-        fileNameCorrected = false;
-    }
+    bool fileNameCorrected =
+        isValidFilename(ui->csvCheckBox, ui->csvFilenameLineEdit, "CSV") &&
+        isValidFilename(ui->jsonCheckBox, ui->jsonFilenameLineEdit, "JSON") &&
+        isValidFilename(ui->xmlCheckBox, ui->xmlFilenameLineEdit, "XML");
 
     if (!fileNameCorrected) {
         return;
@@ -86,11 +80,19 @@ void ExportPasswordDialog::onExportClicked() {
     accept();
 }
 
+bool ExportPasswordDialog::isValidFilename(QCheckBox *checkBox, QLineEdit *lineEdit, const QString &formatName) {
+    if (checkBox->isChecked() && lineEdit->text().isEmpty()) {
+        QMessageBox::warning(this, "No filename", tr("Enter the name of the %1 file").arg(formatName));
+        return false;
+    }
+    return true;
+}
+
 QVector<PasswordManager*> ExportPasswordDialog::selectPasswords() const { return m_selectedPasswords; }
-bool ExportPasswordDialog::isCSVChcecked() const { return ui->csvCheckBox->isChecked(); }
+bool ExportPasswordDialog::isCSVChecked() const { return ui->csvCheckBox->isChecked(); }
 QString ExportPasswordDialog::csvFileName() const { return ui->csvFilenameLineEdit->text().trimmed(); }
-bool ExportPasswordDialog::isJSONChcecked() const { return ui->jsonCheckBox->isChecked(); }
+bool ExportPasswordDialog::isJSONChecked() const { return ui->jsonCheckBox->isChecked(); }
 QString ExportPasswordDialog::jsonFileName() const { return ui->jsonFilenameLineEdit->text().trimmed(); }
-bool ExportPasswordDialog::isXMLChcecked() const { return ui->xmlCheckBox->isChecked(); }
+bool ExportPasswordDialog::isXMLChecked() const { return ui->xmlCheckBox->isChecked(); }
 QString ExportPasswordDialog::xmlFileName() const { return ui->xmlFilenameLineEdit->text().trimmed(); }
 QString ExportPasswordDialog::dir() const { return m_dir; }

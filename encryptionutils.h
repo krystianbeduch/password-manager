@@ -4,29 +4,24 @@
 #include <QByteArray>
 #include <QString>
 #include <QDebug>
-#include "cryptodata.h"
 #include <sodium.h>
+#include "cryptodata.h"
 
 class EncryptionUtils {
 public:
-    // static QByteArray generateSaltToHash(int length = 32);
-    // static QByteArray hashPasswordArgon(const QString &password, const QByteArray &salt, int iterations = 100000);
-
-    // static QByteArray hashPasswordSha512(const QString &password, const QByteArray &salt);
-
     EncryptionUtils();
-    QByteArray decrypt(const QByteArray &cipherText, const QByteArray &nonce);
-    QByteArray encrypt(const QByteArray &plainText, QByteArray &nonceOut);
-    bool generateKey(); // losowy klucz
-    bool generateKeyFromPassword(const QString &password, const QByteArray &salt); // klucz na podstawie hasla logowania
-    QByteArray generateSaltToEncrypt();
-    std::optional<CryptoData> prepareCryptoData(const QString &mainPassword, const QString &passwordToEncrypt);
-    bool verifyMainPassword(const QString &userPassword, const CryptoData &cryptoData);
+    [[nodiscard]] QByteArray decrypt(const QByteArray &cipherText, const QByteArray &nonce);
+    [[nodiscard]] QByteArray encrypt(const QByteArray &plainText, QByteArray &nonceOut);
+    // [[nodiscard]] bool generateKey(); // losowy klucz
+    [[nodiscard]] bool generateKeyFromPassword(const QString &password, const QByteArray &salt); // klucz na podstawie hasla logowania
+    [[nodiscard]] QByteArray generateSaltToEncrypt();
+    [[nodiscard]] std::optional<CryptoData> prepareCryptoData(const QString &mainPassword, const QString &passwordToEncrypt);
+    [[nodiscard]] bool verifyMainPassword(const QString &userPassword, const CryptoData &cryptoData);
 
     void setKey(const QByteArray &key);
-    QByteArray getKey() const;
+    QByteArray key() const;
     void setMainPassword(const QByteArray &mainPassword);
-    QByteArray getMainPassword() const;
+    QByteArray mainPassword() const;
 
 private:
     QByteArray m_key;

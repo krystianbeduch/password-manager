@@ -20,7 +20,7 @@ public:
                          const QVector<PasswordManager*> passwordList = {},
                          PasswordMode mode = PasswordMode::EditMode);
     ~SelectPasswordDialog();
-    int getSelectedIndex() const;
+    [[nodiscard]] int selectedIndex() const;
 
 private:
     Ui::SelectPasswordDialog *ui;

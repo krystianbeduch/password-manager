@@ -15,4 +15,4 @@ LoginDialog::~LoginDialog() {
     delete ui;
 }
 
-QString LoginDialog::getPassword() const { return ui->lineEdit->text().trimmed(); }
+QString LoginDialog::password() const { return ui->lineEdit->text().trimmed(); }

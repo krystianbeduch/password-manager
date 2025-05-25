@@ -39,7 +39,7 @@ public:
 private slots:
     void addPassword();
     void handlePasswordSelection(PasswordMode mode);
-    void seletePasswordToEdit();
+    void selectPasswordToEdit();
     void selectPasswordToDelete();
     void editPassword(int index);
     void deletePassword(int index);
@@ -52,35 +52,43 @@ private slots:
     void moveSelectedRowUp();
     void moveSelectedRowDown();
     void moveSelectedRowToTop();
-    void moveSelectedRowToDown();
+    void moveSelectedRowToBottom();
     void savePositions();
 
     void showAboutAuthor();
     void showAboutTechnologies();
-
     void checkLoginTimeout();
+
+    void onSortOptionChanged(int index);
 
 private:
     Ui::MainWindow *ui;
     QVector<PasswordManager*> m_passwordList;
-    int m_idCounter = 1;
+    int m_idCounter;
     DatabaseManager *m_dbManager;
+    EncryptionUtils *m_crypto;
+
     QString m_host;
     int m_port;
     QString m_dbName;
     QString m_username;
     QString m_password;
-    EncryptionUtils *m_crypto;
+
     QLabel *m_statusLabel;
+    bool m_customSortActive;
     bool m_isLogged;
     QDateTime m_lastLoginTime;
     QTimer *m_authTimer;
 
+
+    void setupConnections();
     void updatePasswordTable();
     void loadPasswordsToTable();
-    bool loadDatabaseConfig(const QString &configFilePath);
-    QString generateDotStringForPasswordLineEdit(QLineEdit *lineEdit);
+    [[nodiscard]] bool loadDatabaseConfig(const QString &configFilePath);
+    [[nodiscard]] QString generateDotStringForPasswordLineEdit(QLineEdit *lineEdit);
     void resizeEvent(QResizeEvent *e);
     void moveSelectedRowTo(int targetRow);
+    void sortPasswordListByColumn(int column, Qt::SortOrder order);
+
 };
 #endif // MAINWINDOW_H

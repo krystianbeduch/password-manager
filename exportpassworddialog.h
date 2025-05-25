@@ -30,14 +30,17 @@ public:
                                   const QVector<PasswordManager*> &passwords = {});
     ~ExportPasswordDialog();
 
-    QVector<PasswordManager*> selectPasswords() const;
-    bool isCSVChcecked() const;
-    QString csvFileName() const;
-    bool isJSONChcecked() const;
-    QString jsonFileName() const;
-    bool isXMLChcecked() const;
-    QString xmlFileName() const;
-    QString dir() const;
+    [[nodiscard]] QVector<PasswordManager*> selectPasswords() const;
+    [[nodiscard]] bool isCSVChecked() const;
+    [[nodiscard]] QString csvFileName() const;
+    [[nodiscard]] bool isJSONChecked() const;
+    [[nodiscard]] QString jsonFileName() const;
+    [[nodiscard]] bool isXMLChecked() const;
+    [[nodiscard]] QString xmlFileName() const;
+    [[nodiscard]] bool isValidFilename(QCheckBox *checkBox, QLineEdit *lineEdit, const QString &formatName);
+    [[nodiscard]] QString dir() const;
+
+
 
 
 private slots:

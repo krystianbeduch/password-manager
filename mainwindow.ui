@@ -16,6 +16,65 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QComboBox" name="sortByComboBox">
+      <item>
+       <property name="text">
+        <string>Sort by your own items</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>ID (ASC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>ID (DESC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Service name (ASC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Service name (DESC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Username (ASC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Username (DESC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Group (ASC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Group (DESC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Addition date (ASC)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Addition date (DESC)</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
      <widget class="QTableWidget" name="tableWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">

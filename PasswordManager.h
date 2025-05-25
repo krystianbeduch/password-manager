@@ -12,6 +12,14 @@ public:
                     const QString &username,
                     const QString &group,
                     const QDateTime &additionalDate);
+
+    PasswordManager(int id,
+                    const QString &serviceName,
+                    const QString &username,
+                    const QString &group,
+                    const QDateTime &additionalDate,
+                    int position);
+
     PasswordManager(const QString &serviceName,
                     const QString &username,
                     const QString &group,
@@ -25,13 +33,14 @@ public:
                     const QString &group);
     ~PasswordManager() = default;
 
-    int getId() const;
-    QString getServiceName() const;
-    QString getUsername() const;
-    QString getPassword() const;
-    QDateTime getAdditionalDate() const;
-    QString getGroup() const;
-    int getPosition() const;
+    [[nodiscard]] int id() const;
+    [[nodiscard]] QString serviceName() const;
+    [[nodiscard]] QString username() const;
+    [[nodiscard]] QString password() const;
+    [[nodiscard]] QDateTime additionalDate() const;
+    [[nodiscard]] QString group() const;
+    [[nodiscard]] int position() const;
+    [[nodiscard]] QString formattedDate() const;
 
     void setId(int id);
     void setServiceName(const QString &serviceName);
@@ -40,7 +49,6 @@ public:
     void setGroup(const QString &group);
     void setAdditionalDate(const QDateTime &additionalDate);
     void setPostition(int position);
-    QString getFormattedDate() const;
 
 private:
     int m_id;

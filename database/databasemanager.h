@@ -1,9 +1,9 @@
 #ifndef DATABASEMANAGER_H
 #define DATABASEMANAGER_H
 
-#include "passwordmanager.h"
-#include "encryptionutils.h"
-#include "cryptodata.h"
+#include "../models/passwordmanager.h"
+#include "../encryption/encryptionutils.h"
+#include "../encryption/cryptodata.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>

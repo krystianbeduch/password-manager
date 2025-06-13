@@ -1,8 +1,8 @@
 #ifndef SELECTPASSWORDDIALOG_H
 #define SELECTPASSWORDDIALOG_H
 
-#include "passwordmanager.h"
-#include "passwordmode.h"
+#include "models/passwordmanager.h"
+#include "models/passwordmode.h"
 #include <QDialog>
 #include <QVector>
 #include <QMessageBox>

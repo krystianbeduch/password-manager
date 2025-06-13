@@ -1,9 +1,9 @@
-#include "databasemanager.h"
+#include "database/databasemanager.h"
 #include "passwordformdialog.h"
 #include "selectpassworddialog.h"
 #include "exportpassworddialog.h"
-#include "fileservice.h"
-#include "cryptodata.h"
+#include "services/fileservice.h"
+#include "encryption/cryptodata.h"
 #include "logindialog.h"
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
@@ -33,11 +33,35 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    CryptoData cryptoMainPassword = m_dbManager->fetchMainPassword();
-    if(!(m_crypto->verifyMainPassword(dialog.password(), cryptoMainPassword))) {
-        QMessageBox::critical(this, "Wrong password", "Incorrect password");
-        this->close();
-        return;
+    if (dialog.isNewProfileRequested()) {
+        const QString pass = dialog.password();
+        const QByteArray salt = m_crypto->generateSaltToEncrypt();
+        if (!(m_crypto->generateKeyFromPassword(pass, salt))) {
+            return;
+        }
+        QByteArray nonce;
+        const QByteArray newMainPass = m_crypto->encrypt(pass.toUtf8(), nonce);
+
+        CryptoData cryptoNewMainPassword(newMainPass, salt, nonce);
+        if (!(m_dbManager->addMainPassword(cryptoNewMainPassword) &&
+              m_crypto->verifyMainPassword(pass, cryptoNewMainPassword) &&
+              m_dbManager->truncatePasswords() &&
+              m_dbManager->insertSamplePasswordsData(m_crypto))) {
+
+            QMessageBox::critical(this, tr("Error"), tr("Error while creating a new account"));
+            return;
+        }
+
+        QMessageBox::information(this, tr("New profile created"), tr("New profile has been created\n"
+                                                                     "Remember if you lose your password all your data will be lost!"));
+    }
+    else {
+        const CryptoData cryptoMainPassword = m_dbManager->fetchMainPassword();
+        if (!(m_crypto->verifyMainPassword(dialog.password(), cryptoMainPassword))) {
+            QMessageBox::critical(this, tr("Wrong password"), tr("Incorrect password"));
+            this->close();
+            return;
+        }
     }
 
     m_lastLoginTime = QDateTime::currentDateTime();
@@ -49,22 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     setupConnections();
-
-    // Inserting sample passwords data
-    // if (!(m_dbManager->insertSamplePasswordsData(m_crypto))) {
-    //     qDebug() << tr("Sample data password not inserted");
-    //     return;
-    // }
     loadPasswordsToTable();
-
-    // Initializing main password to DB
-    // QString pass = "1234";
-    // QByteArray salt = m_crypto->generateSaltToEncrypt();
-    // m_crypto->generateKeyFromPassword(pass, salt);
-    // QByteArray nonce;
-    // QByteArray mainPassword = m_crypto->encrypt(pass.toUtf8(), nonce);
-    // CryptoData cryptoMainPassword(mainPassword, salt, nonce);
-    // m_dbManager->addMainPassword(cryptoMainPassword);
 }
 
 MainWindow::~MainWindow() {
@@ -88,11 +97,6 @@ void MainWindow::setupConnections() {
     connect(ui->actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
     connect(ui->actionAboutAuthor, &QAction::triggered, this, &MainWindow::showAboutAuthor);
     connect(ui->actionAboutTechnologies, &QAction::triggered, this, &MainWindow::showAboutTechnologies);
-    // connect(ui->tableWidget->horizontalHeader(), &QHeaderView::sectionClicked, this, [=](int column) {
-    //     static Qt::SortOrder order = Qt::AscendingOrder;
-    //     sortPasswordListByColumn(column, order);
-    //     order = (order == Qt::AscendingOrder) ? Qt::DescendingOrder : Qt::AscendingOrder;
-    // });
     connect(ui->sortByComboBox, &QComboBox::currentIndexChanged, this, &MainWindow::onSortOptionChanged);
 }
 
@@ -196,12 +200,10 @@ void MainWindow::updatePasswordTable() {
         showButton->setProperty("isPasswordVisible", false);
 
         connect(editButton, &QPushButton::clicked, this, [this, index = i]() {
-            // int index = editButton->property("index").toInt();
             editPassword(index);
         });
 
         connect(deleteButton, &QPushButton::clicked, this, [this, index = i]() {
-            // int index = deleteButton->property("index").toInt();
             deletePassword(index);
         });
 

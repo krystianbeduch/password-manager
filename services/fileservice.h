@@ -1,7 +1,7 @@
 #ifndef FILESERVICE_H
 #define FILESERVICE_H
 
-#include "passwordmanager.h"
+#include "../models/passwordmanager.h"
 #include <QString>
 #include <QDebug>
 #include <QFile>

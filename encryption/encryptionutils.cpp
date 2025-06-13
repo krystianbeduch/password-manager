@@ -12,12 +12,6 @@ QByteArray EncryptionUtils::generateSaltToEncrypt() {
     return salt;
 }
 
-// bool EncryptionUtils::generateKey() {
-//     m_key.resize(crypto_aead_xchacha20poly1305_ietf_KEYBYTES);
-//     randombytes_buf(m_key.data(), m_key.size());
-//     return true;
-// }
-
 bool EncryptionUtils::generateKeyFromPassword(const QString &password, const QByteArray &salt) {
     if (salt.size() != crypto_pwhash_SALTBYTES) {
         qWarning() << "Invalid salt size!";
@@ -61,6 +55,12 @@ QByteArray EncryptionUtils::encrypt(const QByteArray &plainText, QByteArray &non
 }
 
 QByteArray EncryptionUtils::decrypt(const QByteArray &cipherText, const QByteArray &nonce) {
+    qDebug() << cipherText;
+    qDebug() << "\ncipher ^ nonce _";
+    qDebug() << nonce;
+    qDebug() << "\n";
+
+
     QByteArray decrypted;
     decrypted.resize(cipherText.size() - crypto_aead_xchacha20poly1305_ietf_ABYTES);
 

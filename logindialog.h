@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QDebug>
 #include <QString>
+#include <QMessageBox>
 #include <QByteArray>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
@@ -20,9 +21,15 @@ public:
     ~LoginDialog();
 
     QString password() const;
+    bool isNewProfileRequested() const;
+
+private slots:
+    void onNewProfileCheckboxToggled(bool checked);
+    void onAccept();
 
 private:
     Ui::LoginDialog *ui;
+    bool m_newProfileRequested;
 };
 
 #endif // LOGINDIALOG_H

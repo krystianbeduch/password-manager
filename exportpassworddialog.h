@@ -1,7 +1,7 @@
 #ifndef EXPORTPASSWORDDIALOG_H
 #define EXPORTPASSWORDDIALOG_H
 
-#include "passwordmanager.h"
+#include "models/passwordmanager.h"
 #include <QDialog>
 #include <QVector>
 #include <QListWidget>

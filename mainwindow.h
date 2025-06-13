@@ -2,10 +2,10 @@
 #define MAINWINDOW_H
 
 #include "ui_mainwindow.h"
-#include "databasemanager.h"
-#include "passwordmanager.h"
-#include "passwordmode.h"
-#include "encryptionutils.h"
+#include "database/databasemanager.h"
+#include "models/passwordmanager.h"
+#include "models/passwordmode.h"
+#include "encryption/encryptionutils.h"
 
 #include <QMainWindow>
 #include <QDateTime>
@@ -89,6 +89,5 @@ private:
     void resizeEvent(QResizeEvent *e);
     void moveSelectedRowTo(int targetRow);
     void sortPasswordListByColumn(int column, Qt::SortOrder order);
-
 };
 #endif // MAINWINDOW_H

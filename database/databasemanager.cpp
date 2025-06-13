@@ -591,6 +591,7 @@ CryptoData DatabaseManager::fetchMainPassword() {
         SELECT
             encrypted_main_password, salt, nonce
         FROM public.login_data
+        ORDER BY id DESC
         LIMIT 1;
     )");
 

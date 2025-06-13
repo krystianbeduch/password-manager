@@ -12,7 +12,6 @@ public:
     EncryptionUtils();
     [[nodiscard]] QByteArray decrypt(const QByteArray &cipherText, const QByteArray &nonce);
     [[nodiscard]] QByteArray encrypt(const QByteArray &plainText, QByteArray &nonceOut);
-    // [[nodiscard]] bool generateKey(); // losowy klucz
     [[nodiscard]] bool generateKeyFromPassword(const QString &password, const QByteArray &salt); // klucz na podstawie hasla logowania
     [[nodiscard]] QByteArray generateSaltToEncrypt();
     [[nodiscard]] std::optional<CryptoData> prepareCryptoData(const QString &mainPassword, const QString &passwordToEncrypt);

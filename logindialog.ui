@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>301</width>
-    <height>112</height>
+    <width>351</width>
+    <height>163</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,21 +32,45 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLineEdit" name="passwordLineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="echoMode">
         <enum>QLineEdit::EchoMode::Password</enum>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+      <widget class="QLineEdit" name="password2LineEdit">
+       <property name="echoMode">
+        <enum>QLineEdit::EchoMode::Password</enum>
        </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+       <property name="placeholderText">
+        <string>Repeat password</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="newProfileCheckBox">
+         <property name="text">
+          <string>Create new profile</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="standardButtons">
+          <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

@@ -610,3 +610,101 @@ CryptoData DatabaseManager::fetchMainPassword() {
     disconnectDb();
     return cryptoData;
 }
+
+QStringList DatabaseManager::fetchGroupNames() {
+    if (!connectDb()) {
+        qWarning() << tr("Failed to connect to database");
+        return {};
+    }
+
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        SELECT
+            group_name
+        FROM public.groups
+        ORDER BY group_name ASC;
+    )");
+
+    if (!query.exec()) {
+        qDebug() << tr("Failed to fetch group names: %1").arg(query.lastError().text());
+        disconnectDb();
+        return {};
+    }
+
+    QStringList groupList;
+    while (query.next()) {
+        groupList.append(query.value(0).toString());
+    }
+    disconnectDb();
+    return groupList;
+}
+
+bool DatabaseManager::addGroup(const QString &groupName) {
+    if (!connectDb()) {
+        qWarning() << tr("Failed to connect to database");
+        return false;
+    }
+
+    if (groupName.isEmpty()) {
+        qWarning() << tr("Empty group name");
+        return false;
+    }
+
+    QSqlDatabase::database().transaction();
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        INSERT INTO public.groups
+            (group_name)
+        VALUES
+            (:group_name);
+    )");
+
+    query.bindValue(":group_name", groupName);
+
+    if (query.exec()) {
+        qDebug() << tr("Group inserted");
+        QSqlDatabase::database().commit();
+        disconnectDb();
+        return true;
+    }
+    else {
+        qDebug() << tr("Failed to insert group: %1").arg(query.lastError().text());
+        QSqlDatabase::database().rollback();
+        disconnectDb();
+        return false;
+    }
+}
+
+bool DatabaseManager::deleteGroup(const QString &groupName) {
+    if (!connectDb()) {
+        qWarning() << tr("Failed to connect to database");
+        return false;
+    }
+
+    QSqlDatabase::database().transaction();
+    QSqlQuery query(m_db);
+    query.prepare("DELETE FROM public.groups WHERE group_name = :group_name");
+    query.bindValue(":group_name", groupName);
+
+    if (query.exec()) {
+        if (query.numRowsAffected() > 0) {
+            qDebug() << tr("Deleted group: %1").arg(groupName);
+        }
+        else {
+            QMessageBox::warning(nullptr, tr("No record"), tr("No record found with name: %1").arg(groupName));
+            QSqlDatabase::database().rollback();
+            disconnectDb();
+            return false;
+        }
+    }
+    else {
+        qDebug() << tr("Failed to delete group: %1").arg(query.lastError().text());
+        QSqlDatabase::database().rollback();
+        disconnectDb();
+        return false;
+    }
+
+    QSqlDatabase::database().commit();
+    disconnectDb();
+    return true;
+}

@@ -22,8 +22,12 @@ CREATE TABLE IF NOT EXISTS login_data (
     nonce BYTEA NOT NULL
 );
 
--- INSERT INTO passwords (service_name, username, password, group_name)
--- VALUES
--- ('Google', 'user1', 'password123', 'social media'),
--- ('Facebook', 'user2', 'mypassword456', 'social media'),
--- ('CorporateEmail', 'user3', 'securePassword789', 'work');
+CREATE TABLE IF NOT EXISTS groups (
+    id SERIAL PRIMARY KEY,
+    group_name VARCHAR(255) NOT NULL
+);
+
+INSERT INTO groups (group_name) VALUES ('Work');
+INSERT INTO groups (group_name) VALUES ('Personal');
+INSERT INTO groups (group_name) VALUES ('Banking');
+INSERT INTO groups (group_name) VALUES ('Email');

@@ -41,6 +41,9 @@ public:
     [[nodiscard]] bool addPasswordList(QHash<PasswordManager*, CryptoData> &passwords);
     [[nodiscard]] bool addMainPassword(CryptoData &cryptoData);
     [[nodiscard]] CryptoData fetchMainPassword();
+    [[nodiscard]] QStringList fetchGroupNames();
+    [[nodiscard]] bool addGroup(const QString &groupName);
+    [[nodiscard]] bool deleteGroup(const QString &groupName);
 
 private:
     QString m_host;

@@ -5,6 +5,7 @@
 #include "models/passwordmode.h"
 #include <QDialog>
 #include <QVector>
+#include <QStringList>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -19,8 +20,12 @@ public:
     SelectPasswordDialog(QWidget *parent = nullptr,
                          const QVector<PasswordManager*> passwordList = {},
                          PasswordMode mode = PasswordMode::EditMode);
+    SelectPasswordDialog(QWidget *parent,
+                         const QStringList groupsName,
+                         PasswordMode mode = PasswordMode::GroupMode);
     ~SelectPasswordDialog();
     [[nodiscard]] int selectedIndex() const;
+    [[nodiscard]] QString selectedText() const;
 
 private:
     Ui::SelectPasswordDialog *ui;

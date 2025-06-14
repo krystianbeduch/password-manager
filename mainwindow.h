@@ -80,7 +80,6 @@ private:
     QDateTime m_lastLoginTime;
     QTimer *m_authTimer;
 
-
     void setupConnections();
     void updatePasswordTable();
     void loadPasswordsToTable();

@@ -1,43 +1,27 @@
 #include "passwordformdialog.h"
+#include "selectpassworddialog.h"
 
 PasswordFormDialog::PasswordFormDialog(QWidget *parent,
-                                       PasswordMode mode)
+                                       PasswordMode mode,
+                                       DatabaseManager *dbManager)
     : QDialog(parent)
     , ui(new Ui::PasswordFormDialog)
     , m_mode(mode)
+    , m_dbManager(dbManager)
 {
     ui->setupUi(this);
     initUI();
-    connectSignals();
-}
-
-PasswordFormDialog::PasswordFormDialog(QWidget *parent,
-                                    const QString &serviceName,
-                                    const QString &username,
-                                    const QString &password,
-                                    const QString &group,
-                                    PasswordMode mode)
-    : QDialog(parent)
-    , ui(new Ui::PasswordFormDialog)
-    , m_mode(mode)
-{
-    ui->setupUi(this);
-    initUI();
-
-    ui->serviceNameLineEdit->setText(serviceName);
-    ui->usernameLineEdit->setText(username);
-    ui->passwordLineEdit->setText(password);
-    ui->groupComboBox->setCurrentText(group);
-
     connectSignals();
 }
 
 PasswordFormDialog::PasswordFormDialog(QWidget *parent,
                                        PasswordManager *password,
-                                       PasswordMode mode)
+                                       PasswordMode mode,
+                                       DatabaseManager *dbManager)
     : QDialog(parent)
     , ui(new Ui::PasswordFormDialog)
     , m_mode(mode)
+    , m_dbManager(dbManager)
 {
     ui->setupUi(this);
     initUI();
@@ -65,6 +49,8 @@ void PasswordFormDialog::initUI() {
     else if (m_mode == PasswordMode::EditMode) {
         ui->headerLabel->setText(tr("Edit password"));
     }
+    m_groupNames = m_dbManager->fetchGroupNames();
+    ui->groupComboBox->addItems(m_groupNames);
 }
 
 void PasswordFormDialog::connectSignals() {
@@ -88,6 +74,8 @@ void PasswordFormDialog::connectSignals() {
             ui->passwordLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
             ui->showHidePasswordCheckBox->setText(checked ? tr("Hide password") : tr("Show password"));
         });
+        connect(ui->addGroupButton, &QPushButton::clicked, this, &PasswordFormDialog::onAddGroupButtonClicked);
+        connect(ui->deleteGroupButton, &QPushButton::clicked, this, &PasswordFormDialog::onDeleteGroupButtonClicked);
     }
 }
 
@@ -121,6 +109,39 @@ void PasswordFormDialog::onGeneratePasswordClicked() {
     ui->passwordLineEdit->setEchoMode(QLineEdit::Normal);
     ui->showHidePasswordCheckBox->setText(tr("Hide password"));
     ui->showHidePasswordCheckBox->setCheckState(Qt::Checked);
+}
+
+void PasswordFormDialog::onAddGroupButtonClicked() {
+    bool ok;
+    QString newGroup = QInputDialog::getText(this, tr("New group"),
+                                             tr("Enter group name:"),
+                                             QLineEdit::Normal, "", &ok);
+    if (ok && !newGroup.trimmed().isEmpty()) {
+        newGroup = newGroup.trimmed();
+
+        if (m_groupNames.contains(newGroup, Qt::CaseInsensitive)) {
+            QMessageBox::information(this, tr("Group exists"), tr("Group with this name already exists"));
+            return;
+        }
+
+        if (!m_dbManager->addGroup(newGroup)) {
+            QMessageBox::critical(this, tr("Error"), tr("Failed to add new group"));
+            return;
+        }
+
+        m_groupNames = m_dbManager->fetchGroupNames();
+        ui->groupComboBox->addItem(newGroup);
+        ui->groupComboBox->setCurrentText(newGroup);
+    }
+}
+
+void PasswordFormDialog::onDeleteGroupButtonClicked() {
+    SelectPasswordDialog dialog(this, m_groupNames);
+    if (dialog.exec() == QDialog::Accepted && m_dbManager->deleteGroup(dialog.selectedText())) {
+        QMessageBox::information(this, tr("Group deleted"), tr("Group %1 has been removed").arg(dialog.selectedText()));
+        m_groupNames = m_dbManager->fetchGroupNames();
+        ui->groupComboBox->removeItem(dialog.selectedIndex());
+    }
 }
 
 QString PasswordFormDialog::serviceName() const { return ui->serviceNameLineEdit->text().trimmed(); }

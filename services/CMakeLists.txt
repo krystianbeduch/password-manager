@@ -3,4 +3,4 @@ add_library(services
     fileservice.h
 )
 
-target_link_libraries(services Qt6::Core Qt6::Widgets)
+target_link_libraries(services Qt6::Core Qt6::Widgets Qt6::Sql)

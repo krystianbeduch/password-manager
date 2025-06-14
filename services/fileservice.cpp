@@ -78,7 +78,7 @@ void FileService::exportToXML(const QString &path, const QVector<PasswordManager
     file.close();
 }
 
-QVector<PasswordManager*> FileService::parseCSV(const QString &path) {
+QVector<PasswordManager*> FileService::parseCSV(const QString &path, DatabaseManager *dbManager) {
     QFile file(path);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::warning(nullptr, tr("Error"), tr("Failed to open CSV file"));
@@ -92,13 +92,13 @@ QVector<PasswordManager*> FileService::parseCSV(const QString &path) {
     while(!in.atEnd()) {
         QString line = in.readLine().trimmed();
         QStringList parts = line.split(";");
-        if (parts.size() >= 3 && isValidGroup(parts[4])) {
+        if (parts.size() >= 3 && isValidGroup(parts[4], dbManager)) {
             passwords.append(new PasswordManager(parts[1], parts[2], parts[3], parts[4]));
         }
         else {
             QMessageBox::warning(nullptr, "Error", "Incorrect CSV file format. Expected format:\n"
                                                    "ID;Serice name;Username;Password;Group;Additional date (not required)\n\n"
-                                                   "The group is: 'Work', 'Personal', 'Banking' or 'Email'");
+                                                   "The group must be created in advance");
             return passwords;
         }
     }
@@ -106,7 +106,7 @@ QVector<PasswordManager*> FileService::parseCSV(const QString &path) {
     return passwords;
 }
 
-QVector<PasswordManager*> FileService::parseJSON(const QString &path) {
+QVector<PasswordManager*> FileService::parseJSON(const QString &path, DatabaseManager *dbManager) {
     QFile file(path);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::warning(nullptr, tr("Error"), tr("Failed to open JSON file"));
@@ -138,13 +138,13 @@ QVector<PasswordManager*> FileService::parseJSON(const QString &path) {
                                                    "\t\t        \"service_name\": \"service1\",\n"
                                                    "\t\t        \"username\": \"user1\",\n"
                                                    "\t\t        \"password\": \"password1\",\n"
-                                                   "\t\t        \"group\": \"Work|Personal|Banking|Email\"\n"
+                                                   "\t\t        \"group\": \"group1\"\n"
                                                    "\t    },\n"
                                                    "\t    {\n"
                                                    "\t\t        \"service_name\": \"service2\",\n"
                                                    "\t\t        \"username\": \"user2\",\n"
                                                    "\t\t        \"password\": \"password2\",\n"
-                                                   "\t\t        \"group\": \"Work|Personal|Banking|Email\"\n"
+                                                   "\t\t        \"group\": \"group2\"\n"
                                                    "\t    }\n"
                                                    "]"));
             return {};
@@ -153,9 +153,9 @@ QVector<PasswordManager*> FileService::parseJSON(const QString &path) {
         QString username = jsonObj.value("username").toString();
         QString password = jsonObj.value("password").toString();
         QString group = jsonObj.value("group").toString();
-        if (!isValidGroup(group)) {
+        if (!isValidGroup(group, dbManager)) {
             QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect group\n"
-                                                   "The group is: 'Work', 'Personal', 'Banking' or 'Email'"));
+                                                   "The group must be created in advance"));
             return {};
         }
         passwords.append(new PasswordManager(serviceName, username, password, group));
@@ -164,7 +164,7 @@ QVector<PasswordManager*> FileService::parseJSON(const QString &path) {
     return passwords;
 }
 
-QVector<PasswordManager*> FileService::parseXML(const QString &path) {
+QVector<PasswordManager*> FileService::parseXML(const QString &path, DatabaseManager *dbManager) {
     QFile file(path);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::warning(nullptr, tr("Error"), tr("Failed to open XML file"));
@@ -194,12 +194,12 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path) {
                     }
                     else if (xml.name() == "group") {
                         QString group = xml.readElementText();
-                        if (isValidGroup(group)) {
+                        if (isValidGroup(group, dbManager)) {
                             newPassword->setGroup(group);
                         }
                         else {
                             QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect group\n"
-                                                                   "The group is: 'Work', 'Personal', 'Banking' or 'Email'"));
+                                                                   "The group must be created in advance"));
                             delete newPassword;
                             return {};
                         }
@@ -217,8 +217,8 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path) {
                                                        "  <password_data>\n"
                                                        "    <service_name>service1</service_name>\n"
                                                        "    <username>user1</username>\n"
-                                                       "    <password>testo1</password>\n"
-                                                       "    <group>Work|Personal|Banking|Email</group>\n"
+                                                       "    <password>password1</password>\n"
+                                                       "    <group>group1</group>\n"
                                                        "  </password_data>\n"
                                                        "</Passwords>"));
                 delete newPassword;
@@ -235,7 +235,15 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path) {
     return passwords;
 }
 
-bool FileService::isValidGroup(const QString &group) {
-    static const QSet<QString> validGroups = {"Work", "Personal", "Banking", "Email"};
-    return validGroups.contains(group);
+bool FileService::isValidGroup(const QString &group, DatabaseManager *dbManager) {
+    static QSet<QString> validGroupsCache;
+    static bool initialized = false;
+    if (!initialized) {
+        qDebug() << "sas";
+        QStringList groups = dbManager->fetchGroupNames();
+        validGroupsCache = QSet<QString>(groups.begin(), groups.end());
+        initialized = true;
+    }
+
+    return validGroupsCache.contains(group);
 }

@@ -233,7 +233,7 @@ void MainWindow::updatePasswordTable() {
 }
 
 void MainWindow::addPassword() {
-    PasswordFormDialog dialog(this, PasswordMode::AddMode);
+    PasswordFormDialog dialog(this, PasswordMode::AddMode, m_dbManager);
     if (dialog.exec() == QDialog::Accepted) {
         const QString serviceName = dialog.serviceName();
         const QString username = dialog.username();
@@ -288,7 +288,7 @@ void MainWindow::editPassword(int index) {
         return;
     }
     PasswordManager *password = m_passwordList[index];
-    PasswordFormDialog dialog(this, password, PasswordMode::EditMode);
+    PasswordFormDialog dialog(this, password, PasswordMode::EditMode, m_dbManager);
 
     if (dialog.exec() == QDialog::Accepted) {
         password->setServiceName(dialog.serviceName());
@@ -369,13 +369,13 @@ void MainWindow::importPasswords() {
 
     QVector<PasswordManager*> newPasswords;
     if (filePath.endsWith(".csv", Qt::CaseInsensitive)) {
-        newPasswords = FileService::parseCSV(filePath);
+        newPasswords = FileService::parseCSV(filePath, m_dbManager);
     }
     else if (filePath.endsWith(".json", Qt::CaseInsensitive)) {
-        newPasswords = FileService::parseJSON(filePath);
+        newPasswords = FileService::parseJSON(filePath, m_dbManager);
     }
     else if (filePath.endsWith(".xml", Qt::CaseInsensitive)) {
-        newPasswords = FileService::parseXML(filePath);
+        newPasswords = FileService::parseXML(filePath, m_dbManager);
     }
     else {
         QMessageBox::warning(this, tr("Unsupported"), tr("Unsupported file format"));

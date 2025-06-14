@@ -28,8 +28,25 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
     }
 }
 
+
+SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
+                                           const QStringList groupsName,
+                                           PasswordMode mode)
+    : QDialog(parent)
+    , ui(new Ui::SelectPasswordDialog)
+{
+    ui->setupUi(this);
+    setWindowTitle(tr("Delete Group"));
+    ui->label->setText(tr("Select the group you want to delete"));
+    ui->comboBox->addItems(groupsName);
+    QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
+    okButton->setText(tr("Delete"));
+}
+
+
 SelectPasswordDialog::~SelectPasswordDialog() {
     delete ui;
 }
 
 int SelectPasswordDialog::selectedIndex() const { return ui->comboBox->currentIndex(); }
+QString SelectPasswordDialog::selectedText() const { return ui->comboBox->currentText(); }

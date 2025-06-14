@@ -55,12 +55,6 @@ QByteArray EncryptionUtils::encrypt(const QByteArray &plainText, QByteArray &non
 }
 
 QByteArray EncryptionUtils::decrypt(const QByteArray &cipherText, const QByteArray &nonce) {
-    qDebug() << cipherText;
-    qDebug() << "\ncipher ^ nonce _";
-    qDebug() << nonce;
-    qDebug() << "\n";
-
-
     QByteArray decrypted;
     decrypted.resize(cipherText.size() - crypto_aead_xchacha20poly1305_ietf_ABYTES);
 

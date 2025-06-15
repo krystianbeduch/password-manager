@@ -3,6 +3,7 @@
 
 #include "../models/passwordmanager.h"
 #include "../database/databasemanager.h"
+#include "../models//group.h"
 #include <QString>
 #include <QDebug>
 #include <QFile>
@@ -29,7 +30,11 @@ public:
     [[nodiscard]] static QVector<PasswordManager*> parseXML(const QString &path, DatabaseManager *dbManager);
 
 private:
-    static bool isValidGroup(const QString &group, DatabaseManager *dbManager);
+    static QHash<QString, Group> validGroupsMap;
+    static bool groupsInitialized;
+    static void initializeGroups(DatabaseManager *dbManager);
+    static bool isValidGroup(const Group &group, DatabaseManager *dbManager);
+    static QString normalizeGroupName(const QString &name);
 };
 
 #endif // FILESERVICE_H

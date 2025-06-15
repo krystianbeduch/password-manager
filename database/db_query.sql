@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS passwords (
     id SERIAL PRIMARY KEY,
     service_name VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
-    group_name VARCHAR(255),
+    group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
     addition_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     position INTEGER DEFAULT 0
 );

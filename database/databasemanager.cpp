@@ -45,10 +45,45 @@ void DatabaseManager::disconnectDb() {
 }
 
 bool DatabaseManager::insertSamplePasswordsData(EncryptionUtils *crypto) {
+    if (!connectDb()) {
+        qWarning() << tr("Failed to connect to database");
+        return {};
+    }
+
+    const QStringList defaultGroups = {"Work", "Personal", "Banking", "Email"};
+    QHash<QString, int> groupIdMap;
+
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        INSERT INTO public.groups
+            (group_name)
+        VALUES (:group_name)
+        RETURNING id
+    )");
+
+    for (const auto &groupName : defaultGroups) {
+        query.bindValue(":group_name", groupName);
+        if (!query.exec()) {
+            qDebug() << tr("Failed to insert group '%1': %2").arg(groupName, query.lastError().text());
+            disconnectDb();
+            return false;
+        }
+
+        if (query.next()) {
+            int groupId = query.value("id").toInt();
+            groupIdMap[groupName] = groupId;
+        }
+        else {
+            qDebug() << tr("Failed to retrieve inserted group id for '%1'").arg(groupName);
+            disconnectDb();
+            return false;
+        }
+    }
+
     const QVector<PasswordManager*> passwords = {
-        new PasswordManager("Gmail", "user1@gmail.com", "password123", "Email"),
-        new PasswordManager("Facebook", "user2@o2.pl", "mypass456", "Personal"),
-        new PasswordManager("Microsoft Team", "user@outlook.com", "securePassword", "Work")
+        new PasswordManager("Gmail", "user1@gmail.com", "password123", Group(groupIdMap["Email"])),
+        new PasswordManager("Facebook", "user2@o2.pl", "mypass456", Group(groupIdMap["Personal"])),
+        new PasswordManager("Microsoft Team", "user@outlook.com", "securePassword", Group(groupIdMap["Work"]))
     };
 
     QHash<PasswordManager*, CryptoData> cryptoMap;
@@ -62,12 +97,9 @@ bool DatabaseManager::insertSamplePasswordsData(EncryptionUtils *crypto) {
         cryptoMap.insert(p, cryptoDataOpt.value());
     }
 
-    if (addPasswordList(cryptoMap)) {
-        qDeleteAll(passwords);
-        return true;
-    }
+    bool success = addPasswordList(cryptoMap);
     qDeleteAll(passwords);
-    return false;
+    return success;
 }
 
 QVector<QVector<QVariant>> DatabaseManager::fetchAllPasswords() {
@@ -80,9 +112,13 @@ QVector<QVector<QVariant>> DatabaseManager::fetchAllPasswords() {
     QSqlQuery query(m_db);    
     query.prepare(R"(
         SELECT
-            id, service_name, username, group_name, addition_date, position
+            p.id, p.service_name, p.username, p.group_id, g.group_name, p.addition_date, p.position
         FROM
-            public.passwords
+            public.passwords AS p
+        JOIN
+            public.groups AS g
+        ON
+            p.group_id = g.id
         ORDER BY position ASC
     )");
 
@@ -94,7 +130,7 @@ QVector<QVector<QVariant>> DatabaseManager::fetchAllPasswords() {
 
     while (query.next()) {
         QVector<QVariant> row;
-        for (int i = 0; i < 6; ++i) {
+        for (int i = 0; i < 7; ++i) {
             row.append(query.value(i));
         }
         data.append(row);
@@ -184,14 +220,14 @@ bool DatabaseManager::addPassword(PasswordManager *newPassword, CryptoData &cryp
                 SELECT COALESCE(MAX(position), 0) + 1 AS new_position FROM passwords
             )
             INSERT INTO public.passwords
-                (service_name, username, group_name, position)
-            SELECT :service, :username, :group_name, new_position FROM next_pos
+                (service_name, username, group_id, position)
+            SELECT :service, :username, :group_id, new_position FROM next_pos
             RETURNING id, addition_date;
         )");
 
         query.bindValue(":service", newPassword->serviceName());
         query.bindValue(":username", newPassword->username());
-        query.bindValue(":group_name", newPassword->group());
+        query.bindValue(":group_id", newPassword->group().id());
 
         if (query.exec() && query.next()) {
             newPassword->setId(query.value("id").toInt());
@@ -263,13 +299,13 @@ bool DatabaseManager::editPassword(PasswordManager *password, CryptoData &crypto
             UPDATE public.passwords
             SET service_name = :service,
                 username = :username,
-                group_name = :group
+                group_id = :group_id
             WHERE id = :id
         )");
 
         query.bindValue(":service", password->serviceName());
         query.bindValue(":username", password->username());
-        query.bindValue(":group", password->group());
+        query.bindValue(":group_id", password->group().id());
         query.bindValue(":id", password->id());
 
         if (query.exec()) {
@@ -355,21 +391,39 @@ bool DatabaseManager::truncatePasswords() {
     }
 
     QSqlDatabase::database().transaction();
-    QSqlQuery query(m_db);
-    query.prepare("TRUNCATE public.passwords RESTART IDENTITY CASCADE;");
-    // RESTART IDENTITY - restart licznika SERIAL (id) do 1
-    // CASCADE - usuwanie rekordow powiazanych FK
+    {
+        QSqlQuery query(m_db);
+        query.prepare("TRUNCATE public.passwords RESTART IDENTITY CASCADE;");
+        // RESTART IDENTITY - restart licznika SERIAL (id) do 1
+        // CASCADE - usuwanie rekordow powiazanych FK
 
-    if (query.exec()) {
-        qDebug() << tr("Truncated passwords table successfully");
+        if (query.exec()) {
+            qDebug() << tr("Truncated passwords table successfully");
+        }
+        else {
+            QMessageBox::critical(nullptr,
+                                  tr("Database Connection Error"),
+                                  tr("Failed to truncate passwords table: %1").arg(m_db.lastError().text()));
+            QSqlDatabase::database().rollback();
+            disconnectDb();
+            return false;
+        }
     }
-    else {
-        QMessageBox::critical(nullptr, tr("Database Connection Error"), tr("Failed to truncate passwords table: %1").arg(m_db.lastError().text()));
-        QSqlDatabase::database().rollback();
-        disconnectDb();
-        return false;
+    {
+        QSqlQuery query(m_db);
+        query.prepare("TRUNCATE public.groups RESTART IDENTITY CASCADE;");
+        if (query.exec()) {
+            qDebug() << tr("Truncated groups table successfully");
+        }
+        else {
+            QMessageBox::critical(nullptr,
+                                  tr("Database Connection Error"),
+                                  tr("Failed to truncate groups table: %1").arg(m_db.lastError().text()));
+            QSqlDatabase::database().rollback();
+            disconnectDb();
+            return false;
+        }
     }
-
     QSqlDatabase::database().commit();
     disconnectDb();
     return true;
@@ -488,14 +542,14 @@ bool DatabaseManager::addPasswordList(QHash<PasswordManager*, CryptoData> &passw
                     SELECT COALESCE(MAX(position), 0) + 1 AS new_position FROM passwords
                 )
                 INSERT INTO public.passwords
-                    (service_name, username, group_name, position)
-                SELECT :service, :username, :group_name, new_position FROM next_pos
+                    (service_name, username, group_id, position)
+                SELECT :service, :username, :group_id, new_position FROM next_pos
                 RETURNING id, addition_date;
             )");
 
             query.bindValue(":service", newPassword->serviceName());
             query.bindValue(":username", newPassword->username());
-            query.bindValue(":group_name", newPassword->group());
+            query.bindValue(":group_id", newPassword->group().id());
 
             if (query.exec() && query.next()) {
                 newPassword->setId(query.value("id").toInt());
@@ -611,7 +665,7 @@ CryptoData DatabaseManager::fetchMainPassword() {
     return cryptoData;
 }
 
-QStringList DatabaseManager::fetchGroupNames() {
+QList<Group> DatabaseManager::fetchGroups() {
     if (!connectDb()) {
         qWarning() << tr("Failed to connect to database");
         return {};
@@ -620,7 +674,7 @@ QStringList DatabaseManager::fetchGroupNames() {
     QSqlQuery query(m_db);
     query.prepare(R"(
         SELECT
-            group_name
+            id, group_name
         FROM public.groups
         ORDER BY group_name ASC;
     )");
@@ -631,9 +685,9 @@ QStringList DatabaseManager::fetchGroupNames() {
         return {};
     }
 
-    QStringList groupList;
+    QList<Group> groupList;
     while (query.next()) {
-        groupList.append(query.value(0).toString());
+        groupList.append(Group(query.value(0).toInt(), query.value(1).toString()));
     }
     disconnectDb();
     return groupList;
@@ -659,7 +713,7 @@ bool DatabaseManager::addGroup(const QString &groupName) {
             (:group_name);
     )");
 
-    query.bindValue(":group_name", groupName);
+    query.bindValue(":group_name", groupName.left(1).toUpper() + groupName.mid(1).toLower());
 
     if (query.exec()) {
         qDebug() << tr("Group inserted");

@@ -4,6 +4,7 @@
 #include "ui_passwordformdialog.h"
 #include "models/passwordmode.h"
 #include "models/passwordmanager.h"
+#include "models/group.h"
 #include "database/databasemanager.h"
 #include <QMainWindow>
 #include <QObject>
@@ -37,7 +38,7 @@ public:
     [[nodiscard]] QString serviceName() const;
     [[nodiscard]] QString username() const;
     [[nodiscard]] QString password() const;
-    [[nodiscard]] QString group() const;
+    [[nodiscard]] Group group() const;
 
 private slots:
     void onButtonClicked();
@@ -49,7 +50,7 @@ private:
     Ui::PasswordFormDialog *ui;    
     PasswordMode m_mode;
     DatabaseManager *m_dbManager;
-    QStringList m_groupNames;
+    QList<Group> m_groupNames;
 
     void initUI();
     void connectSignals();

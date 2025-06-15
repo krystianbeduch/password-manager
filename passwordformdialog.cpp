@@ -29,7 +29,7 @@ PasswordFormDialog::PasswordFormDialog(QWidget *parent,
     if (password) {
         ui->serviceNameLineEdit->setText(password->serviceName());
         ui->usernameLineEdit->setText(password->username());
-        ui->groupComboBox->setCurrentText(password->group());
+        ui->groupComboBox->setCurrentText(password->group().groupName());
     }
 
     connectSignals();
@@ -49,8 +49,15 @@ void PasswordFormDialog::initUI() {
     else if (m_mode == PasswordMode::EditMode) {
         ui->headerLabel->setText(tr("Edit password"));
     }
-    m_groupNames = m_dbManager->fetchGroupNames();
-    ui->groupComboBox->addItems(m_groupNames);
+
+    m_groupNames = m_dbManager->fetchGroups();
+    for (auto const &group : m_groupNames) {
+        ui->groupComboBox->addItem(group.groupName(), group.id());
+    }
+
+    // ui->groupComboBox->setCurrentText(newGroup);
+    // m_groupNames = m_dbManager->fetchGroups();
+    // ui->groupComboBox->addItems(m_groupNames);
 }
 
 void PasswordFormDialog::connectSignals() {
@@ -119,7 +126,11 @@ void PasswordFormDialog::onAddGroupButtonClicked() {
     if (ok && !newGroup.trimmed().isEmpty()) {
         newGroup = newGroup.trimmed();
 
-        if (m_groupNames.contains(newGroup, Qt::CaseInsensitive)) {
+        bool exists = std::any_of(m_groupNames.begin(), m_groupNames.end(), [&newGroup](const Group &group) {
+            return group.groupName().compare(newGroup, Qt::CaseInsensitive) == 0;
+        });
+
+        if (exists) {
             QMessageBox::information(this, tr("Group exists"), tr("Group with this name already exists"));
             return;
         }
@@ -129,8 +140,12 @@ void PasswordFormDialog::onAddGroupButtonClicked() {
             return;
         }
 
-        m_groupNames = m_dbManager->fetchGroupNames();
-        ui->groupComboBox->addItem(newGroup);
+        ui->groupComboBox->clear();
+        m_groupNames = m_dbManager->fetchGroups();
+        for (auto const &group : m_groupNames) {
+            ui->groupComboBox->addItem(group.groupName(), group.id());
+        }
+
         ui->groupComboBox->setCurrentText(newGroup);
     }
 }
@@ -139,7 +154,7 @@ void PasswordFormDialog::onDeleteGroupButtonClicked() {
     SelectPasswordDialog dialog(this, m_groupNames);
     if (dialog.exec() == QDialog::Accepted && m_dbManager->deleteGroup(dialog.selectedText())) {
         QMessageBox::information(this, tr("Group deleted"), tr("Group %1 has been removed").arg(dialog.selectedText()));
-        m_groupNames = m_dbManager->fetchGroupNames();
+        m_groupNames = m_dbManager->fetchGroups();
         ui->groupComboBox->removeItem(dialog.selectedIndex());
     }
 }
@@ -147,4 +162,8 @@ void PasswordFormDialog::onDeleteGroupButtonClicked() {
 QString PasswordFormDialog::serviceName() const { return ui->serviceNameLineEdit->text().trimmed(); }
 QString PasswordFormDialog::username() const { return ui->usernameLineEdit->text().trimmed(); }
 QString PasswordFormDialog::password() const { return ui->passwordLineEdit->text().trimmed(); }
-QString PasswordFormDialog::group() const { return ui->groupComboBox->currentText(); }
+Group PasswordFormDialog::group() const {
+    QString groupName = ui->groupComboBox->currentText();
+    int groupId = ui->groupComboBox->currentData().toInt();
+    return Group(groupId, groupName);
+}

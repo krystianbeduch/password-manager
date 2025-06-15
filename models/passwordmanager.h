@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QDateTime>
+#include "group.h"
 
 class PasswordManager {
 public:
@@ -10,27 +11,30 @@ public:
     PasswordManager(int id,
                     const QString &serviceName,
                     const QString &username,
-                    const QString &group,
+                    const Group &group,
                     const QDateTime &additionalDate);
 
     PasswordManager(int id,
                     const QString &serviceName,
                     const QString &username,
-                    const QString &group,
+                    const Group &group,
                     const QDateTime &additionalDate,
                     int position);
 
     PasswordManager(const QString &serviceName,
                     const QString &username,
-                    const QString &group,
+                    const Group &group,
                     const QDateTime &additionalDate);
+
     PasswordManager(const QString &serviceName,
                     const QString &username,
-                    const QString &group);
+                    const Group &group);
+
     PasswordManager(const QString &serviceName,
                     const QString &username,
                     const QString &password,
-                    const QString &group);
+                    const Group &group);
+
     ~PasswordManager() = default;
 
     [[nodiscard]] int id() const;
@@ -38,7 +42,7 @@ public:
     [[nodiscard]] QString username() const;
     [[nodiscard]] QString password() const;
     [[nodiscard]] QDateTime additionalDate() const;
-    [[nodiscard]] QString group() const;
+    [[nodiscard]] Group group() const;
     [[nodiscard]] int position() const;
     [[nodiscard]] QString formattedDate() const;
 
@@ -46,7 +50,7 @@ public:
     void setServiceName(const QString &serviceName);
     void setUsername(const QString &username);
     void setPassword(const QString &password);
-    void setGroup(const QString &group);
+    void setGroup(const Group &group);
     void setAdditionalDate(const QDateTime &additionalDate);
     void setPostition(int position);
 
@@ -55,7 +59,7 @@ private:
     QString m_serviceName;
     QString m_username;
     QString m_password;
-    QString m_group;
+    Group m_group;
     QDateTime m_additionalDate;
     int m_position;
 };

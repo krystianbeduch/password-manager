@@ -1,5 +1,7 @@
 #include "fileservice.h"
 
+QHash<QString, Group> FileService::validGroupsMap;
+
 void FileService::exportToCSV(const QString &path, const QVector<PasswordManager*> &selected, const QHash<int, QString> &decrypted) {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -16,7 +18,7 @@ void FileService::exportToCSV(const QString &path, const QVector<PasswordManager
                  p->serviceName(),
                  p->username(),
                  decrypted[p->id()],
-                 p->group(),
+                 p->group().groupName(),
                  p->formattedDate());
         }
     }
@@ -38,7 +40,7 @@ void FileService::exportToJSON(const QString &path, const QVector<PasswordManage
             jsonObject["service_name"] = p->serviceName();
             jsonObject["username"] = p->username();
             jsonObject["password"] = decrypted[p->id()];
-            jsonObject["group"] = p->group();
+            jsonObject["group"] = p->group().groupName();
             jsonObject["addition_date"] = p->formattedDate();
             jsonArray.append(jsonObject);
         }
@@ -67,7 +69,7 @@ void FileService::exportToXML(const QString &path, const QVector<PasswordManager
             writer.writeTextElement("service_name", p->serviceName());
             writer.writeTextElement("username", p->username());
             writer.writeTextElement("password", decrypted[p->id()]);
-            writer.writeTextElement("group", p->group());
+            writer.writeTextElement("group", p->group().groupName());
             writer.writeTextElement("addition_date", p->formattedDate());
             writer.writeEndElement();
         }
@@ -92,14 +94,24 @@ QVector<PasswordManager*> FileService::parseCSV(const QString &path, DatabaseMan
     while(!in.atEnd()) {
         QString line = in.readLine().trimmed();
         QStringList parts = line.split(";");
-        if (parts.size() >= 3 && isValidGroup(parts[4], dbManager)) {
-            passwords.append(new PasswordManager(parts[1], parts[2], parts[3], parts[4]));
+        if (parts.size() >= 5) {
+            Group group(parts[4]);
+            if (isValidGroup(group, dbManager)) {
+                QString normalized = normalizeGroupName(group.groupName());;
+                Group resolvedGroup = validGroupsMap.value(normalized);
+                passwords.append(new PasswordManager(parts[1], parts[2], parts[3], resolvedGroup));
+            }
+            else {
+                QMessageBox::warning(nullptr, tr("Error"), tr("Group '%1' is not valid\n"
+                                                              "The group must be created in advance").arg(parts[4]));
+                return {};
+            }
         }
         else {
-            QMessageBox::warning(nullptr, "Error", "Incorrect CSV file format. Expected format:\n"
-                                                   "ID;Serice name;Username;Password;Group;Additional date (not required)\n\n"
-                                                   "The group must be created in advance");
-            return passwords;
+            QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect CSV file format. Expected format:\n"
+                                                          "ID;Serice name;Username;Password;Group;Additional date (not required)\n\n"
+                                                          "The group must be created in advance"));
+            return {};
         }
     }
     file.close();
@@ -149,16 +161,30 @@ QVector<PasswordManager*> FileService::parseJSON(const QString &path, DatabaseMa
                                                    "]"));
             return {};
         }
-        QString serviceName = jsonObj.value("service_name").toString();
-        QString username = jsonObj.value("username").toString();
-        QString password = jsonObj.value("password").toString();
-        QString group = jsonObj.value("group").toString();
+        // QString serviceName = jsonObj.value("service_name").toString();
+        // QString username = jsonObj.value("username").toString();
+        // QString password = jsonObj.value("password").toString();
+        QString groupName = jsonObj.value("group").toString();
+        Group group(groupName);
+        // Group group = jsonObj.value("group").toString();
+
         if (!isValidGroup(group, dbManager)) {
-            QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect group\n"
-                                                   "The group must be created in advance"));
+            QMessageBox::warning(nullptr, tr("Error"), tr("Group '%1' is not valid\n"
+                                                          "The group must be created in advance").arg(groupName));
+
+            // QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect group\n"
+                                                          // "The group must be created in advance"));
             return {};
         }
-        passwords.append(new PasswordManager(serviceName, username, password, group));
+        QString normalized = normalizeGroupName(group.groupName());
+        Group resolvedGroup = validGroupsMap.value(normalized);
+        passwords.append(new PasswordManager(
+            jsonObj.value("service_name").toString(),
+            jsonObj.value("username").toString(),
+            jsonObj.value("password").toString(),
+            resolvedGroup
+        ));
+        // passwords.append(new PasswordManager(serviceName, username, password, group));
     }
     file.close();
     return passwords;
@@ -179,6 +205,7 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path, DatabaseMan
 
         if (xml.tokenType() == QXmlStreamReader::StartElement && xml.name() == "password_data") {
             PasswordManager *newPassword = new PasswordManager();
+            QString groupName;
             while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "password_data")) {
                 xml.readNext();
 
@@ -193,23 +220,37 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path, DatabaseMan
                         newPassword->setPassword(xml.readElementText());
                     }
                     else if (xml.name() == "group") {
-                        QString group = xml.readElementText();
-                        if (isValidGroup(group, dbManager)) {
-                            newPassword->setGroup(group);
-                        }
-                        else {
-                            QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect group\n"
-                                                                   "The group must be created in advance"));
-                            delete newPassword;
-                            return {};
-                        }
+                        groupName = xml.readElementText();
+                        // if (isValidGroup(group, dbManager)) {
+                        //     newPassword->setGroup(group);
+                        // }
+                        // else {
+                        //     QMessageBox::warning(nullptr, tr("Error"), tr("Group '%1' is not valid\n"
+                        //                                                   "The group must be created in advance").arg(groupName));
+                        //     delete newPassword;
+                        //     return {};
+                        // }
                     }
                 } // if StartElement
             } // while End Password
+
+            Group group(groupName);
+            if (!isValidGroup(group, dbManager)) {
+                QMessageBox::warning(nullptr, tr("Error"), tr("Group '%1' is not valid\n"
+                                                              "The group must be created in advance").arg(groupName));
+                delete newPassword;
+                return {};
+            }
+
+
+            QString normalized = group.groupName().left(1).toUpper() + group.groupName().mid(1).toLower();
+            newPassword->setGroup(validGroupsMap.value(normalized));
+
+
             if (newPassword->serviceName().isEmpty() ||
                 newPassword->username().isEmpty() ||
                 newPassword->password().isEmpty() ||
-                newPassword->group().isEmpty())
+                newPassword->group().groupName().isEmpty())
             {
                 QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect XML format. Required format:\n"
                                                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -235,15 +276,29 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path, DatabaseMan
     return passwords;
 }
 
-bool FileService::isValidGroup(const QString &group, DatabaseManager *dbManager) {
-    static QSet<QString> validGroupsCache;
+void FileService::initializeGroups(DatabaseManager *dbManager) {
+    // if ()
+
+}
+
+bool FileService::isValidGroup(const Group &group, DatabaseManager *dbManager) {
+    // static QSet<QString> validGroupsCache;
+    // static QHash<QString, Group> validGroupsMap;
     static bool initialized = false;
+
     if (!initialized) {
-        qDebug() << "sas";
-        QStringList groups = dbManager->fetchGroupNames();
-        validGroupsCache = QSet<QString>(groups.begin(), groups.end());
+        qDebug() << "Initializing group";
+        const QList<Group> groups = dbManager->fetchGroups();
+        for (const auto &g : groups) {
+            QString normalizedName = normalizeGroupName(g.groupName());
+            validGroupsMap.insert(normalizedName, g);
+        }
         initialized = true;
     }
+    QString inputNormalized = normalizeGroupName(group.groupName());
+    return validGroupsMap.contains(inputNormalized);
+}
 
-    return validGroupsCache.contains(group);
+QString FileService::normalizeGroupName(const QString &name) {
+    return name.left(1).toUpper() + name.mid(1).toLower();
 }

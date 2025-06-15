@@ -135,12 +135,12 @@ void MainWindow::loadPasswordsToTable() {
     m_passwordList.reserve(records.size());
 
     for (const auto &row : records) {
-        m_passwordList.append(new PasswordManager(row[0].toInt(),           // ID
-                                                  row[1].toString(),        // Service
-                                                  row[2].toString(),        // User
-                                                  row[3].toString(),        // Group
-                                                  row[4].toDateTime(),      // Date
-                                                  row[5].toInt()));         // Position
+        m_passwordList.append(new PasswordManager(row[0].toInt(),                           // ID
+                                                  row[1].toString(),                        // Service
+                                                  row[2].toString(),                        // User
+                                                  Group(row[3].toInt(), row[4].toString()), // Group
+                                                  row[5].toDateTime(),                      // Date
+                                                  row[6].toInt()));                         // Position
     }
     updatePasswordTable();
 }
@@ -173,7 +173,7 @@ void MainWindow::updatePasswordTable() {
         passwordEdit->setText(generateDotStringForPasswordLineEdit(passwordEdit));
         ui->tableWidget->setCellWidget(i, 3, passwordEdit);
 
-        ui->tableWidget->setItem(i, 4, new QTableWidgetItem(password->group()));
+        ui->tableWidget->setItem(i, 4, new QTableWidgetItem(password->group().groupName()));
         ui->tableWidget->setItem(i, 5, new QTableWidgetItem(password->formattedDate()));
 
         QWidget *actionWidget = new QWidget();
@@ -237,7 +237,7 @@ void MainWindow::addPassword() {
     if (dialog.exec() == QDialog::Accepted) {
         const QString serviceName = dialog.serviceName();
         const QString username = dialog.username();
-        const QString group = dialog.group();
+        const Group group = dialog.group();
 
         const std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData(m_crypto->mainPassword(), dialog.password());
         if (!cryptoDataOpt.has_value()) {
@@ -602,8 +602,8 @@ void MainWindow::sortPasswordListByColumn(int column, Qt::SortOrder order) {
                        : a->username().compare(b->username(), Qt::CaseInsensitive) > 0;
         case 4: // Group
             return order == Qt::AscendingOrder
-                       ? a->group().compare(b->group(), Qt::CaseInsensitive) < 0
-                       : a->group().compare(b->group(), Qt::CaseInsensitive) > 0;
+                       ? a->group().groupName().compare(b->group().groupName(), Qt::CaseInsensitive) < 0
+                       : a->group().groupName().compare(b->group().groupName(), Qt::CaseInsensitive) > 0;
         case 5: // Date
             return order == Qt::AscendingOrder ? a->additionalDate() < b->additionalDate()
                                                : a->additionalDate() > b->additionalDate();

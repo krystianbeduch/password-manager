@@ -5,7 +5,8 @@ enum class PasswordMode {
     AddMode,
     EditMode,
     DeleteMode,
-    GroupMode
+    GroupEditMode,
+    GroupDeleteMode
 };
 
 #endif // PASSWORDMODE_H

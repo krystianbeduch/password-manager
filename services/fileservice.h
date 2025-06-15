@@ -1,9 +1,9 @@
 #ifndef FILESERVICE_H
 #define FILESERVICE_H
 
-#include "../models/passwordmanager.h"
-#include "../database/databasemanager.h"
-#include "../models//group.h"
+#include "passwordmanager.h"
+#include "databasemanager.h"
+#include "group.h"
 #include <QString>
 #include <QDebug>
 #include <QFile>

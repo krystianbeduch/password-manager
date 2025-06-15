@@ -391,39 +391,20 @@ bool DatabaseManager::truncatePasswords() {
     }
 
     QSqlDatabase::database().transaction();
-    {
-        QSqlQuery query(m_db);
-        query.prepare("TRUNCATE public.passwords RESTART IDENTITY CASCADE;");
-        // RESTART IDENTITY - restart licznika SERIAL (id) do 1
-        // CASCADE - usuwanie rekordow powiazanych FK
+    QSqlQuery query(m_db);
+    query.prepare("TRUNCATE encrypted_passwords, passwords, groups RESTART IDENTITY CASCADE;");
+    if (query.exec()) {
+        qDebug() << tr("Truncated tables successfully");
+    }
+    else {
+        QMessageBox::critical(nullptr,
+                              tr("Database Connection Error"),
+                              tr("Failed to truncate table: %1").arg(m_db.lastError().text()));
+        QSqlDatabase::database().rollback();
+        disconnectDb();
+        return false;
+    }
 
-        if (query.exec()) {
-            qDebug() << tr("Truncated passwords table successfully");
-        }
-        else {
-            QMessageBox::critical(nullptr,
-                                  tr("Database Connection Error"),
-                                  tr("Failed to truncate passwords table: %1").arg(m_db.lastError().text()));
-            QSqlDatabase::database().rollback();
-            disconnectDb();
-            return false;
-        }
-    }
-    {
-        QSqlQuery query(m_db);
-        query.prepare("TRUNCATE public.groups RESTART IDENTITY CASCADE;");
-        if (query.exec()) {
-            qDebug() << tr("Truncated groups table successfully");
-        }
-        else {
-            QMessageBox::critical(nullptr,
-                                  tr("Database Connection Error"),
-                                  tr("Failed to truncate groups table: %1").arg(m_db.lastError().text()));
-            QSqlDatabase::database().rollback();
-            disconnectDb();
-            return false;
-        }
-    }
     QSqlDatabase::database().commit();
     disconnectDb();
     return true;
@@ -713,7 +694,7 @@ bool DatabaseManager::addGroup(const QString &groupName) {
             (:group_name);
     )");
 
-    query.bindValue(":group_name", groupName.left(1).toUpper() + groupName.mid(1).toLower());
+    query.bindValue(":group_name", groupName);
 
     if (query.exec()) {
         qDebug() << tr("Group inserted");
@@ -729,7 +710,7 @@ bool DatabaseManager::addGroup(const QString &groupName) {
     }
 }
 
-bool DatabaseManager::deleteGroup(const QString &groupName) {
+bool DatabaseManager::deleteGroup(int groupId) {
     if (!connectDb()) {
         qWarning() << tr("Failed to connect to database");
         return false;
@@ -737,15 +718,15 @@ bool DatabaseManager::deleteGroup(const QString &groupName) {
 
     QSqlDatabase::database().transaction();
     QSqlQuery query(m_db);
-    query.prepare("DELETE FROM public.groups WHERE group_name = :group_name");
-    query.bindValue(":group_name", groupName);
+    query.prepare("DELETE FROM public.groups WHERE id = :id");
+    query.bindValue(":id", groupId);
 
     if (query.exec()) {
         if (query.numRowsAffected() > 0) {
-            qDebug() << tr("Deleted group: %1").arg(groupName);
+            qDebug() << tr("Deleted group with ID : %1").arg(groupId);
         }
         else {
-            QMessageBox::warning(nullptr, tr("No record"), tr("No record found with name: %1").arg(groupName));
+            QMessageBox::warning(nullptr, tr("No record"), tr("No record found with ID: %1").arg(groupId));
             QSqlDatabase::database().rollback();
             disconnectDb();
             return false;
@@ -761,4 +742,72 @@ bool DatabaseManager::deleteGroup(const QString &groupName) {
     QSqlDatabase::database().commit();
     disconnectDb();
     return true;
+}
+
+bool DatabaseManager::updateGroup(int groupId, const QString &newName) {
+    if (!connectDb()) {
+        qWarning() << tr("Failed to connect to database");
+        return false;
+    }
+
+    if (newName.isEmpty()) {
+        qWarning() << tr("Invalid update group data");
+        return false;
+    }
+
+    QSqlDatabase::database().transaction();
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        UPDATE public.groups
+        SET group_name = :group_name
+        WHERE id = :id
+    )");
+
+    query.bindValue(":group_name", newName);
+    query.bindValue(":id", groupId);
+
+    if (query.exec()) {
+        qDebug() << tr("Group upadated");
+    }
+    else {
+        qDebug() << tr("Failed to update group: %1").arg(query.lastError().text());
+        QSqlDatabase::database().rollback();
+        disconnectDb();
+        return false;
+    }
+
+    QSqlDatabase::database().commit();
+    disconnectDb();
+    return true;
+}
+
+bool DatabaseManager::hasPasswordsInGroup(int groupId) {
+    if (!connectDb()) {
+        qWarning() << tr("Failed to connect to database");
+        return false;
+    }
+
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        SELECT
+            COUNT(*)
+        FROM public.passwords
+        WHERE group_id = :group_id
+    )");
+
+    query.bindValue(":group_id", groupId);
+
+    if (!query.exec()) {
+        qDebug() << tr("Query failed: %1").arg(query.lastError().text());
+        disconnectDb();
+        return false;
+    }
+
+    if (query.next()) {
+        int count = query.value(0).toInt();
+        disconnectDb();
+        return count > 0;
+    }
+    disconnectDb();
+    return false;
 }

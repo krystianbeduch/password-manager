@@ -9,22 +9,26 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
 {
     ui->setupUi(this);
 
-    for (PasswordManager *p : passwordList) {
+    for (const auto *p : passwordList) {
         QString entry = QString("%1 | %2 | %3")
                             .arg(QString::number(p->id()), p->serviceName(), p->username());
         ui->comboBox->addItem(entry);
     }
 
-    QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
-    if (mode == PasswordMode::EditMode){
-        setWindowTitle(tr("Edit Password"));
-        ui->label->setText(tr("Select the password you want to edit"));
-        okButton->setText(tr("Edit"));
-    }
-    else if (mode == PasswordMode::DeleteMode) {
-        setWindowTitle(tr("Delete Password"));
-        ui->label->setText(tr("Select the password you want to delete"));
-        okButton->setText(tr("Delete"));
+    if (QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok)) {
+        switch (mode) {
+            case PasswordMode::EditMode:
+                setWindowTitle(tr("Edit Password"));
+                ui->label->setText(tr("Select the password you want to edit"));
+                okButton->setText(tr("Edit"));
+                break;
+            case PasswordMode::DeleteMode:
+                setWindowTitle(tr("Delete Password"));
+                ui->label->setText(tr("Select the password you want to delete"));
+                okButton->setText(tr("Delete"));
+                break;
+            default: return;
+        }
     }
 }
 
@@ -36,14 +40,25 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
     , ui(new Ui::SelectPasswordDialog)
 {
     ui->setupUi(this);
-    setWindowTitle(tr("Delete Group"));
-    ui->label->setText(tr("Select the group you want to delete"));
 
-    for (auto const &g : groups) {
-        ui->comboBox->addItem(g.groupName());
+    for (const auto &g : groups) {
+        ui->comboBox->addItem(g.groupName(), g.id());
     }
-    QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
-    okButton->setText(tr("Delete"));
+
+    if (QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok)) {
+        switch (mode) {
+            case PasswordMode::GroupDeleteMode:
+                setWindowTitle(tr("Delete Group"));
+                ui->label->setText(tr("Select the group you want to delete"));
+                okButton->setText(tr("Delete"));
+                break;
+            case PasswordMode::GroupEditMode:
+                setWindowTitle(tr("Edit Group"));
+                ui->label->setText(tr("Select the group you want to edit"));
+                okButton->setText(tr("Edit"));
+            default: return;
+        }
+    }
 }
 
 
@@ -53,3 +68,9 @@ SelectPasswordDialog::~SelectPasswordDialog() {
 
 int SelectPasswordDialog::selectedIndex() const { return ui->comboBox->currentIndex(); }
 QString SelectPasswordDialog::selectedText() const { return ui->comboBox->currentText(); }
+Group SelectPasswordDialog::selectedGroup() const {
+    QString groupName = ui->comboBox->currentText();
+    int groupId = ui->comboBox->currentData().toInt();
+    return Group(groupId, groupName);
+}
+

@@ -51,13 +51,9 @@ void PasswordFormDialog::initUI() {
     }
 
     m_groupNames = m_dbManager->fetchGroups();
-    for (auto const &group : m_groupNames) {
+    for (const auto &group : std::as_const(m_groupNames)) {
         ui->groupComboBox->addItem(group.groupName(), group.id());
     }
-
-    // ui->groupComboBox->setCurrentText(newGroup);
-    // m_groupNames = m_dbManager->fetchGroups();
-    // ui->groupComboBox->addItems(m_groupNames);
 }
 
 void PasswordFormDialog::connectSignals() {
@@ -83,6 +79,7 @@ void PasswordFormDialog::connectSignals() {
         });
         connect(ui->addGroupButton, &QPushButton::clicked, this, &PasswordFormDialog::onAddGroupButtonClicked);
         connect(ui->deleteGroupButton, &QPushButton::clicked, this, &PasswordFormDialog::onDeleteGroupButtonClicked);
+        connect(ui->editGroupButton, &QPushButton::clicked, this, &PasswordFormDialog::onEditGroupButtonClicked);
     }
 }
 
@@ -123,39 +120,105 @@ void PasswordFormDialog::onAddGroupButtonClicked() {
     QString newGroup = QInputDialog::getText(this, tr("New group"),
                                              tr("Enter group name:"),
                                              QLineEdit::Normal, "", &ok);
-    if (ok && !newGroup.trimmed().isEmpty()) {
-        newGroup = newGroup.trimmed();
 
-        bool exists = std::any_of(m_groupNames.begin(), m_groupNames.end(), [&newGroup](const Group &group) {
-            return group.groupName().compare(newGroup, Qt::CaseInsensitive) == 0;
-        });
-
-        if (exists) {
-            QMessageBox::information(this, tr("Group exists"), tr("Group with this name already exists"));
-            return;
-        }
-
-        if (!m_dbManager->addGroup(newGroup)) {
-            QMessageBox::critical(this, tr("Error"), tr("Failed to add new group"));
-            return;
-        }
-
-        ui->groupComboBox->clear();
-        m_groupNames = m_dbManager->fetchGroups();
-        for (auto const &group : m_groupNames) {
-            ui->groupComboBox->addItem(group.groupName(), group.id());
-        }
-
-        ui->groupComboBox->setCurrentText(newGroup);
+    if (!ok || newGroup.trimmed().isEmpty()) {
+        return;
     }
+
+    newGroup = newGroup.trimmed();
+    newGroup = newGroup.left(1).toUpper() + newGroup.mid(1).toLower();
+
+    bool exists = std::any_of(m_groupNames.begin(), m_groupNames.end(), [&newGroup](const Group &group) {
+        return group.groupName().compare(newGroup, Qt::CaseInsensitive) == 0;
+    });
+
+    if (exists) {
+        QMessageBox::information(this, tr("Group exists"), tr("A group with this name already exists"));
+        return;
+    }
+
+    if (!m_dbManager->addGroup(newGroup)) {
+        QMessageBox::critical(this, tr("Error"), tr("Failed to add new group"));
+        return;
+    }
+    QMessageBox::information(this, tr("Group added"), tr("Group '%1' has been added").arg(newGroup));
+
+    ui->groupComboBox->clear();
+    m_groupNames = m_dbManager->fetchGroups();
+    for (const auto &group : std::as_const(m_groupNames)) {
+        ui->groupComboBox->addItem(group.groupName(), group.id());
+    }
+
+    ui->groupComboBox->setCurrentText(newGroup);
 }
 
 void PasswordFormDialog::onDeleteGroupButtonClicked() {
-    SelectPasswordDialog dialog(this, m_groupNames);
-    if (dialog.exec() == QDialog::Accepted && m_dbManager->deleteGroup(dialog.selectedText())) {
-        QMessageBox::information(this, tr("Group deleted"), tr("Group %1 has been removed").arg(dialog.selectedText()));
+    SelectPasswordDialog dialog(this, m_groupNames, PasswordMode::GroupDeleteMode);
+    if (dialog.exec() == QDialog::Accepted) {
+        const Group &group = dialog.selectedGroup();
+        if (m_dbManager->hasPasswordsInGroup(group.id())) {
+            QMessageBox::warning(this,
+                                 tr("Cannot delete group"),
+                                 tr("Group '%1' contains passwords and cannot be deleted.").arg(group.groupName()));
+            return;
+        }
+
+        if (m_dbManager->deleteGroup(group.id())) {
+            QMessageBox::information(this, tr("Group deleted"), tr("Group '%1' has been removed").arg(group.groupName()));
+            m_groupNames = m_dbManager->fetchGroups();
+            ui->groupComboBox->removeItem(dialog.selectedIndex());
+        }
+    }
+}
+
+void PasswordFormDialog::onEditGroupButtonClicked() {
+    SelectPasswordDialog dialog(this, m_groupNames, PasswordMode::GroupEditMode);
+    if (dialog.exec() == QDialog::Accepted) {
+        const Group &oldGroup = dialog.selectedGroup();
+        qDebug() << oldGroup.id();
+        QString currentName = oldGroup.groupName();
+        bool ok;
+        QString newName = QInputDialog::getText(this,
+                                                tr("Edit group"),
+                                                tr("Enter new group name:"),
+                                                QLineEdit::Normal, currentName, &ok);
+
+        if (!ok || newName.trimmed().isEmpty()) {
+            return;
+        }
+
+        newName = newName.trimmed();
+        newName = newName.left(1).toUpper() + newName.mid(1).toLower();
+
+        if (newName.compare(currentName, Qt::CaseSensitive) == 0) {
+            QMessageBox::warning(this, tr("No changes"), tr("The name has not changed"));
+            return;
+        }
+
+        bool exists = std::any_of(m_groupNames.begin(), m_groupNames.end(), [&newName](const Group &group) {
+            return group.groupName().compare(newName, Qt::CaseInsensitive) == 0;
+        });
+
+        if (exists) {
+            QMessageBox::information(this, tr("Group exists"), tr("A group with this name already exists"));
+            return;
+        }
+
+        if (!m_dbManager->updateGroup(oldGroup.id(), newName)) {
+            QMessageBox::critical(this, tr("Error"), tr("Failed to update group"));
+            return;
+        }
+
+        QMessageBox::information(this, tr("Group edited"), tr("Group has been edited: '%1' -> '%2'")
+                                                               .arg(oldGroup.groupName(), newName));
+
+        ui->groupComboBox->clear();
         m_groupNames = m_dbManager->fetchGroups();
-        ui->groupComboBox->removeItem(dialog.selectedIndex());
+        for (const auto &group : std::as_const(m_groupNames)) {
+            ui->groupComboBox->addItem(group.groupName(), group.id());
+        }
+
+        ui->groupComboBox->setCurrentText(newName);
     }
 }
 

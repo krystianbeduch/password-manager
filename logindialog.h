@@ -1,13 +1,13 @@
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
-#include <QDialog>
-#include <QDebug>
-#include <QString>
-#include <QMessageBox>
 #include <QByteArray>
+#include <QDebug>
+#include <QDialog>
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QString>
 
 namespace Ui {
 class LoginDialog;

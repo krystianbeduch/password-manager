@@ -1,9 +1,9 @@
 #ifndef DATABASEMANAGER_H
 #define DATABASEMANAGER_H
 
-#include "../models/passwordmanager.h"
-#include "../encryption/encryptionutils.h"
-#include "../encryption/cryptodata.h"
+#include "passwordmanager.h"
+#include "encryptionutils.h"
+#include "cryptodata.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -43,7 +43,9 @@ public:
     [[nodiscard]] CryptoData fetchMainPassword();
     [[nodiscard]] QList<Group> fetchGroups();
     [[nodiscard]] bool addGroup(const QString &groupName);
-    [[nodiscard]] bool deleteGroup(const QString &groupName);
+    [[nodiscard]] bool deleteGroup(int groupId);
+    [[nodiscard]] bool updateGroup(int groupId, const QString &newName);
+    [[nodiscard]] bool hasPasswordsInGroup(int groupId);
 
 private:
     QString m_host;

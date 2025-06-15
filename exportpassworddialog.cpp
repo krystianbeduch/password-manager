@@ -59,7 +59,9 @@ void ExportPasswordDialog::onExportClicked() {
         return;
     }
 
-    if ( !(ui->csvCheckBox->isChecked() || ui->jsonCheckBox->isChecked() || ui->xmlCheckBox->isChecked()) ) {
+    if (!(ui->csvCheckBox->isChecked() ||
+          ui->jsonCheckBox->isChecked() ||
+          ui->xmlCheckBox->isChecked())) {
         QMessageBox::warning(this, "No format", "Select at least 1 format");
         return;
     }

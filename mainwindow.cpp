@@ -1,12 +1,12 @@
-#include "database/databasemanager.h"
+#include "cryptodata.h"
+#include "databasemanager.h"
+#include "exportpassworddialog.h"
+#include "fileservice.h"
+#include "logindialog.h"
+#include "mainwindow.h"
 #include "passwordformdialog.h"
 #include "selectpassworddialog.h"
-#include "exportpassworddialog.h"
-#include "services/fileservice.h"
-#include "encryption/cryptodata.h"
-#include "logindialog.h"
 #include "ui_mainwindow.h"
-#include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -238,7 +238,6 @@ void MainWindow::addPassword() {
         const QString serviceName = dialog.serviceName();
         const QString username = dialog.username();
         const Group group = dialog.group();
-
         const std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData(m_crypto->mainPassword(), dialog.password());
         if (!cryptoDataOpt.has_value()) {
             qDebug() << tr("Error during generation of cryptographic data");

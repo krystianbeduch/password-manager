@@ -1,21 +1,22 @@
 #ifndef ADDPASSWORDDIALOG_H
 #define ADDPASSWORDDIALOG_H
 
+#include "databasemanager.h"
+#include "group.h"
+#include "passwordmanager.h"
+#include "passwordmode.h"
 #include "ui_passwordformdialog.h"
-#include "models/passwordmode.h"
-#include "models/passwordmanager.h"
-#include "models/group.h"
-#include "database/databasemanager.h"
-#include <QMainWindow>
-#include <QObject>
-#include <QWidget>
+
 #include <QDialog>
-#include <QMessageBox>
 #include <QInputDialog>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QObject>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
-#include <QRandomGenerator>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,10 +30,12 @@ public:
     PasswordFormDialog(QWidget *parent = nullptr,
                        PasswordMode mode = PasswordMode::AddMode,
                        DatabaseManager *dbManager = nullptr);
+
     PasswordFormDialog(QWidget *parent,
                        PasswordManager *password,
                        PasswordMode mode,
                        DatabaseManager *dbManager);
+
      ~PasswordFormDialog();
 
     [[nodiscard]] QString serviceName() const;
@@ -45,6 +48,7 @@ private slots:
     void onGeneratePasswordClicked();
     void onAddGroupButtonClicked();
     void onDeleteGroupButtonClicked();
+    void onEditGroupButtonClicked();
 
 private:
     Ui::PasswordFormDialog *ui;    

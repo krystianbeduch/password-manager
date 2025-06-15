@@ -1,14 +1,15 @@
 #ifndef SELECTPASSWORDDIALOG_H
 #define SELECTPASSWORDDIALOG_H
 
-#include "models/passwordmanager.h"
-#include "models/passwordmode.h"
-#include "models/group.h"
+#include "group.h"
+#include "passwordmanager.h"
+#include "passwordmode.h"
+
 #include <QDialog>
-#include <QVector>
 #include <QList>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QVector>
 
 namespace Ui {
 class SelectPasswordDialog;
@@ -23,10 +24,11 @@ public:
                          PasswordMode mode = PasswordMode::EditMode);
     SelectPasswordDialog(QWidget *parent,
                          const QList<Group> groups,
-                         PasswordMode mode = PasswordMode::GroupMode);
+                         PasswordMode mode);
     ~SelectPasswordDialog();
     [[nodiscard]] int selectedIndex() const;
     [[nodiscard]] QString selectedText() const;
+    [[nodiscard]] Group selectedGroup() const;
 
 private:
     Ui::SelectPasswordDialog *ui;

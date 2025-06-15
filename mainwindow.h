@@ -1,27 +1,27 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "databasemanager.h"
+#include "encryptionutils.h"
+#include "passwordmanager.h"
+#include "passwordmode.h"
 #include "ui_mainwindow.h"
-#include "database/databasemanager.h"
-#include "models/passwordmanager.h"
-#include "models/passwordmode.h"
-#include "encryption/encryptionutils.h"
 
-#include <QMainWindow>
+#include <QByteArray>
 #include <QDateTime>
-#include <QTimer>
-#include <QMessageBox>
 #include <QDebug>
-#include <QVector>
-#include <QMap>
-#include <QPushButton>
+#include <QFile>
+#include <QFontMetrics>
 #include <QHBoxLayout>
-#include <QWidget>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QFile>
-#include <QByteArray>
-#include <QFontMetrics>
+#include <QMainWindow>
+#include <QMap>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTimer>
+#include <QVector>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

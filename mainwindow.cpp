@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    if (loadDatabaseConfig("config.json")) {
+    if (loadDatabaseConfig("database/config.json")) {
         m_dbManager = new DatabaseManager(m_host, m_port, m_dbName, m_username, m_password);
     }
     else {
@@ -101,7 +101,28 @@ void MainWindow::setupConnections() {
 }
 
 bool MainWindow::loadDatabaseConfig(const QString &configFilePath) {
-    QFile configFile(configFilePath);
+    QString appDir = QCoreApplication::applicationDirPath();
+    QDir dir(appDir);
+    int maxUpLevels = 5;
+    QString filePath;
+    bool found = false;
+
+    for (int i = 0; i < maxUpLevels; i++) {
+        QString potentialPath = dir.filePath(configFilePath);
+        if (QFile::exists(potentialPath)) {
+            filePath = potentialPath;
+            found = true;
+            break;
+        }
+        dir.cdUp();
+    }
+
+    if (!found) {
+        qCritical() << tr("%1 file not found in parent directories").arg(configFilePath);
+        return false;
+    }
+
+    QFile configFile(filePath);
     if (!configFile.open(QIODevice::ReadOnly)) {
         qCritical() << tr("Could not open config file");
         return false;
@@ -121,11 +142,45 @@ bool MainWindow::loadDatabaseConfig(const QString &configFilePath) {
     }
 
     const QJsonObject dbConfig = jsonObject["database"].toObject();
-    m_host = dbConfig["host"].toString();
-    m_port = dbConfig["port"].toInt();
-    m_dbName = dbConfig["db_name"].toString();
-    m_username = dbConfig["username"].toString();
-    m_password = dbConfig["password"].toString();
+    if (dbConfig.contains("host") && dbConfig["host"].isString()) {
+        m_host = dbConfig["host"].toString();
+    }
+    else {
+        qCritical() << tr("Missing or invalid 'host' in database config");
+        return false;
+    }
+
+    if (dbConfig.contains("port") && dbConfig["port"].isDouble()) {
+        m_port = dbConfig["port"].toInt();
+    }
+    else {
+        qCritical() << tr("Missing or invalid 'port' in database config");
+        return false;
+    }
+
+    if (dbConfig.contains("db_name") && dbConfig["db_name"].isString()) {
+        m_dbName = dbConfig["db_name"].toString();
+    }
+    else {
+        qCritical() << tr("Missing or invalid 'db_name' in database config");
+        return false;
+    }
+
+    if (dbConfig.contains("username") && dbConfig["username"].isString()) {
+        m_username = dbConfig["username"].toString();
+    }
+    else {
+        qCritical() << tr("Missing or invalid 'username' in database config");
+        return false;
+    }
+
+    if (dbConfig.contains("password") && dbConfig["password"].isString()) {
+        m_password = dbConfig["password"].toString();
+    }
+    else {
+        qCritical() << tr("Missing or invalid 'password' in database config");
+        return false;
+    }
     return true;
 }
 

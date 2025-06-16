@@ -8,6 +8,7 @@
 
 #include <QByteArray>
 #include <QDateTime>
+#include <QDir>
 #include <QDebug>
 #include <QFile>
 #include <QFontMetrics>

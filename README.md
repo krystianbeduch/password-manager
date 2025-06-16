@@ -101,6 +101,8 @@ The entire project is modular in structure and built using the CMake build syste
 - Root Directory - Main Application Entry & Core Files:
    - `main.cpp` – application entry point
    - `mainwindow.*`– main window class managing the central UI and logic
+   - `app_icon.rc` – resource script for Windows-specific application icon integration
+   - `resources.qrc` – Qt resource file that embeds images and icons into the application binary
 - `database` – Data Access Layer - handles all operations related to database management and queries:
    - `databasemanager.*` – manages PostgreSQL database connections, execution of SQL queries, and result handling
    - `db_config.json` – configuration file for database connection

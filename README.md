@@ -33,7 +33,7 @@ The entire project is modular in structure and built using the CMake build syste
 - Import and export password data to/from CSV, JSON, and XML files
 
 ## Technology
-- Qt 6.9
+- Qt 6.9.0
 - C++20
   - __libsodium__ - cryptographic library used for secure encryption
   - __ChaCha20-Poly1305__ - authenticated encryption algorithm for protecting stored passwords
@@ -99,26 +99,26 @@ The entire project is modular in structure and built using the CMake build syste
         test_file.xml
 ```
 - Root Directory - Main Application Entry & Core Files:
-   - `main.cpp` – application entry point
-   - `mainwindow.*`– main window class managing the central UI and logic
-   - `app_icon.rc` – resource script for Windows-specific application icon integration
-   - `resources.qrc` – Qt resource file that embeds images and icons into the application binary
-- `database` – Data Access Layer - handles all operations related to database management and queries:
-   - `databasemanager.*` – manages PostgreSQL database connections, execution of SQL queries, and result handling
-   - `db_config.json` – configuration file for database connection
-   - `db_query.sql` – SQL file containing schema definitions and prepared queries. 
+   - `main.cpp` - application entry point
+   - `mainwindow` - main window class managing the central UI and logic
+   - `app_icon.rc` - resource script for Windows-specific application icon integration
+   - `resources.qrc` - Qt resource file that embeds images and icons into the application binary
+- `database` - handles all operations related to database management and queries:
+   - `databasemanager` - manages PostgreSQL database connections, execution of SQL queries, and result handling
+   - `db_config.json` - configuration file for database connection
+   - `db_query.sql` - SQL file containing schema definitions and prepared queries
 - `dialogs` - contains all the user interface dialogs used throughout the application:
    - `exportpassworddialog` - dialog for selecting exported passwords to external files
    - `logindialog` - dialog for user authentication when starting the application (or creating a new profile)
    - `passwordformdialog` - form for adding or editing passwords, it is also possible to manage groups
    - `selectdialog` - interface for selecting a password/group to edit/delete it
-- `encryption` – provides all functionality related to encrypting and decrypting sensitive data:
-   - `encryptionutils` – utility class for performing cryptographic operations
-   - `cryptodata.h` – structure for handling encrypted data
-- `models` – contains application-specific data classes:
-   - `group` – groups for organizing passwords
-   - `passwordmanager` – core class handling password storage
-   - `passwordmode.h` – enum for display modes
+- `encryption` - provides all functionality related to encrypting and decrypting sensitive data:
+   - `encryptionutils` - utility class for performing cryptographic operations
+   - `cryptodata.h` - structure for handling encrypted data
+- `models` - contains application-specific data classes:
+   - `group` - groups for organizing passwords
+   - `passwordmanager` - core class handling password storage
+   - `passwordmode.h` - enum for display modes
 - `services`: 
    - `fileservice` - manages file operations such as reading configuration files, importing and exporting passwords to CSV, JSON and XML formats
    - [`test_file.csv`](./services/test_file.csv) - contains sample data and schema for the CSV file
@@ -126,4 +126,4 @@ The entire project is modular in structure and built using the CMake build syste
    - [`test_file.xml`](./services/test_file.xml) - contains sample data and schema for the XML file
 
 ## Database schema
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/database/database-schema.png" alt="Database schema" title="Database schema" height="350">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/database/db_schema.png" alt="Database schema" title="Database schema" height="350">

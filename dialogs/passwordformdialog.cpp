@@ -1,5 +1,5 @@
 #include "passwordformdialog.h"
-#include "selectpassworddialog.h"
+#include "selectdialog.h"
 #include "ui_passwordformdialog.h"
 
 PasswordFormDialog::PasswordFormDialog(QWidget *parent,
@@ -153,7 +153,7 @@ void PasswordFormDialog::onAddGroupButtonClicked() {
 }
 
 void PasswordFormDialog::onDeleteGroupButtonClicked() {
-    SelectPasswordDialog dialog(this, m_groupNames, PasswordMode::GroupDeleteMode);
+    SelectDialog dialog(this, m_groupNames, PasswordMode::GroupDeleteMode);
     if (dialog.exec() == QDialog::Accepted) {
         const Group &group = dialog.selectedGroup();
         if (m_dbManager->hasPasswordsInGroup(group.id())) {
@@ -172,10 +172,9 @@ void PasswordFormDialog::onDeleteGroupButtonClicked() {
 }
 
 void PasswordFormDialog::onEditGroupButtonClicked() {
-    SelectPasswordDialog dialog(this, m_groupNames, PasswordMode::GroupEditMode);
+    SelectDialog dialog(this, m_groupNames, PasswordMode::GroupEditMode);
     if (dialog.exec() == QDialog::Accepted) {
         const Group &oldGroup = dialog.selectedGroup();
-        qDebug() << oldGroup.id();
         QString currentName = oldGroup.groupName();
         bool ok;
         QString newName = QInputDialog::getText(this,
@@ -189,7 +188,6 @@ void PasswordFormDialog::onEditGroupButtonClicked() {
 
         newName = newName.trimmed();
         newName = newName.left(1).toUpper() + newName.mid(1).toLower();
-
         if (newName.compare(currentName, Qt::CaseSensitive) == 0) {
             QMessageBox::warning(this, tr("No changes"), tr("The name has not changed"));
             return;

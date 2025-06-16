@@ -5,7 +5,7 @@
 #include "logindialog.h"
 #include "mainwindow.h"
 #include "passwordformdialog.h"
-#include "selectpassworddialog.h"
+#include "selectdialog.h"
 #include "ui_mainwindow.h"
 #include <QStandardPaths>
 
@@ -308,7 +308,7 @@ void MainWindow::handlePasswordSelection(PasswordMode mode) {
         return;
     }
 
-    SelectPasswordDialog dialog(this, m_passwordList, mode);
+    SelectDialog dialog(this, m_passwordList, mode);
     if (dialog.exec() == QDialog::Accepted) {
         int index = dialog.selectedIndex();
         if (mode == PasswordMode::EditMode) {

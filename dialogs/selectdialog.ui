@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SelectPasswordDialog</class>
- <widget class="QDialog" name="SelectPasswordDialog">
+ <class>SelectDialog</class>
+ <widget class="QDialog" name="SelectDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -56,7 +56,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>SelectPasswordDialog</receiver>
+   <receiver>SelectDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -72,7 +72,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SelectPasswordDialog</receiver>
+   <receiver>SelectDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

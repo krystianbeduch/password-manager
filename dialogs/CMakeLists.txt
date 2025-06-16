@@ -1,6 +1,6 @@
 qt_add_library(dialogs
     passwordformdialog.h passwordformdialog.cpp passwordformdialog.ui
-    selectpassworddialog.h selectpassworddialog.cpp selectpassworddialog.ui
+    selectdialog.h selectdialog.cpp selectdialog.ui
     exportpassworddialog.h exportpassworddialog.cpp exportpassworddialog.ui
     logindialog.h logindialog.cpp logindialog.ui
 )

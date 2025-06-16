@@ -1,5 +1,5 @@
-#ifndef SELECTPASSWORDDIALOG_H
-#define SELECTPASSWORDDIALOG_H
+#ifndef SELECTDIALOG_H
+#define SELECTDIALOG_H
 
 #include "group.h"
 #include "passwordmanager.h"
@@ -12,26 +12,26 @@
 #include <QVector>
 
 namespace Ui {
-class SelectPasswordDialog;
+class SelectDialog;
 }
 
-class SelectPasswordDialog : public QDialog {
+class SelectDialog : public QDialog {
     Q_OBJECT
 
 public:
-    SelectPasswordDialog(QWidget *parent = nullptr,
+    SelectDialog(QWidget *parent = nullptr,
                          const QVector<PasswordManager*> passwordList = {},
                          PasswordMode mode = PasswordMode::EditMode);
-    SelectPasswordDialog(QWidget *parent,
+    SelectDialog(QWidget *parent,
                          const QVector<Group> groups,
                          PasswordMode mode);
-    ~SelectPasswordDialog();
+    ~SelectDialog();
     [[nodiscard]] int selectedIndex() const;
     [[nodiscard]] QString selectedText() const;
     [[nodiscard]] Group selectedGroup() const;
 
 private:
-    Ui::SelectPasswordDialog *ui;
+    Ui::SelectDialog *ui;
 };
 
-#endif // SELECTPASSWORDDIALOG_H
+#endif // SELECTDIALOG_H

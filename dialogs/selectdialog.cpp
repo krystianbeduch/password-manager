@@ -1,11 +1,11 @@
-#include "selectpassworddialog.h"
-#include "ui_selectpassworddialog.h"
+#include "selectdialog.h"
+#include "ui_selectdialog.h"
 
-SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
+SelectDialog::SelectDialog(QWidget *parent,
                                            const QVector<PasswordManager*> passwordList,
                                            PasswordMode mode)
     : QDialog(parent)
-    , ui(new Ui::SelectPasswordDialog)
+    , ui(new Ui::SelectDialog)
 {
     ui->setupUi(this);
 
@@ -32,12 +32,11 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
     }
 }
 
-
-SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
+SelectDialog::SelectDialog(QWidget *parent,
                                            const QVector<Group> groups,
                                            PasswordMode mode)
     : QDialog(parent)
-    , ui(new Ui::SelectPasswordDialog)
+    , ui(new Ui::SelectDialog)
 {
     ui->setupUi(this);
 
@@ -61,13 +60,13 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
     }
 }
 
-SelectPasswordDialog::~SelectPasswordDialog() {
+SelectDialog::~SelectDialog() {
     delete ui;
 }
 
-int SelectPasswordDialog::selectedIndex() const { return ui->comboBox->currentIndex(); }
-QString SelectPasswordDialog::selectedText() const { return ui->comboBox->currentText(); }
-Group SelectPasswordDialog::selectedGroup() const {
+int SelectDialog::selectedIndex() const { return ui->comboBox->currentIndex(); }
+QString SelectDialog::selectedText() const { return ui->comboBox->currentText(); }
+Group SelectDialog::selectedGroup() const {
     QString groupName = ui->comboBox->currentText();
     int groupId = ui->comboBox->currentData().toInt();
     return Group(groupId, groupName);

@@ -36,7 +36,7 @@ The entire project is modular in structure and built using the CMake build syste
 - Qt 6.9
 - C++20
   - __libsodium__ - cryptographic library used for secure encryption
-  - __ChaCha20-Poly1305__ — authenticated encryption algorithm for protecting stored passwords
+  - __ChaCha20-Poly1305__ - authenticated encryption algorithm for protecting stored passwords
 - PostgreSQL 16
 - CMake
 
@@ -44,20 +44,17 @@ The entire project is modular in structure and built using the CMake build syste
 ```bash
 │   app_icon.rc
 │   CMakeLists.txt
-│   CMakeLists.txt.user
-│   config.json
 │   main.cpp
 │   mainwindow.cpp
 │   mainwindow.h
 │   mainwindow.ui
-│   password_manager_pl_PL.ts
 │   resources.qrc
 │
 ├───database
 │       CMakeLists.txt
-│       config.json
 │       databasemanager.cpp
 │       databasemanager.h
+│       db_config.json
 │       db_query.sql
 │
 ├───dialogs
@@ -97,6 +94,34 @@ The entire project is modular in structure and built using the CMake build syste
         CMakeLists.txt
         fileservice.cpp
         fileservice.h
+        test_file.csv
+        test_file.json
+        test_file.xml
 ```
+- Root Directory - Main Application Entry & Core Files:
+   - `main.cpp` – application entry point
+   - `mainwindow.*`– main window class managing the central UI and logic
+- `database` – Data Access Layer - handles all operations related to database management and queries:
+   - `databasemanager.*` – manages PostgreSQL database connections, execution of SQL queries, and result handling
+   - `db_config.json` – configuration file for database connection
+   - `db_query.sql` – SQL file containing schema definitions and prepared queries. 
+- `dialogs` - contains all the user interface dialogs used throughout the application:
+   - `exportpassworddialog` - dialog for selecting exported passwords to external files
+   - `logindialog` - dialog for user authentication when starting the application (or creating a new profile)
+   - `passwordformdialog` - form for adding or editing passwords, it is also possible to manage groups
+   - `selectdialog` - interface for selecting a password/group to edit/delete it
+- `encryption` – provides all functionality related to encrypting and decrypting sensitive data:
+   - `encryptionutils` – utility class for performing cryptographic operations
+   - `cryptodata.h` – structure for handling encrypted data
+- `models` – contains application-specific data classes:
+   - `group` – groups for organizing passwords
+   - `passwordmanager` – core class handling password storage
+   - `passwordmode.h` – enum for display modes
+- `services`: 
+   - `fileservice` - manages file operations such as reading configuration files, importing and exporting passwords to CSV, JSON and XML formats
+   - [`test_file.csv`](./services/test_file.csv) - contains sample data and schema for the CSV file
+   - [`test_file.json`](./services/test_file.json) - contains sample data and schema for the JSON file
+   - [`test_file.xml`](./services/test_file.xml) - contains sample data and schema for the XML file
 
 ## Database schema
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/database/database-schema.png" alt="Database schema" title="Database schema" height="350">

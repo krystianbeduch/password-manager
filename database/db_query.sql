@@ -13,11 +13,14 @@ CREATE TABLE IF NOT EXISTS public.passwords (
 );
 
 CREATE TABLE IF NOT EXISTS public.encrypted_passwords (
-    cipher_id SERIAL PRIMARY KEY,
-    password_id INTEGER REFERENCES passwords(id) ON DELETE CASCADE,
+    password_id INTEGER PRIMARY KEY,
     encrypted_password BYTEA NOT NULL,
     nonce BYTEA NOT NULL,
-    salt BYTEA NOT NULL
+    salt BYTEA NOT NULL,
+    CONSTRAINT fk_password
+        FOREIGN KEY (password_id)
+        REFERENCES passwords(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS public.login_data (

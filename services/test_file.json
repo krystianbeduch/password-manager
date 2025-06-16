@@ -3,23 +3,23 @@
         "addition_date": "19.05.2025 19:37",
         "group": "Work",
         "id": 45,
-        "password": "testowe1",
+        "password": "testPass1",
         "service_name": "test1JSON",
-        "username": "testo1"
+        "username": "testUser1"
     },
     {
         "addition_date": "18.05.2025 02:25",
         "group": "Personal",
         "id": 5,
-        "password": "testowe2",
+        "password": "testPass2",
         "service_name": "test2JSON",
-        "username": "testo2"
+        "username": "testUser2"
     },
     {
         "addition_date": "18.05.2025 02:25",
         "group": "Banking",
         "id": 6,
-        "password": "testowe3",
+        "password": "testPass3",
         "service_name": "test3JSON",
         "username": "testo3"
     }

@@ -2,22 +2,22 @@
 <Passwords>
     <password_data id="45">
         <service_name>test1XML</service_name>
-        <username>testo1</username>
-        <password>testowe1</password>
+        <username>testUser1</username>
+        <password>testPass1</password>
         <group>Work</group>
         <addition_date>19.05.2025 19:37</addition_date>
     </password_data>
     <password_data id="46">
         <service_name>test2XML</service_name>
-        <username>testo2</username>
-        <password>testowe2</password>
+        <username>testUser2</username>
+        <password>testPass2</password>
         <group>Banking</group>
         <addition_date>19.05.2025 19:37</addition_date>
     </password_data>
     <password_data id="47">
         <service_name>test3XML</service_name>
-        <username>testo3</username>
-        <password>testowe3</password>
+        <username>testUser3</username>
+        <password>testPass3</password>
         <group>Email</group>
         <addition_date>19.05.2025 19:37</addition_date>
     </password_data>

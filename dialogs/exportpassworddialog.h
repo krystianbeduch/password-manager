@@ -2,6 +2,7 @@
 #define EXPORTPASSWORDDIALOG_H
 
 #include "passwordmanager.h"
+
 #include <QDialog>
 #include <QFileDialog>
 #include <QFile>
@@ -39,9 +40,6 @@ public:
     [[nodiscard]] QString xmlFileName() const;
     [[nodiscard]] bool isValidFilename(QCheckBox *checkBox, QLineEdit *lineEdit, const QString &formatName);
     [[nodiscard]] QString dir() const;
-
-
-
 
 private slots:
     void onSelectAllToggled(bool checked);

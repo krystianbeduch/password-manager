@@ -5,7 +5,6 @@
 #include "group.h"
 #include "passwordmanager.h"
 #include "passwordmode.h"
-#include "ui_passwordformdialog.h"
 
 #include <QDialog>
 #include <QInputDialog>
@@ -16,6 +15,7 @@
 #include <QRandomGenerator>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QVector>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -26,6 +26,7 @@ QT_END_NAMESPACE
 
 class PasswordFormDialog : public QDialog {
     Q_OBJECT
+
 public:
     PasswordFormDialog(QWidget *parent = nullptr,
                        PasswordMode mode = PasswordMode::AddMode,
@@ -54,7 +55,7 @@ private:
     Ui::PasswordFormDialog *ui;    
     PasswordMode m_mode;
     DatabaseManager *m_dbManager;
-    QList<Group> m_groupNames;
+    QVector<Group> m_groupNames;
 
     void initUI();
     void connectSignals();

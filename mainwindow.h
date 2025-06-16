@@ -5,7 +5,6 @@
 #include "encryptionutils.h"
 #include "passwordmanager.h"
 #include "passwordmode.h"
-#include "ui_mainwindow.h"
 
 #include <QByteArray>
 #include <QDateTime>
@@ -15,6 +14,8 @@
 #include <QHBoxLayout>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QMap>
 #include <QMessageBox>

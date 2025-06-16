@@ -30,9 +30,8 @@ qt_standard_project_setup()
 add_subdirectory(models)
 add_subdirectory(database)
 add_subdirectory(encryption)
-# add_subdirectory(dialogs)
+add_subdirectory(dialogs)
 add_subdirectory(services)
-# add_subdirectory(ui)
 
 # ======================
 # Executable
@@ -41,13 +40,7 @@ add_subdirectory(services)
 qt_add_executable(password_manager
     WIN32 MACOSX_BUNDLE
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
-    passwordformdialog.h passwordformdialog.cpp passwordformdialog.ui
-    selectpassworddialog.h selectpassworddialog.cpp selectpassworddialog.ui
-    exportpassworddialog.h exportpassworddialog.cpp exportpassworddialog.ui
-    logindialog.h logindialog.cpp logindialog.ui
+    mainwindow.h mainwindow.cpp mainwindow.ui
     resources.qrc
 )
 
@@ -69,31 +62,17 @@ endif()
 
 target_link_libraries(password_manager
     PRIVATE
-        Qt::Core
-        Qt::Widgets
-        models
-        encryption
-        database
-        # dialogs
-
+        Qt6::Core
+        Qt6::Widgets
         services
-        # ui
-)
-
-target_link_directories(password_manager
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        dialogs
 )
 
 target_include_directories(password_manager
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/models
-        ${CMAKE_SOURCE_DIR}/encryption
-        ${CMAKE_SOURCE_DIR}/database
         ${CMAKE_SOURCE_DIR}/services
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/dialogs
 )
-
 
 include(GNUInstallDirs)
 

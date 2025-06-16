@@ -383,7 +383,10 @@ void MainWindow::importPasswords() {
     if (!newPasswords.isEmpty()) {
         QHash<PasswordManager*, CryptoData> cryptoMap;
         for (const auto &p : std::as_const(newPasswords)) {
-            const std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData(QString::fromUtf8(m_crypto->mainPassword()), p->password());
+            const std::optional<CryptoData> cryptoDataOpt = m_crypto->prepareCryptoData(
+                QString::fromUtf8(m_crypto->mainPassword()), p->password()
+            );
+
             if (!cryptoDataOpt.has_value()) {
                 qDebug() << tr("Error during generation of cryptographic data");
                 return;
@@ -546,8 +549,7 @@ void MainWindow::showAboutTechnologies() {
                                 "- C++20:\n"
                                 "      * library: libsodium\n"
                                 "- PostgreSQL 16 (for password storage)\n"
-                                "- ChaCha20-Poly1305 (for password encryption)\n"
-                                "- QTableWidget and Qt Widgets framework"));
+                                "- ChaCha20-Poly1305 (for password encryption)"));
 }
 
 void MainWindow::checkLoginTimeout() {
@@ -613,8 +615,6 @@ void MainWindow::sortPasswordListByColumn(int column, Qt::SortOrder order) {
 
     std::sort(m_passwordList.begin(), m_passwordList.end(), comparator);
     updatePasswordTable();
-
-
 }
 
 void MainWindow::onSortOptionChanged(int index) {

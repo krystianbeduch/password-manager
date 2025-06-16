@@ -1,5 +1,6 @@
 #include "passwordformdialog.h"
 #include "selectpassworddialog.h"
+#include "ui_passwordformdialog.h"
 
 PasswordFormDialog::PasswordFormDialog(QWidget *parent,
                                        PasswordMode mode,
@@ -31,7 +32,6 @@ PasswordFormDialog::PasswordFormDialog(QWidget *parent,
         ui->usernameLineEdit->setText(password->username());
         ui->groupComboBox->setCurrentText(password->group().groupName());
     }
-
     connectSignals();
 }
 

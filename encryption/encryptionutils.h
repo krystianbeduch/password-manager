@@ -1,11 +1,12 @@
 #ifndef ENCRYPTIONUTILS_H
 #define ENCRYPTIONUTILS_H
 
-#include <QByteArray>
-#include <QString>
-#include <QDebug>
-#include <sodium.h>
 #include "cryptodata.h"
+
+#include <QByteArray>
+#include <QDebug>
+#include <QString>
+#include <sodium.h>
 
 class EncryptionUtils {
 public:

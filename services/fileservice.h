@@ -1,22 +1,23 @@
 #ifndef FILESERVICE_H
 #define FILESERVICE_H
 
-#include "passwordmanager.h"
 #include "databasemanager.h"
 #include "group.h"
-#include <QString>
+#include "passwordmanager.h"
+
+#include <QByteArray>
 #include <QDebug>
 #include <QFile>
-#include <QVector>
-#include <QSet>
 #include <QHash>
-#include <QByteArray>
-#include <QMessageBox>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QXmlStreamWriter>
+#include <QMessageBox>
+#include <QSet>
+#include <QString>
+#include <QVector>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 class FileService : QObject {
     Q_OBJECT;
@@ -31,8 +32,6 @@ public:
 
 private:
     static QHash<QString, Group> validGroupsMap;
-    static bool groupsInitialized;
-    static void initializeGroups(DatabaseManager *dbManager);
     static bool isValidGroup(const Group &group, DatabaseManager *dbManager);
     static QString normalizeGroupName(const QString &name);
 };

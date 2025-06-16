@@ -1,15 +1,16 @@
-# qt_wrap_ui(dialogs_UIS
-#     exportpassworddialog.ui
-#     logindialog.ui
-#     passwordformdialog.ui
-#     selectpassworddialog.ui
-# )
-
-add_library(dialogs
-    exportpassworddialog.cpp exportpassworddialog.h exportpassworddialog.ui
-    logindialog.cpp logindialog.h logindialog.ui
-    passwordformdialog.cpp passwordformdialog.h passwordformdialog.ui
-    selectpassworddialog.cpp selectpassworddialog.h selectpassworddialog.ui
-    # ${dialogs_UIS}
+qt_add_library(dialogs
+    passwordformdialog.h passwordformdialog.cpp passwordformdialog.ui
+    selectpassworddialog.h selectpassworddialog.cpp selectpassworddialog.ui
+    exportpassworddialog.h exportpassworddialog.cpp exportpassworddialog.ui
+    logindialog.h logindialog.cpp logindialog.ui
 )
-target_link_libraries(dialogs Qt::Widgets)
+
+target_include_directories(dialogs
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(dialogs
+    PUBLIC
+        models
+        database
+)

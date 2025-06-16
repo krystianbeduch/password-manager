@@ -1,13 +1,9 @@
 add_library(database
-    databasemanager.cpp
-    databasemanager.h
+    databasemanager.h databasemanager.cpp
 )
 
 target_include_directories(database
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/models
-        ${CMAKE_SOURCE_DIR}/encryption
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(database

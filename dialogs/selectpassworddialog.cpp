@@ -34,7 +34,7 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
 
 
 SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
-                                           const QList<Group> groups,
+                                           const QVector<Group> groups,
                                            PasswordMode mode)
     : QDialog(parent)
     , ui(new Ui::SelectPasswordDialog)
@@ -60,7 +60,6 @@ SelectPasswordDialog::SelectPasswordDialog(QWidget *parent,
         }
     }
 }
-
 
 SelectPasswordDialog::~SelectPasswordDialog() {
     delete ui;

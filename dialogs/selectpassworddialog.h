@@ -23,7 +23,7 @@ public:
                          const QVector<PasswordManager*> passwordList = {},
                          PasswordMode mode = PasswordMode::EditMode);
     SelectPasswordDialog(QWidget *parent,
-                         const QList<Group> groups,
+                         const QVector<Group> groups,
                          PasswordMode mode);
     ~SelectPasswordDialog();
     [[nodiscard]] int selectedIndex() const;

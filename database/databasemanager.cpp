@@ -646,7 +646,7 @@ CryptoData DatabaseManager::fetchMainPassword() {
     return cryptoData;
 }
 
-QList<Group> DatabaseManager::fetchGroups() {
+QVector<Group> DatabaseManager::fetchGroups() {
     if (!connectDb()) {
         qWarning() << tr("Failed to connect to database");
         return {};
@@ -666,7 +666,7 @@ QList<Group> DatabaseManager::fetchGroups() {
         return {};
     }
 
-    QList<Group> groupList;
+    QVector<Group> groupList;
     while (query.next()) {
         groupList.append(Group(query.value(0).toInt(), query.value(1).toString()));
     }

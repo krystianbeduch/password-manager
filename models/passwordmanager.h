@@ -1,9 +1,9 @@
 #ifndef PASSWORDMANAGER_H
 #define PASSWORDMANAGER_H
 
-#include <QString>
-#include <QDateTime>
 #include "group.h"
+#include <QDateTime>
+#include <QString>
 
 class PasswordManager {
 public:

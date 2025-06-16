@@ -1,22 +1,23 @@
 #ifndef DATABASEMANAGER_H
 #define DATABASEMANAGER_H
 
-#include "passwordmanager.h"
-#include "encryptionutils.h"
 #include "cryptodata.h"
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QString>
-#include <QStringList>
-#include <QMessageBox>
-#include <QDebug>
-#include <QVector>
-#include <QHash>
-#include <QVariant>
+#include "encryptionutils.h"
+#include "passwordmanager.h"
+
 #include <QByteArray>
 #include <QDateTime>
+#include <QDebug>
+#include <QHash>
+#include <QMessageBox>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QString>
+#include <QStringList>
 #include <QTimeZone>
+#include <QVariant>
+#include <QVector>
 
 class DatabaseManager : public QObject {
     Q_OBJECT
@@ -41,7 +42,7 @@ public:
     [[nodiscard]] bool addPasswordList(QHash<PasswordManager*, CryptoData> &passwords);
     [[nodiscard]] bool addMainPassword(CryptoData &cryptoData);
     [[nodiscard]] CryptoData fetchMainPassword();
-    [[nodiscard]] QList<Group> fetchGroups();
+    [[nodiscard]] QVector<Group> fetchGroups();
     [[nodiscard]] bool addGroup(const QString &groupName);
     [[nodiscard]] bool deleteGroup(int groupId);
     [[nodiscard]] bool updateGroup(int groupId, const QString &newName);

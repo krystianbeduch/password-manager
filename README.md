@@ -127,3 +127,50 @@ The entire project is modular in structure and built using the CMake build syste
 
 ## Database schema
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/database/db_schema.png" alt="Database schema" title="Database schema" height="350">
+
+
+## Functional description
+### 🔐 User authentication
+When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the `Create new profile` checkbox. Creating a new profile is equivalent to erasing all existing data. This means that if the user has forgotten their previous password, there is no way to recover the old data, and they must accept its loss.
+
+After creating a new profile, all existing tables in the database are cleared and reinitialized with default values. These include:
+- 4 default groups: Work, Personal, Banking, Email
+- 3 example entries to demonstrate how the application works
+
+The entered access password is used to generate an encryption key, which is essential for securely storing and retrieving sensitive user data. 
+Additionally, to prevent unauthorized access, the login dialog will automatically reappear after 5 minutes of inactivity. 
+This ensures that if the application is left unattended, access to the data remains protected.
+
+ 
+### Password management
+- Add, edit, and delete login-password pairs for specific services
+- 
+### Group management
+- Assign passwords to user-defined groups
+ 
+### Generate passwords
+Generate strong random passwords
+
+### Password encryption
+- Store all passwords in encrypted form in a local PostgreSQL database- 
+  
+### Reorder password
+- Reorder password entries based on user preferences
+  
+### Import and export password data
+- Import and export password data to/from CSV, JSON, and XML files
+
+
+
+Presents all tasks in a scrollable list using a _RecyclerView_. Each task is visually styled according to the `item_task.xml` layout, ensuring a consistent and user-friendly appearance. 
+Each task item displays the following information:
+- Title — the main name or description of the task
+- Deadline — the due date and time by which the task should be completed
+- Creation date — the date and time when the task was originally added
+- Priority — indicates the importance level of the task, which can be _High_, _Medium_, or _Low_
+- Completion status — represented by a ✔ symbol when the task is marked as completed
+- Attachment icon — displayed if one or more attachments are associated with the task, indicating additional files or resources linked to it
+<p align="center">
+   <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/list-of-tasks.jpg" alt="List of tasks" title="List of tasks" height="800" align="center">
+</p>
+This setup provides a clear and informative overview of all tasks, helping users to easily track, prioritize, and manage their work

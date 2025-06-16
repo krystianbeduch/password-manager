@@ -277,3 +277,15 @@ bool FileService::isValidGroup(const Group &group, DatabaseManager *dbManager) {
 QString FileService::normalizeGroupName(const QString &name) {
     return name.left(1).toUpper() + name.mid(1).toLower();
 }
+
+std::optional<QString> FileService::findFileInParentDirs(const QString &relativeFilePath, int maxUpLevels) {
+    QDir dir(QCoreApplication::applicationDirPath());
+    for (int i = 0; i < maxUpLevels; i++) {
+        QString potentialPath = dir.filePath(relativeFilePath);
+        if (QFile::exists(potentialPath)) {
+            return potentialPath;
+        }
+        if (!dir.cdUp()) break;
+    }
+    return std::nullopt;
+}

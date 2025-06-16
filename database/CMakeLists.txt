@@ -12,4 +12,5 @@ target_link_libraries(database
         Qt6::Widgets
         models
         encryption
+        services
 )

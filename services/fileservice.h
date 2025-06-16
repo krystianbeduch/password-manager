@@ -1,12 +1,14 @@
 #ifndef FILESERVICE_H
 #define FILESERVICE_H
 
-#include "databasemanager.h"
 #include "group.h"
+#include "databasemanager.h"
 #include "passwordmanager.h"
 
 #include <QByteArray>
+#include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QHash>
 #include <QJsonArray>
@@ -29,6 +31,8 @@ public:
     [[nodiscard]] static QVector<PasswordManager*> parseCSV(const QString &path, DatabaseManager *dbManager);
     [[nodiscard]] static QVector<PasswordManager*> parseJSON(const QString &path, DatabaseManager *dbManager);
     [[nodiscard]] static QVector<PasswordManager*> parseXML(const QString &path, DatabaseManager *dbManager);
+
+    [[nodiscard]] static std::optional<QString> findFileInParentDirs(const QString &relativeFilePath, int maxUpLevels = 5);
 
 private:
     static QHash<QString, Group> validGroupsMap;

@@ -75,6 +75,7 @@ private:
     QString m_dbName;
     QString m_username;
     QString m_password;
+    static constexpr auto DB_CONFIG_FILE_PATH = "database/db_config.json";
 
     QLabel *m_statusLabel;
     bool m_customSortActive;

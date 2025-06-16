@@ -8,6 +8,7 @@
 #include <QByteArray>
 #include <QDateTime>
 #include <QDebug>
+#include <QFile>
 #include <QHash>
 #include <QMessageBox>
 #include <QSqlDatabase>
@@ -15,6 +16,7 @@
 #include <QSqlQuery>
 #include <QString>
 #include <QStringList>
+#include <QTextStream>
 #include <QTimeZone>
 #include <QVariant>
 #include <QVector>
@@ -30,6 +32,7 @@ public:
     ~DatabaseManager();
     [[nodiscard]] bool connectDb();
     void disconnectDb();
+    [[nodiscard]] bool createTableIfNotExists();
     [[nodiscard]] bool insertSamplePasswordsData(EncryptionUtils *crypto);
     [[nodiscard]] QVector<QVector<QVariant>> fetchAllPasswords();
     [[nodiscard]] bool addPassword(PasswordManager *newPassword, CryptoData &cryptoData);
@@ -55,6 +58,7 @@ private:
     QString m_username;
     QString m_password;
     QSqlDatabase m_db;
+    static constexpr auto DB_QUERY_PATH = "database/db_query.sql";
 };
 
 #endif // DATABASEMANAGER_H

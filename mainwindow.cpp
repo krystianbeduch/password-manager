@@ -7,6 +7,7 @@
 #include "passwordformdialog.h"
 #include "selectpassworddialog.h"
 #include "ui_mainwindow.h"
+#include <QStandardPaths>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,8 +25,13 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    if (loadDatabaseConfig("database/config.json")) {
+    if (loadDatabaseConfig(DB_CONFIG_FILE_PATH)) {
         m_dbManager = new DatabaseManager(m_host, m_port, m_dbName, m_username, m_password);
+        if (!m_dbManager->createTableIfNotExists()) {
+            QMessageBox::critical(this, tr("Configuration Error"), tr("Failed to create database schema"));
+            this->close();
+            return;
+        }
     }
     else {
         QMessageBox::critical(this, tr("Configuration Error"), tr("Failed to load database configuration"));
@@ -101,28 +107,13 @@ void MainWindow::setupConnections() {
 }
 
 bool MainWindow::loadDatabaseConfig(const QString &configFilePath) {
-    QString appDir = QCoreApplication::applicationDirPath();
-    QDir dir(appDir);
-    int maxUpLevels = 5;
-    QString filePath;
-    bool found = false;
-
-    for (int i = 0; i < maxUpLevels; i++) {
-        QString potentialPath = dir.filePath(configFilePath);
-        if (QFile::exists(potentialPath)) {
-            filePath = potentialPath;
-            found = true;
-            break;
-        }
-        dir.cdUp();
-    }
-
-    if (!found) {
+    const auto filePathOpt = FileService::findFileInParentDirs(configFilePath);
+    if (!filePathOpt.has_value()) {
         qCritical() << tr("%1 file not found in parent directories").arg(configFilePath);
         return false;
     }
 
-    QFile configFile(filePath);
+    QFile configFile(filePathOpt.value());
     if (!configFile.open(QIODevice::ReadOnly)) {
         qCritical() << tr("Could not open config file");
         return false;

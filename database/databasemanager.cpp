@@ -1,4 +1,5 @@
 #include "databasemanager.h"
+#include "fileservice.h"
 
 DatabaseManager::DatabaseManager(const QString &host,
                                  int port,
@@ -44,10 +45,46 @@ void DatabaseManager::disconnectDb() {
     }
 }
 
+bool DatabaseManager::createTableIfNotExists() {
+    if (!connectDb()) {
+        qWarning() << tr("Failed to connect to database");
+        return false;
+    }
+    const auto filePathOpt = FileService::findFileInParentDirs(DB_QUERY_PATH);
+    if (!filePathOpt.has_value()) {
+        qCritical() << tr("%1 file not found in parent directories").arg(DB_QUERY_PATH);
+        return false;
+    }
+
+    QFile sqlFile(filePathOpt.value());
+    if (!sqlFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << tr("Could not open SQL schema file");
+        return false;
+    }
+
+    QString fileContent = QTextStream(&sqlFile).readAll();
+    sqlFile.close();
+
+    QStringList statements = fileContent.split(";", Qt::SkipEmptyParts);
+    QSqlQuery query(m_db);
+    for (auto &stmt : statements) {
+        stmt = stmt.trimmed();
+        if (stmt.isEmpty()) {
+            continue;
+        }
+        if (!query.exec(stmt)) {
+            qCritical() << tr("Failed to create table: %1\nError: %2").arg(stmt, query.lastError().text());
+            disconnectDb();
+            return false;
+        }
+    }
+    return true;
+}
+
 bool DatabaseManager::insertSamplePasswordsData(EncryptionUtils *crypto) {
     if (!connectDb()) {
         qWarning() << tr("Failed to connect to database");
-        return {};
+        return false;
     }
 
     const QStringList defaultGroups = {"Work", "Personal", "Banking", "Email"};
@@ -591,10 +628,19 @@ bool DatabaseManager::addMainPassword(CryptoData &cryptoData) {
     QSqlDatabase::database().transaction();
     QSqlQuery query(m_db);
     query.prepare(R"(
-        INSERT INTO public.login_data
-            (encrypted_main_password, salt, nonce)
-        VALUES
-            (:encrypted_main_password, :salt, :nonce);
+        INSERT INTO login_data
+            (id, encrypted_main_password, salt, nonce)
+        VALUES (
+            1,
+            :encrypted_main_password,
+            :salt,
+            :nonce
+        )
+        ON CONFLICT (id) DO
+        UPDATE SET
+            encrypted_main_password = EXCLUDED.encrypted_main_password,
+            salt = EXCLUDED.salt,
+            nonce = EXCLUDED.nonce;
     )");
 
     query.bindValue(":encrypted_main_password", cryptoData.cipher);

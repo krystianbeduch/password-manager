@@ -64,13 +64,11 @@ target_link_libraries(password_manager
     PRIVATE
         Qt6::Core
         Qt6::Widgets
-        services
         dialogs
 )
 
 target_include_directories(password_manager
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/services
         ${CMAKE_SOURCE_DIR}/dialogs
 )
 

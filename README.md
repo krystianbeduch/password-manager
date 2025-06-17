@@ -176,8 +176,7 @@ Passwords can be deleting using:
 - Menu: `Management -> Delete Password`<br>
 Each deletion requires confirmation to avoid data loss.
 
-Additionally, users can remove all password entries at once by selecting:<br>
-`Management -> Delete All Passwords`<br>
+Additionally, users can remove all password entries at once by selecting: `Management -> Delete All Passwords`<br>
 This action is also protected by confirmation dialogs to prevent unintentional mass deletion.
 
 ### Group management

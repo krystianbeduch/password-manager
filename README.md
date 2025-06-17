@@ -155,29 +155,29 @@ The main window of the application displays a table containing the user's saved 
 - Edit – opens an edit form where the user can modify the service name, username, password, or assigned group
 - Delete – deletes the entry after a confirmation dialog to prevent accidental loss
 
-➕ Adding New Passwords
+➕ Adding New Passwords<br>
 Users can add new password entries using multiple methods:
 - `Ctrl + N` keyboard shortcut
 - clicking the plus icon in the top toolbar
-- Menu: `Management` -> `Add Password` 
+- Menu: `Management -> Add Password`<br>
 This action opens a form where the user inputs password data.
 
-📝 Editing Existing Passwords
+📝 Editing Existing Passwords<br>
 Passwords can be edited using:
 - `Ctrl + E` keyboard shortcut
-- clicking the EditPaste icon in the top toolbar
-- Menu: `Management -> Edit Password`  
+- clicking the edit icon in the top toolbar
+- Menu: `Management -> Edit Password`<br>
 When triggered, the user is first asked to select the entry to be edited. After selecting it, the same input form as for adding a new password is shown.
 
-🗑️ Deleting Passwords
-To delete a password:
+🗑️ Deleting Passwords<br>
+Passwords can be deleting using:
 - `Ctrl + Del` keyboard shortcut
 - click the trash icon in the toolbar
-- Menu: `Management` -> `Delete Password`
+- Menu: `Management -> Delete Password`<br>
 Each deletion requires confirmation to avoid data loss.
 
-Additionally, users can remove all password entries at once by selecting:
-`Management` -> `Delete All Passwords`
+Additionally, users can remove all password entries at once by selecting:<br>
+`Management -> Delete All Passwords`<br>
 This action is also protected by confirmation dialogs to prevent unintentional mass deletion.
 
 ### Group management
@@ -194,18 +194,7 @@ Generate strong random passwords
   
 ### Import and export password data
 - Import and export password data to/from CSV, JSON, and XML files
-
-
-
-Presents all tasks in a scrollable list using a _RecyclerView_. Each task is visually styled according to the `item_task.xml` layout, ensuring a consistent and user-friendly appearance. 
-Each task item displays the following information:
-- Title — the main name or description of the task
-- Deadline — the due date and time by which the task should be completed
-- Creation date — the date and time when the task was originally added
-- Priority — indicates the importance level of the task, which can be _High_, _Medium_, or _Low_
-- Completion status — represented by a ✔ symbol when the task is marked as completed
-- Attachment icon — displayed if one or more attachments are associated with the task, indicating additional files or resources linked to it
 <p align="center">
-   <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/list-of-tasks.jpg" alt="List of tasks" title="List of tasks" height="800" align="center">
+  <!-- <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/list-of-tasks.jpg" alt="List of tasks" title="List of tasks" height="800" align="center"> -->
 </p>
-This setup provides a clear and informative overview of all tasks, helping users to easily track, prioritize, and manage their work
+<!-- This setup provides a clear and informative overview of all tasks, helping users to easily track, prioritize, and manage their work -->

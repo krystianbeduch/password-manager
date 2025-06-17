@@ -130,8 +130,7 @@ The entire project is modular in structure and built using the CMake build syste
 
 
 ## Functional description
-### User authentication 
-🔐
+### User authentication
 When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the `Create new profile` checkbox. Creating a new profile is equivalent to erasing all existing data. This means that if the user has forgotten their previous password, there is no way to recover the old data, and they must accept its loss.
 
 After creating a new profile, all existing tables in the database are cleared and reinitialized with default values. These include:
@@ -142,10 +141,45 @@ The entered access password is used to generate an encryption key, which is esse
 Additionally, to prevent unauthorized access, the login dialog will automatically reappear after 5 minutes of inactivity. 
 This ensures that if the application is left unattended, access to the data remains protected.
 
- 
 ### Password management
-- Add, edit, and delete login-password pairs for specific services
-- 
+The main window of the application displays a table containing the user's saved password entries. Each row in the table includes the following columns:
+- ID - identificator of the entry
+- Service name – the name of the website or service
+- Username – the associated login
+- Password – shown as bullet dots for security __•__
+- Addition date – when the entry was created
+- Actions – quick access to: `Show`, `Edit`, or `Delete` the entry
+
+🔍 Actions on a single entry:
+- Show – reveals the actual password in plain text
+- Edit – opens an edit form where the user can modify the service name, username, password, or assigned group
+- Delete – deletes the entry after a confirmation dialog to prevent accidental loss
+
+➕ Adding New Passwords
+Users can add new password entries using multiple methods:
+- `Ctrl + N` keyboard shortcut
+- clicking the plus icon in the top toolbar
+- Menu: `Management` -> `Add Password` 
+This action opens a form where the user inputs password data.
+
+📝 Editing Existing Passwords
+Passwords can be edited using:
+- `Ctrl + E` keyboard shortcut
+- clicking the EditPaste icon in the top toolbar
+- Menu: `Management -> Edit Password`  
+When triggered, the user is first asked to select the entry to be edited. After selecting it, the same input form as for adding a new password is shown.
+
+🗑️ Deleting Passwords
+To delete a password:
+- `Ctrl + Del` keyboard shortcut
+- click the trash icon in the toolbar
+- Menu: `Management` -> `Delete Password`
+Each deletion requires confirmation to avoid data loss.
+
+Additionally, users can remove all password entries at once by selecting:
+`Management` -> `Delete All Passwords`
+This action is also protected by confirmation dialogs to prevent unintentional mass deletion.
+
 ### Group management
 - Assign passwords to user-defined groups
  

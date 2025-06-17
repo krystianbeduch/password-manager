@@ -180,10 +180,28 @@ Additionally, users can remove all password entries at once by selecting: `Manag
 This action is also protected by confirmation dialogs to prevent unintentional mass deletion.
 
 ### Group management
-- Assign passwords to user-defined groups
- 
+Groups provide a convenient way to organize password entries based on user preferences. Each password can be assigned to a specific group, making it easier to categorize and manage entries within the application.
+
+By default, the application comes with four pre-defined groups:
+Work
+Personal
+Banking
+Email
+
+➕ Adding Groups
+Group creation is integrated directly into the Add and Edit Password forms. When a user enters a new group name, the application checks whether the name is unique. Duplicate group names are not allowed.
+
+✏️🗑️ Editing or Deleting Groups
+Users can modify or remove existing groups through dedicated dialog windows. These dialogs work similarly to the ones used for editing or deleting password entries, allowing the user to select a group from a list.
+
+> [!WARNING]
+> A group cannot be deleted if it still contains at least one password entry.
+
 ### Generate passwords
-Generate strong random passwords
+To enhance security, users can generate strong, random passwords directly within the application. This feature is especially useful when creating credentials for new services, ensuring that passwords are difficult to guess or brute-force. The generated password consists of 24 random characters. It includes a mix of uppercase letters, lowercase letters, digits, and special characters for increased complexity. Passwords are generated directly from the Add or Edit Password forms using a built-in button. This approach encourages good security practices by avoiding the reuse of weak or predictable passwords. Once generated, the password can be saved to the appropriate entry, or the user can generate another one with a single click.
+
+> [!TIP]
+> It’s recommended to use the password generator for all new entries to maximize account safety.
 
 ### Password encryption
 - Store all passwords in encrypted form in a local PostgreSQL database- 

@@ -8,15 +8,13 @@
 
 #include <QDialog>
 #include <QInputDialog>
-#include <QMainWindow>
 #include <QMessageBox>
-#include <QObject>
 #include <QPushButton>
 #include <QRandomGenerator>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QString>
 #include <QVector>
-#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

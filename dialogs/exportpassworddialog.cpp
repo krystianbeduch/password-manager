@@ -28,6 +28,7 @@ ExportPasswordDialog::ExportPasswordDialog(QWidget *parent,
                             .arg(QString::number(p->id()),
                                  p->serviceName(),
                                  p->username());
+
         QListWidgetItem *item = new QListWidgetItem(label);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);

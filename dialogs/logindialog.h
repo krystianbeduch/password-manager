@@ -1,7 +1,6 @@
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
-#include <QByteArray>
 #include <QDebug>
 #include <QDialog>
 #include <QMessageBox>

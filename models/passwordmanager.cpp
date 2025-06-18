@@ -64,5 +64,5 @@ void PasswordManager::setUsername(const QString &username) { m_username = userna
 void PasswordManager::setPassword(const QString &password) { m_password = password; }
 void PasswordManager::setGroup(const Group &group) { m_group = group; }
 void PasswordManager::setAdditionalDate(const QDateTime &additionalDate) { m_additionalDate = additionalDate; }
-void PasswordManager::setPostition(int position) { m_position = position; }
+void PasswordManager::setPosition(int position) { m_position = position; }
 QString PasswordManager::formattedDate() const { return m_additionalDate.toLocalTime().toString("dd.MM.yyyy HH:mm"); }

@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     LoginDialog dialog;
     if (dialog.exec() != QDialog::Accepted) {
-        this->close();
+        close();
         return;
     }
 
@@ -29,13 +29,13 @@ MainWindow::MainWindow(QWidget *parent)
         m_dbManager = new DatabaseManager(m_host, m_port, m_dbName, m_username, m_password);
         if (!m_dbManager->createTableIfNotExists()) {
             QMessageBox::critical(this, tr("Configuration Error"), tr("Failed to create database schema"));
-            this->close();
+            close();
             return;
         }
     }
     else {
         QMessageBox::critical(this, tr("Configuration Error"), tr("Failed to load database configuration"));
-        this->close();
+        close();
         return;
     }
 
@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
         const CryptoData cryptoMainPassword = m_dbManager->fetchMainPassword();
         if (!(m_crypto->verifyMainPassword(dialog.password(), cryptoMainPassword))) {
             QMessageBox::critical(this, tr("Wrong password"), tr("Incorrect password"));
-            this->close();
+            close();
             return;
         }
     }
@@ -89,20 +89,20 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::setupConnections() {
-    connect(ui->actionAddPassword, &QAction::triggered, this, &MainWindow::addPassword);
-    connect(ui->actionDeletePassword, &QAction::triggered, this, &MainWindow::selectPasswordToDelete);
-    connect(ui->actionEditPassword, &QAction::triggered, this, &MainWindow::selectPasswordToEdit);
-    connect(ui->actionExportPasswords, &QAction::triggered, this, &MainWindow::selectPasswordToExport);
-    connect(ui->actionImportPasswords, &QAction::triggered, this, &MainWindow::importPasswords);
-    connect(ui->actionDeleteAllPasswords, &QAction::triggered, this, &MainWindow::deleteAllPasswords);
-    connect(ui->actionMovePasswordUp, &QAction::triggered, this, &MainWindow::moveSelectedRowUp);
-    connect(ui->actionMovePasswordDown, &QAction::triggered, this, &MainWindow::moveSelectedRowDown);
-    connect(ui->actionMovePasswordBeginning, &QAction::triggered, this, &MainWindow::moveSelectedRowToTop);
-    connect(ui->actionMovePasswordEnd, &QAction::triggered, this, &MainWindow::moveSelectedRowToBottom);
-    connect(ui->actionSavePasswordPosition, &QAction::triggered, this, &MainWindow::savePositions);
+    connect(ui->actionAddPassword, &QAction::triggered, this, &MainWindow::addPasswordAction);
+    connect(ui->actionDeletePassword, &QAction::triggered, this, &MainWindow::selectPasswordToDeleteAction);
+    connect(ui->actionEditPassword, &QAction::triggered, this, &MainWindow::selectPasswordToEditAction);
+    connect(ui->actionExportPasswords, &QAction::triggered, this, &MainWindow::exportPasswordsAction);
+    connect(ui->actionImportPasswords, &QAction::triggered, this, &MainWindow::importPasswordsAction);
+    connect(ui->actionDeleteAllPasswords, &QAction::triggered, this, &MainWindow::deleteAllPasswordsAction);
+    connect(ui->actionMovePasswordUp, &QAction::triggered, this, &MainWindow::moveSelectedRowUpAction);
+    connect(ui->actionMovePasswordDown, &QAction::triggered, this, &MainWindow::moveSelectedRowDownAction);
+    connect(ui->actionMovePasswordBeginning, &QAction::triggered, this, &MainWindow::moveSelectedRowToTopAction);
+    connect(ui->actionMovePasswordEnd, &QAction::triggered, this, &MainWindow::moveSelectedRowToBottomAction);
+    connect(ui->actionSavePasswordPosition, &QAction::triggered, this, &MainWindow::savePositionsAction);
     connect(ui->actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
-    connect(ui->actionAboutAuthor, &QAction::triggered, this, &MainWindow::showAboutAuthor);
-    connect(ui->actionAboutTechnologies, &QAction::triggered, this, &MainWindow::showAboutTechnologies);
+    connect(ui->actionAboutAuthor, &QAction::triggered, this, &MainWindow::showAboutAuthorAction);
+    connect(ui->actionAboutTechnologies, &QAction::triggered, this, &MainWindow::showAboutTechnologiesAction);
     connect(ui->sortByComboBox, &QComboBox::currentIndexChanged, this, &MainWindow::onSortOptionChanged);
 }
 
@@ -245,12 +245,12 @@ void MainWindow::updatePasswordTable() {
         showButton->setProperty("index", i);
         showButton->setProperty("isPasswordVisible", false);
 
-        connect(editButton, &QPushButton::clicked, this, [this, index = i]() {
-            editPassword(index);
+        connect(editButton, &QPushButton::clicked, this, [this, i]() {
+            editPassword(i);
         });
 
-        connect(deleteButton, &QPushButton::clicked, this, [this, index = i]() {
-            deletePassword(index);
+        connect(deleteButton, &QPushButton::clicked, this, [this, i]() {
+            deletePassword(i);
         });
 
         connect(showButton, &QPushButton::clicked, this, [this, showButton]() {
@@ -278,7 +278,7 @@ void MainWindow::updatePasswordTable() {
     setMinimumSize(tableSize.width() + 50, tableSize.height() + 100);
 }
 
-void MainWindow::addPassword() {
+void MainWindow::addPasswordAction() {
     PasswordFormDialog dialog(this, PasswordMode::AddMode, m_dbManager);
     if (dialog.exec() == QDialog::Accepted) {
         const QString serviceName = dialog.serviceName();
@@ -320,11 +320,11 @@ void MainWindow::handlePasswordSelection(PasswordMode mode) {
     }
 }
 
-void MainWindow::selectPasswordToEdit() {
+void MainWindow::selectPasswordToEditAction() {
     handlePasswordSelection(PasswordMode::EditMode);
 }
 
-void MainWindow::selectPasswordToDelete() {
+void MainWindow::selectPasswordToDeleteAction() {
     handlePasswordSelection(PasswordMode::DeleteMode);
 }
 
@@ -383,7 +383,7 @@ void MainWindow::deletePassword(int index) {
     }
 }
 
-void MainWindow::selectPasswordToExport() {
+void MainWindow::exportPasswordsAction() {
     ExportPasswordDialog dialog(this, m_passwordList);
     if (dialog.exec() == QDialog::Accepted) {
         const QVector<PasswordManager*> selectedPasswords = dialog.selectPasswords();
@@ -401,12 +401,11 @@ void MainWindow::selectPasswordToExport() {
             FileService::exportToXML(dialog.dir() + "/" + dialog.xmlFileName() + ".xml",
                                      selectedPasswords, decryptedMap);
         }
-
         QMessageBox::information(this, tr("Export succes"), tr("Passwords saved to files"));
     }
 }
 
-void MainWindow::importPasswords() {
+void MainWindow::importPasswordsAction() {
     const QString filePath = QFileDialog::getOpenFileName(this, tr("Import Passwords"), "", "CSV (*.csv);;JSON (*.json);;XML (*.xml)");
     if (filePath.isEmpty()) {
         return;
@@ -450,9 +449,8 @@ void MainWindow::importPasswords() {
     }
 }
 
-void MainWindow::deleteAllPasswords() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this,
-                                                              tr("Backup"),
+void MainWindow::deleteAllPasswordsAction() {
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Backup"),
                                                               tr("Whether to perform an export of passwords before deleting them?"),
                                                               QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
                                                               QMessageBox::Yes);
@@ -468,10 +466,10 @@ void MainWindow::deleteAllPasswords() {
         }
     }
 
-    reply = QMessageBox::question(this, tr("WARNIG"),
-                                        tr("WARNING!\nAre you sure you want to delete all passwords?"),
-                                        QMessageBox::Yes | QMessageBox::No,
-                                        QMessageBox::No);
+    reply = QMessageBox::warning(this, tr("WARNIG"),
+                                 tr("WARNING!\nAre you sure you want to delete all passwords?"),
+                                 QMessageBox::Yes | QMessageBox::No,
+                                 QMessageBox::No);
     if (reply == QMessageBox::No) {
         return;
     }
@@ -496,7 +494,6 @@ void MainWindow::showPassword(QPushButton *button) {
         passwordEdit->setText(pass);
         passwordEdit->setEchoMode(QLineEdit::Normal);
         passwordEdit->setStyleSheet("background-color: #fff0f0; color: darkred; font-weight: bold;");
-        passwordEdit->setCursorPosition(0);
     }
     else {
         passwordEdit->setText(generateDotStringForPasswordLineEdit(passwordEdit));
@@ -506,6 +503,7 @@ void MainWindow::showPassword(QPushButton *button) {
         button->setProperty("isPasswordVisible", false);
         button->setStyleSheet("padding: 4px; background-color: #28a745; color: white;");
     }
+    passwordEdit->setCursorPosition(0);
 }
 
 QString MainWindow::generateDotStringForPasswordLineEdit(QLineEdit *lineEdit) {
@@ -527,27 +525,28 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     }
 }
 
-void MainWindow::moveSelectedRowUp() {
+void MainWindow::moveSelectedRowUpAction() {
     int row = ui->tableWidget->currentRow();
     moveSelectedRowTo(row - 1);
 }
 
-void MainWindow::moveSelectedRowDown() {
+void MainWindow::moveSelectedRowDownAction() {
     int row = ui->tableWidget->currentRow();
     moveSelectedRowTo(row + 1);
 }
 
-void MainWindow::moveSelectedRowToTop() {
+void MainWindow::moveSelectedRowToTopAction() {
     moveSelectedRowTo(0);
 }
 
-void MainWindow::moveSelectedRowToBottom() {
+void MainWindow::moveSelectedRowToBottomAction() {
     moveSelectedRowTo(m_passwordList.size() - 1);
 }
 
 void MainWindow::moveSelectedRowTo(int targetRow) {
     if (!m_customSortActive) {
-        QMessageBox::warning(this, tr("Moving locked"), tr("Item moving locked, change sorting to \"Sort by your own items\""));
+        QMessageBox::warning(this, tr("Moving locked"),
+                             tr("Item moving locked, change sorting to 'Sort by your own items'"));
         return;
     }
 
@@ -564,31 +563,37 @@ void MainWindow::moveSelectedRowTo(int targetRow) {
     setWindowModified(true);
 }
 
-void MainWindow::savePositions() {
+void MainWindow::savePositionsAction() {
     if (!m_customSortActive) {
-        QMessageBox::warning(this, tr("Save positions locked"), tr("Change the sorting to \"Sort by your own items\" to save your own order"));
+        QMessageBox::warning(this, tr("Save positions locked"),
+                             tr("Change the sorting to 'Sort by your own items' to save your own order"));
         return;
     }
 
     if (!isWindowModified())  {
-        QMessageBox::warning(this, tr("Position not changed"), tr("List items in the table have not been changed"));
+        QMessageBox::warning(this, tr("Position not changed"),
+                             tr("List items in the table have not been changed"));
         return;
     }
 
     if (m_dbManager->savePositionsToDatabase(m_passwordList)) {
+        for (int i = 0; i < m_passwordList.size(); i++) {
+            m_passwordList[i]->setPosition(i);
+        }
+
         m_statusLabel->setText("");
         setWindowModified(false);
     }
 }
 
-void MainWindow::showAboutAuthor() {
+void MainWindow::showAboutAuthorAction() {
     QMessageBox::information(this, tr("About Author"), tr("Password Manager\n\n"
                                                           "Created by: Krystian Będuch\n"
                                                           "Contact: beduch_krystian@o2.pl\n"
                                                           "© 2025 All rights reserved."));
 }
 
-void MainWindow::showAboutTechnologies() {
+void MainWindow::showAboutTechnologiesAction() {
     QMessageBox::information(this, tr("About Technologies"),
                              tr("This application was built using:\n"
                                 "- Qt 6.9\n"
@@ -608,7 +613,7 @@ void MainWindow::checkLoginTimeout() {
         if (dialog.exec() == QDialog::Accepted) {
             CryptoData cryptoMainPassword = m_dbManager->fetchMainPassword();
             if (!(m_crypto->verifyMainPassword(dialog.password(), cryptoMainPassword))) {
-                QMessageBox::critical(this, "Wrong password", "Incorrect password");
+                QMessageBox::critical(this, tr("Wrong password"), tr("Incorrect password"));
                 qApp->quit();
                 return;
             }
@@ -664,6 +669,24 @@ void MainWindow::sortPasswordListByColumn(int column, Qt::SortOrder order) {
 }
 
 void MainWindow::onSortOptionChanged(int index) {
+    if (isWindowModified()) {
+        QMessageBox::StandardButton confirm = QMessageBox::warning(this, tr("Unsaved reorder"),
+                                                                   tr("The current order of the password list has been modified but not saved.\n"
+                                                                      "If you proceed without saving, the new order will be lost.\n\n"
+                                                                      "Do you want to save changes before sorting?"),
+                                                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+                                                                   QMessageBox::Save);
+        if (confirm == QMessageBox::Save) {
+            savePositionsAction();
+        }
+        else if (confirm == QMessageBox::Cancel) {
+            ui->sortByComboBox->blockSignals(true);
+            ui->sortByComboBox->setCurrentIndex(0);
+            ui->sortByComboBox->blockSignals(false);
+            return;
+        }
+    }
+
     const QVector<QPair<int, Qt::SortOrder>> sortOptions = {
         {0, Qt::AscendingOrder},
         {1, Qt::AscendingOrder}, {1, Qt::DescendingOrder},

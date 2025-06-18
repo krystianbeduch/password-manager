@@ -2,8 +2,6 @@
 #include <QApplication>
 #include <QIcon>
 #include <QLocale>
-#include <QPalette>
-#include <QColor>
 #include <QTranslator>
 
 int main(int argc, char *argv[]) {
@@ -19,7 +17,6 @@ int main(int argc, char *argv[]) {
         }
     }
     a.setWindowIcon(QIcon(":/icons/app_icon.png"));
-
     MainWindow w;
     w.show();
     return a.exec();

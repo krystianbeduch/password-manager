@@ -8,20 +8,20 @@
 
 #include <QByteArray>
 #include <QDateTime>
-#include <QDir>
 #include <QDebug>
-#include <QFile>
 #include <QFontMetrics>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>
-#include <QMap>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QString>
 #include <QTimer>
+#include <QVariant>
 #include <QVector>
 #include <QWidget>
 
@@ -39,26 +39,26 @@ public:
     ~MainWindow();
 
 private slots:
-    void addPassword();
+    void addPasswordAction();
     void handlePasswordSelection(PasswordMode mode);
-    void selectPasswordToEdit();
-    void selectPasswordToDelete();
+    void selectPasswordToEditAction();
+    void selectPasswordToDeleteAction();
     void editPassword(int index);
     void deletePassword(int index);
 
-    void selectPasswordToExport();
-    void importPasswords();
-    void deleteAllPasswords();
+    void exportPasswordsAction();
+    void importPasswordsAction();
+    void deleteAllPasswordsAction();
     void showPassword(QPushButton *button);
 
-    void moveSelectedRowUp();
-    void moveSelectedRowDown();
-    void moveSelectedRowToTop();
-    void moveSelectedRowToBottom();
-    void savePositions();
+    void moveSelectedRowUpAction();
+    void moveSelectedRowDownAction();
+    void moveSelectedRowToTopAction();
+    void moveSelectedRowToBottomAction();
+    void savePositionsAction();
 
-    void showAboutAuthor();
-    void showAboutTechnologies();
+    void showAboutAuthorAction();
+    void showAboutTechnologiesAction();
     void checkLoginTimeout();
 
     void onSortOptionChanged(int index);

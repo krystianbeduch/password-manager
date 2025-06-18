@@ -52,7 +52,7 @@ public:
     void setPassword(const QString &password);
     void setGroup(const Group &group);
     void setAdditionalDate(const QDateTime &additionalDate);
-    void setPostition(int position);
+    void setPosition(int position);
 
 private:
     int m_id;

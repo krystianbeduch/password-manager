@@ -48,7 +48,7 @@ QByteArray EncryptionUtils::encrypt(const QByteArray &plainText, QByteArray &non
         nullptr,
         reinterpret_cast<const unsigned char *>(nonceOut.constData()),
         reinterpret_cast<const unsigned char *>(m_key.constData())
-        );
+    );
 
     cipherText.resize(cipherLen);
     return cipherText;

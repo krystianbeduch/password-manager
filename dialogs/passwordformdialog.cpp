@@ -157,8 +157,7 @@ void PasswordFormDialog::onDeleteGroupButtonClicked() {
     if (dialog.exec() == QDialog::Accepted) {
         const Group &group = dialog.selectedGroup();
         if (m_dbManager->hasPasswordsInGroup(group.id())) {
-            QMessageBox::warning(this,
-                                 tr("Cannot delete group"),
+            QMessageBox::warning(this, tr("Cannot delete group"),
                                  tr("Group '%1' contains passwords and cannot be deleted.").arg(group.groupName()));
             return;
         }
@@ -177,8 +176,7 @@ void PasswordFormDialog::onEditGroupButtonClicked() {
         const Group &oldGroup = dialog.selectedGroup();
         QString currentName = oldGroup.groupName();
         bool ok;
-        QString newName = QInputDialog::getText(this,
-                                                tr("Edit group"),
+        QString newName = QInputDialog::getText(this, tr("Edit group"),
                                                 tr("Enter new group name:"),
                                                 QLineEdit::Normal, currentName, &ok);
 
@@ -207,8 +205,8 @@ void PasswordFormDialog::onEditGroupButtonClicked() {
             return;
         }
 
-        QMessageBox::information(this, tr("Group edited"), tr("Group has been edited: '%1' -> '%2'")
-                                                               .arg(oldGroup.groupName(), newName));
+        QMessageBox::information(this, tr("Group edited"),
+                                 tr("Group has been edited: '%1' -> '%2'").arg(oldGroup.groupName(), newName));
 
         ui->groupComboBox->clear();
         m_groupNames = m_dbManager->fetchGroups();

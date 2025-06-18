@@ -15,7 +15,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
-#include <QSet>
 #include <QString>
 #include <QVector>
 #include <QXmlStreamReader>

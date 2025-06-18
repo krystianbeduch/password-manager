@@ -31,7 +31,8 @@ bool DatabaseManager::connectDb() {
     }
 
     if (!m_db.open()) {
-        QMessageBox::critical(nullptr, tr("Database Connection Error"), tr("Failed to connect to database: %1").arg(m_db.lastError().text()));
+        QMessageBox::critical(nullptr, tr("Database Connection Error"),
+                              tr("Failed to connect to database: %1").arg(m_db.lastError().text()));
         return false;
     }
     qDebug() << tr("Connected to database:") << m_db.databaseName();
@@ -125,7 +126,10 @@ bool DatabaseManager::insertSamplePasswordsData(EncryptionUtils *crypto) {
 
     QHash<PasswordManager*, CryptoData> cryptoMap;
     for (auto *p : passwords) {
-        const std::optional<CryptoData> cryptoDataOpt = crypto->prepareCryptoData(QString::fromUtf8(crypto->mainPassword()), p->password());
+        const std::optional<CryptoData> cryptoDataOpt = crypto->prepareCryptoData(
+            QString::fromUtf8(crypto->mainPassword()), p->password()
+        );
+
         if (!cryptoDataOpt.has_value()) {
             qDebug() << tr("Error during generation of cryptographic data");
             qDeleteAll(passwords);
@@ -631,11 +635,7 @@ bool DatabaseManager::addMainPassword(CryptoData &cryptoData) {
         INSERT INTO login_data
             (id, encrypted_main_password, salt, nonce)
         VALUES (
-            1,
-            :encrypted_main_password,
-            :salt,
-            :nonce
-        )
+            1, :encrypted_main_password, :salt, :nonce)
         ON CONFLICT (id) DO
         UPDATE SET
             encrypted_main_password = EXCLUDED.encrypted_main_password,

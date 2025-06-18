@@ -102,15 +102,17 @@ QVector<PasswordManager*> FileService::parseCSV(const QString &path, DatabaseMan
                 passwords.append(new PasswordManager(parts[1], parts[2], parts[3], resolvedGroup));
             }
             else {
-                QMessageBox::warning(nullptr, tr("Error"), tr("Group '%1' is not valid\n"
-                                                              "The group must be created in advance").arg(parts[4]));
+                QMessageBox::warning(nullptr, tr("Error"),
+                                     tr("Group '%1' is not valid\n"
+                                        "The group must be created in advance").arg(parts[4]));
                 return {};
             }
         }
         else {
-            QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect CSV file format. Expected format:\n"
-                                                          "ID;Serice name;Username;Password;Group;Additional date (not required)\n\n"
-                                                          "The group must be created in advance"));
+            QMessageBox::warning(nullptr, tr("Error"),
+                                 tr("Incorrect CSV file format. Expected format:\n"
+                                    "ID;Serice name;Username;Password;Group;Additional date (not required)\n\n"
+                                    "The group must be created in advance"));
             return {};
         }
     }
@@ -144,27 +146,29 @@ QVector<PasswordManager*> FileService::parseJSON(const QString &path, DatabaseMa
             !jsonObj.contains("username") ||
             !jsonObj.contains("password") ||
             !jsonObj.contains("group")) {
-            QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect JSON format. Required format:\n"
-                                                   "[\n"
-                                                   "\t    {\n"
-                                                   "\t\t        \"service_name\": \"service1\",\n"
-                                                   "\t\t        \"username\": \"user1\",\n"
-                                                   "\t\t        \"password\": \"password1\",\n"
-                                                   "\t\t        \"group\": \"group1\"\n"
-                                                   "\t    },\n"
-                                                   "\t    {\n"
-                                                   "\t\t        \"service_name\": \"service2\",\n"
-                                                   "\t\t        \"username\": \"user2\",\n"
-                                                   "\t\t        \"password\": \"password2\",\n"
-                                                   "\t\t        \"group\": \"group2\"\n"
-                                                   "\t    }\n"
-                                                   "]"));
+            QMessageBox::warning(nullptr, tr("Error"),
+                                 tr("Incorrect JSON format. Required format:\n"
+                                    "[\n"
+                                    "\t    {\n"
+                                    "\t\t        \"service_name\": \"service1\",\n"
+                                    "\t\t        \"username\": \"user1\",\n"
+                                    "\t\t        \"password\": \"password1\",\n"
+                                    "\t\t        \"group\": \"group1\"\n"
+                                    "\t    },\n"
+                                    "\t    {\n"
+                                    "\t\t        \"service_name\": \"service2\",\n"
+                                    "\t\t        \"username\": \"user2\",\n"
+                                    "\t\t        \"password\": \"password2\",\n"
+                                    "\t\t        \"group\": \"group2\"\n"
+                                    "\t    }\n"
+                                    "]"));
             return {};
         }
         Group group(jsonObj.value("group").toString());
         if (!isValidGroup(group, dbManager)) {
-            QMessageBox::warning(nullptr, tr("Error"), tr("Group '%1' is not valid\n"
-                                                          "The group must be created in advance").arg(group.groupName()));
+            QMessageBox::warning(nullptr, tr("Error"),
+                                 tr("Group '%1' is not valid\n"
+                                    "The group must be created in advance").arg(group.groupName()));
             return {};
         }
 
@@ -218,12 +222,12 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path, DatabaseMan
 
             Group group(groupName);
             if (!isValidGroup(group, dbManager)) {
-                QMessageBox::warning(nullptr, tr("Error"), tr("Group '%1' is not valid\n"
-                                                              "The group must be created in advance").arg(groupName));
+                QMessageBox::warning(nullptr, tr("Error"),
+                                     tr("Group '%1' is not valid\n"
+                                        "The group must be created in advance").arg(groupName));
                 delete newPassword;
                 return {};
             }
-
 
             QString normalized = group.groupName().left(1).toUpper() + group.groupName().mid(1).toLower();
             newPassword->setGroup(validGroupsMap.value(normalized));
@@ -234,16 +238,17 @@ QVector<PasswordManager*> FileService::parseXML(const QString &path, DatabaseMan
                 newPassword->password().isEmpty() ||
                 newPassword->group().groupName().isEmpty())
             {
-                QMessageBox::warning(nullptr, tr("Error"), tr("Incorrect XML format. Required format:\n"
-                                                       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                                                       "<Passwords>\n"
-                                                       "  <password_data>\n"
-                                                       "    <service_name>service1</service_name>\n"
-                                                       "    <username>user1</username>\n"
-                                                       "    <password>password1</password>\n"
-                                                       "    <group>group1</group>\n"
-                                                       "  </password_data>\n"
-                                                       "</Passwords>"));
+                QMessageBox::warning(nullptr, tr("Error"),
+                                     tr("Incorrect XML format. Required format:\n"
+                                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                        "<Passwords>\n"
+                                        "  <password_data>\n"
+                                        "    <service_name>service1</service_name>\n"
+                                        "    <username>user1</username>\n"
+                                        "    <password>password1</password>\n"
+                                        "    <group>group1</group>\n"
+                                        "  </password_data>\n"
+                                        "</Passwords>"));
                 delete newPassword;
                 return {};
             }

@@ -5,18 +5,10 @@
 
 #include <QDialog>
 #include <QFileDialog>
-#include <QFile>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QRegularExpression>
-#include <QRegularExpressionValidator>
-#include <QTextStream>
-#include <QXmlStreamWriter>
+#include <QString>
 #include <QVector>
 
 namespace Ui {

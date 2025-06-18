@@ -9,6 +9,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QString>
 #include <QVector>
 
 namespace Ui {

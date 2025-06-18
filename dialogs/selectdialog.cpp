@@ -2,8 +2,8 @@
 #include "ui_selectdialog.h"
 
 SelectDialog::SelectDialog(QWidget *parent,
-                                           const QVector<PasswordManager*> passwordList,
-                                           PasswordMode mode)
+                           const QVector<PasswordManager*> passwordList,
+                           PasswordMode mode)
     : QDialog(parent)
     , ui(new Ui::SelectDialog)
 {
@@ -33,8 +33,8 @@ SelectDialog::SelectDialog(QWidget *parent,
 }
 
 SelectDialog::SelectDialog(QWidget *parent,
-                                           const QVector<Group> groups,
-                                           PasswordMode mode)
+                           const QVector<Group> groups,
+                           PasswordMode mode)
     : QDialog(parent)
     , ui(new Ui::SelectDialog)
 {
@@ -71,4 +71,3 @@ Group SelectDialog::selectedGroup() const {
     int groupId = ui->comboBox->currentData().toInt();
     return Group(groupId, groupName);
 }
-

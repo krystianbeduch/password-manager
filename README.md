@@ -272,14 +272,12 @@ When using custom order, users can move selected entries according to their own 
 - Move to the end of the list:
    - `Ctrl + Shift + ↓` keyboard shortcut
    - click the fast-forward icon in the toolbar
-   - Menu: `Table -> Move password to the end`<br>
-Once a password entry has been moved, a message appears in the status bar: `Order has been changed - don't forget to save`.<br>
-The position of entries can be saved using.
-
-To save the new order use:
-  - `Ctrl + S` keyboard shortcut
-   - click the save icon in the toolbar
-   - Menu: `Table -> Save password position`<br>
+   - Menu: `Table -> Move password to the end`
+   
+Once a password entry has been moved, a message appears in the status bar: `Order has been changed - don't forget to save`. To save the new order use:
+- `Ctrl + S` keyboard shortcut
+- click the save icon in the toolbar
+- Menu: `Table -> Save password position`<br>
 
 > [!IMPORTANT]
 > You cannot reorder entries while attribute-based sorting is active. You must switch back to the `Sort by your own items` option first.

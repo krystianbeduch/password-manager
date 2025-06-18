@@ -128,7 +128,6 @@ The entire project is modular in structure and built using the CMake build syste
 ## Database schema
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/database/db_schema.png" alt="Database schema" title="Database schema" height="350">
 
-
 ## Functional description
 ### User authentication
 When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the `Create new profile` checkbox. Creating a new profile is equivalent to erasing all existing data. This means that if the user has forgotten their previous password, there is no way to recover the old data, and they must accept its loss.
@@ -154,8 +153,6 @@ The main window of the application displays a table containing the user's saved 
 - Addition date – when the entry was created
 - Actions – quick access to: `Show`, `Edit`, or `Delete` the entry
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/list-of-tasks.png" alt="List of tasks" title="List of tasks">
-
 🔍 Actions on a single entry:
 - Show – reveals the actual password in plain text
 - Edit – opens an edit form where the user can modify the service name, username, password, or assigned group
@@ -170,7 +167,7 @@ Users can add new password entries using multiple methods:
 - Menu: `Management -> Add Password`<br>
 This action opens a form where the user inputs password data.
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_adding_new_password.png" alt="Adding new password" title="Adding new password" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_adding_new_password.png" alt="Adding new password" title="Adding new password">
 
 📝 Editing existing password<br>
 Passwords can be edited using:
@@ -180,8 +177,8 @@ Passwords can be edited using:
 When triggered, the user is first asked to select the entry to be edited. After selecting it, the same input form as for adding a new password is shown.
 
 <p align="center">
-   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_select_dialog_edit.png" alt="Select dialog" title="Select dialog" height="800">
-   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_edit_action.png" alt="Editing password" title="Editing password" height="800">
+   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_select_dialog_edit.png" alt="Select dialog" title="Select dialog">
+   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_edit_action.png" alt="Editing password" title="Editing password">
 </p>
 
 🗑️ Deleting password<br>
@@ -191,7 +188,7 @@ Passwords can be deleting using:
 - Menu: `Management -> Delete Password`<br>
 Each deletion requires confirmation to avoid data loss.
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_delete_action.png" alt="Deleting password" title="Deleting password" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_delete_action.png" alt="Deleting password" title="Deleting password">
 
 Additionally, users can remove all password entries at once by selecting: `Management -> Delete All Passwords`<br>
 This action is also protected by confirmation dialogs to prevent unintentional mass deletion.
@@ -217,7 +214,7 @@ Users can modify or remove existing groups through dedicated dialog windows. The
 ### Generate password
 To enhance security, users can generate strong, random passwords directly within the application. This feature is especially useful when creating credentials for new services, ensuring that passwords are difficult to guess or brute-force. The generated password consists of 24 random characters. It includes a mix of uppercase letters, lowercase letters, digits, and special characters for increased complexity. Passwords are generated directly from the Add or Edit Password forms using a built-in button. This approach encourages good security practices by avoiding the reuse of weak or predictable passwords. Once generated, the password can be saved to the appropriate entry, or the user can generate another one with a single click.
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/generate_passwords.png" alt="Generate password" title="Generate password" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/generate_passwords.png" alt="Generate password" title="Generate password">
 
 > [!TIP]
 > It’s recommended to use the password generator for all new entries to maximize account safety.
@@ -305,8 +302,8 @@ Once a password entry has been moved, a message appears in the status bar: `Orde
 > [!WARNING]
 > If you modify the order but try to switch to attribute-based sorting without saving, a dialog will appear prompting you to save the changes first.
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_custom_order.png" alt="Reorder password entries - custom order" title="Reorder password entries - custom order" height="800">
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_sort_by_group_asc.png" alt="Reorder password entries - sort by group asc" title="Reorder password entries - sort by group asc" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_custom_order.png" alt="Reorder password entries - custom order" title="Reorder password entries - custom order">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_sort_by_group_asc.png" alt="Reorder password entries - sort by group asc" title="Reorder password entries - sort by group asc">
 
 ### Import and export password data
 The application supports importing and exporting password data to facilitate backup, migration, or bulk entry.
@@ -329,7 +326,7 @@ Sample input files and format structure examples can be found in the `services` 
 > Before importing, make sure that all password groups referenced in the import file already exist in the application.
 If a group does not exist, the import will fail. You must create any missing groups manually beforehand.
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/import_passwords.png" alt="Import passwords" title="Import passwords" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/import_passwords.png" alt="Import passwords" title="Import passwords">
 
 #### Export passwords
 Passwords can be exported via:
@@ -342,7 +339,7 @@ A dialog window will appear, allowing you to:
 
 This feature is particularly useful for creating backups or transferring data between different instances of the application.
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/export_passwords.png" alt="Export passwords" title="Export passwords" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/export_passwords.png" alt="Export passwords" title="Export passwords">
 
 <p align="center">
   <!-- <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/list-of-tasks.jpg" alt="List of tasks" title="List of tasks" height="800" align="center"> -->

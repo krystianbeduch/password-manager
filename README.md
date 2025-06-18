@@ -141,8 +141,8 @@ The entered access password is used to generate an encryption key, which is esse
 Additionally, to prevent unauthorized access, the login dialog will automatically reappear after 5 minutes of inactivity. 
 This ensures that if the application is left unattended, access to the data remains protected.
 <p align="center">
-   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/user_authentication.png" alt="User authentication" title="User authentication" height="800">
-   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/user_authentication_new_account_table.png" alt="User authentication - new account" title="User authentication - new account" height="800">
+   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/user_authentication.png" alt="User authentication" title="User authentication">
+   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/user_authentication_new_account_table.png" alt="User authentication - new account" title="User authentication - new account">
 </p>
 
 ### Password management
@@ -154,14 +154,14 @@ The main window of the application displays a table containing the user's saved 
 - Addition date – when the entry was created
 - Actions – quick access to: `Show`, `Edit`, or `Delete` the entry
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/list-of-tasks.png" alt="List of tasks" title="List of tasks" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/list-of-tasks.png" alt="List of tasks" title="List of tasks">
 
 🔍 Actions on a single entry:
 - Show – reveals the actual password in plain text
 - Edit – opens an edit form where the user can modify the service name, username, password, or assigned group
 - Delete – deletes the entry after a confirmation dialog to prevent accidental loss
 
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_show_action.png" alt="Show action" title="Show action" height="800">
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_show_action.png" alt="Show action" title="Show action">
 
 ➕ Adding new password<br>
 Users can add new password entries using multiple methods:

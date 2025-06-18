@@ -204,8 +204,52 @@ To enhance security, users can generate strong, random passwords directly within
 > It’s recommended to use the password generator for all new entries to maximize account safety.
 
 ### Password encryption
-- Store all passwords in encrypted form in a local PostgreSQL database- 
-  
+All passwords stored in the application are encrypted using the __`ChaCha20-Poly1305`__ authenticated encryption algorithm, which is known for its performance and high security. The encryption process is built using the libsodium `library` and follows modern cryptographic practices.
+
+🔐 How it works:
+#### 1. Salt Generation
+For each encryption operation, a unique salt is generated to ensure that derived keys are different even if the same password is used again:
+```cpp
+QByteArray salt(crypto_pwhash_SALTBYTES, 0);
+randombytes_buf(salt.data(), salt.size());
+```
+
+#### 2. Key Derivation
+A secure encryption key is derived from the user's master password and the generated salt using a password hashing function. This ensures that each user profile has a unique encryption key, even if the same password is used across multiple profiles.
+
+#### 3. Nonce Initialization
+A random nonce is created for each encryption operation to guarantee that the same plaintext encrypted multiple times will yield different ciphertexts:
+```cpp
+nonceOut.resize(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
+randombytes_buf(nonceOut.data(), nonceOut.size());
+```
+
+#### 4. Encryption with libsodium
+The final step uses `crypto_aead_xchacha20poly1305_ietf_encrypt` to perform authenticated encryption:
+```cpp
+crypto_aead_xchacha20poly1305_ietf_encrypt(
+   reinterpret_cast<unsigned char *>(cipherText.data()), &cipherLen,
+   reinterpret_cast<const unsigned char *>(plainText.data()), plainText.size(),
+   nullptr, 0,
+   nullptr,
+   reinterpret_cast<const unsigned char *>(nonceOut.constData()),
+   reinterpret_cast<const unsigned char *>(m_key.constData())
+);
+```
+
+The result is a ciphertext that includes authentication tags to verify integrity. The `nonce` and `salt` must be stored alongside the ciphertext to correctly decrypt it later.
+
+#### 5. 🗄️ Database Storage
+Encrypted data is stored in the PostgreSQL database using the `bytea` type. For each password entry, the following three binary fields are saved:
+- cipherText — the encrypted password
+- salt — used to derive the encryption key
+- nonce — required for proper decryption
+
+This separation ensures secure, deterministic decryption only when the correct master password is provided.
+
+> [!WARNING]
+> The encryption key is never stored — it is derived in memory from the user's master password and the stored salt each time the application is launched.
+
 ### Reorder password
 - Reorder password entries based on user preferences
   

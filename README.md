@@ -286,7 +286,38 @@ Once a password entry has been moved, a message appears in the status bar: `Orde
 > If you modify the order but try to switch to attribute-based sorting without saving, a dialog will appear prompting you to save the changes first.
   
 ### Import and export password data
-- Import and export password data to/from CSV, JSON, and XML files
+The application supports importing and exporting password data to facilitate backup, migration, or bulk entry.
+
+#### Import Passwords
+Passwords can be imported via:
+- Menu: `Management -> Import Password...`
+
+This will open a file selection dialog. The supported file formats for import are:
+- CSV
+- JSON
+- XML
+
+Sample input files and format structure examples can be found in the `services` module:
+- [`test_file.csv`](./services/test_file.csv)
+- [`test_file.json`](./services/test_file.json)
+- [`test_file.xml`](./services/test_file.xml)
+
+> [!IMPORTANT]
+> Before importing, make sure that all password groups referenced in the import file already exist in the application.
+If a group does not exist, the import will fail. You must create any missing groups manually beforehand.
+
+#### Export Passwords
+Passwords can be exported via:
+- Menu: `Management -> Export Passwords...`
+
+A dialog window will appear, allowing you to:
+- select which passwords to export
+- choose the output format(s): CSV, JSON, or XML
+- specify the file name(s) for the exported data
+
+This feature is particularly useful for creating backups or transferring data between different instances of the application.
+
+
 <p align="center">
   <!-- <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/list-of-tasks.jpg" alt="List of tasks" title="List of tasks" height="800" align="center"> -->
 </p>

@@ -209,7 +209,7 @@ Once PostgreSQL is installed, you need to configure the database. You have two o
 #### Option A – Automatic configuration:
 - Run the included `init_database.bat` script
 - After successful execution, you should see a message similar to this:
-```bat
+```bash
 Creating database password_manager...
 Creating schema public (if it doesn't exist)...
 CREATE SCHEMA
@@ -236,47 +236,24 @@ To fix this, follow these steps to add PostgreSQL to your system PATH:
 
 #### Step-by-step:
 #### 1. Locate the PostgreSQL installation directory
-By default, it should be something like:<br>
-`C:\Program Files\PostgreSQL\16`<br>
+By default, it should be something like: `C:\Program Files\PostgreSQL\16`<br>
 (the number 16 refers to the installed version).
 
 #### 2. Enter the bin subdirectory
 This directory contains the `psql.exe` and other necessary executables.
 
-#### 3. Copy the full path to the `bin` directory
+#### 3. Copy the full path to the bin directory
 Click the address bar at the top of the File Explorer window and copy the full directory path.
 
 #### 4. Open the System Environment Variables settings
-Press the Windows key or click Start and search for:<br>
-`Edit the system environment variables`
+Press the Windows key or click Start and search for: `Edit the system environment variables`
 
-#### 5. In the window that appears, click the `Environment Variables...` button
-
-#### 6. In the "System variables" section, locate and select the variable named `Path`, then click `Edit...`
-
-#### 7. Click `New` and paste the copied PostgreSQL bin directory path
-
-#### 8. Confirm by clicking `OK` in all windows to apply the changes
-
-#### 9. Restart the `init_database.bat` script
+5. In the window that appears, click the `Environment Variables...` button
+6. In the "System variables" section, locate and select the variable named `Path`, then click `Edit...`
+7. Click `New` and paste the copied PostgreSQL bin directory path
+8. Confirm by clicking `OK` in all windows to apply the changes
+9. Restart the `init_database.bat` script
 After the PATH has been updated, the system should recognize the psql command and the script should run without errors.
-
-
-
-
-- Option 1: Download the ZIP file from github and extract it
-- Option 2: Clone the repository:
-```bash
-git clone https://github.com/krystianbeduch/todo-list.git
-```
-
-### 3. Open the project in Android Studio
-- Select `Open` and choose the project folder
-- Wait for Gradle to finish syncing all dependencies
-
-### 4. Run the application
-- Ensure you have a connected __emulator__ or __physical Android device__ with __debugging enabled__
-- Press __Run__ (`Shift + F10` or the green button <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/green-play-button.png" alt="Green button" title="Green button" height="20">) to launch the app
 
 ## Functional description
 ### User authentication

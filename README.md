@@ -20,7 +20,7 @@ The entire project is modular in structure and built using the CMake build syste
    - [Group management](#group-management)
    - [Generate passwords](#generate-passwords)
    - [Password encryption](#password-encryption)
-   - [Reorder password](#reorder-password)
+   - [Reorder password entries](#reorder-password-entries)
    - [Import and export password data](#import-and-export-password-data)
   
 ## Application functionality
@@ -251,8 +251,41 @@ This separation ensures secure, deterministic decryption only when the correct m
 > [!WARNING]
 > The encryption key is never stored — it is derived in memory from the user's master password and the stored salt each time the application is launched.
 
-### Reorder password
-- Reorder password entries based on user preferences
+### Reorder password entries
+The password list displayed in the application can be sorted in two different ways:
+- attribute-based sorting – ascending or descending order based on a selected column (e.g., service name, group)
+- custom order – new entries are always added to the end of the list, and the user can manually rearrange the orde.
+
+When using custom order, users can move selected entries according to their own preferences. This can be done in several ways:
+- Move up by one position:
+   - `Ctrl + ↑` keyboard shortcut
+   - click the up arrow icon in the toolbar
+   - Menu: `Table -> Move password up`
+- Move down by one position:
+   - `Ctrl + ↓` keyboard shortcut
+   - click the down arrow icon in the toolbar
+   - Menu: `Table -> Move password down`
+- Move to the beginning of the list:
+   - `Ctrl + Shift + ↑` keyboard shortcut
+   - click the rewind icon in the toolbar
+   - Menu: `Table -> Move password to the beginning`
+- Move to the end of the list:
+   - `Ctrl + Shift + ↓` keyboard shortcut
+   - click the fast-forward icon in the toolbar
+   - Menu: `Table -> Move password to the end`<br>
+Once a password entry has been moved, a message appears in the status bar: `Order has been changed - don't forget to save`.<br>
+The position of entries can be saved using.
+
+To save the new order use:
+  - `Ctrl + S` keyboard shortcut
+   - click the save icon in the toolbar
+   - Menu: `Table -> Save password position`<br>
+
+> [!IMPORTANT]
+> You cannot reorder entries while attribute-based sorting is active. You must switch back to the `Sort by your own items` option first.
+
+> [!WARNING]
+> If you modify the order but try to switch to attribute-based sorting without saving, a dialog will appear prompting you to save the changes first.
   
 ### Import and export password data
 - Import and export password data to/from CSV, JSON, and XML files

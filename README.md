@@ -183,15 +183,15 @@ This action is also protected by confirmation dialogs to prevent unintentional m
 Groups provide a convenient way to organize password entries based on user preferences. Each password can be assigned to a specific group, making it easier to categorize and manage entries within the application.
 
 By default, the application comes with four pre-defined groups:
-Work
-Personal
-Banking
-Email
+- Work
+- Personal
+- Banking
+- Email
 
 ➕ Adding Groups
 Group creation is integrated directly into the Add and Edit Password forms. When a user enters a new group name, the application checks whether the name is unique. Duplicate group names are not allowed.
 
-✏️🗑️ Editing or Deleting Groups
+✏️ Editing or 🗑️ Deleting Groups
 Users can modify or remove existing groups through dedicated dialog windows. These dialogs work similarly to the ones used for editing or deleting password entries, allowing the user to select a group from a list.
 
 > [!WARNING]
@@ -207,7 +207,7 @@ To enhance security, users can generate strong, random passwords directly within
 All passwords stored in the application are encrypted using the __`ChaCha20-Poly1305`__ authenticated encryption algorithm, which is known for its performance and high security. The encryption process is built using the libsodium `library` and follows modern cryptographic practices.
 
 #### 🔐 How it works:
-##### 1. Salt Generation
+#### 1. Salt Generation
 For each encryption operation, a unique salt is generated to ensure that derived keys are different even if the same password is used again:
 ```cpp
 QByteArray salt(crypto_pwhash_SALTBYTES, 0);

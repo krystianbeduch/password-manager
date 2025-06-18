@@ -220,6 +220,7 @@ A secure encryption key is derived from the user's master password and the gener
 #### 3. Nonce initialization
 A random nonce is created for each encryption operation to guarantee that the same plaintext encrypted multiple times will yield different ciphertexts:
 ```cpp
+QByteArray nonceOut;
 nonceOut.resize(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
 randombytes_buf(nonceOut.data(), nonceOut.size());
 ```

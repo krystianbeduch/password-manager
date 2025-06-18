@@ -154,7 +154,7 @@ git clone https://github.com/krystianbeduch/password-manager.git
 > [!NOTE]
 > Password and port is set during installation
 
-- Create a new database using the following SQL command (you can use psql or graphical client `pgAdmin`). The name of the base is arbitrary
+- Create a new database using the following SQL command (you can use psql or graphical client `pgAdmin`). The name of the base is arbitrary:
 ```sql
 CREATE DATABASE password_manger;
 ```
@@ -198,7 +198,7 @@ You can run the application using a precompiled release version available for do
 - The minimum recommended version is PostgreSQL 16
 - During the installation pay attention:
    - on the installation path - it is best to leave the default one in the `Program Files` directory
-   - on the password for the postgres superuser - you should enter the password `root`.
+   - on the password for the postgres superuser - you should enter the password `root`
    - the port on which the database will run - leave the default `5432`
 
 If you specify a different password or port, the script and application will not work without modifying the configuration files.
@@ -209,7 +209,7 @@ Once PostgreSQL is installed, you need to configure the database. You have two o
 #### Option A – Automatic configuration:
 - Run the included `init_database.bat` script
 - After successful execution, you should see a message similar to this:
-```bash
+```bat
 Creating database password_manager...
 Creating schema public (if it doesn't exist)...
 CREATE SCHEMA

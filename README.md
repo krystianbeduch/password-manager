@@ -20,7 +20,7 @@ The entire project is modular in structure and built using the CMake build syste
    - [Group management](#group-management)
    - [Generate passwords](#generate-passwords)
    - [Password encryption](#password-encryption)
-   - [Reorder password](#reorder-password)
+   - [Reorder password entries](#reorder-password-entries)
    - [Import and export password data](#import-and-export-password-data)
   
 ## Application functionality
@@ -127,3 +127,198 @@ The entire project is modular in structure and built using the CMake build syste
 
 ## Database schema
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/database/db_schema.png" alt="Database schema" title="Database schema" height="350">
+
+
+## Functional description
+### User authentication
+When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the `Create new profile` checkbox. Creating a new profile is equivalent to erasing all existing data. This means that if the user has forgotten their previous password, there is no way to recover the old data, and they must accept its loss.
+
+After creating a new profile, all existing tables in the database are cleared and reinitialized with default values. These include:
+- 4 default groups: Work, Personal, Banking, Email
+- 3 example entries to demonstrate how the application works
+
+The entered access password is used to generate an encryption key, which is essential for securely storing and retrieving sensitive user data. 
+Additionally, to prevent unauthorized access, the login dialog will automatically reappear after 5 minutes of inactivity. 
+This ensures that if the application is left unattended, access to the data remains protected.
+
+### Password management
+The main window of the application displays a table containing the user's saved password entries. Each row in the table includes the following columns:
+- ID - identificator of the entry
+- Service name – the name of the website or service
+- Username – the associated login
+- Password – shown as bullet dots for security __•__
+- Addition date – when the entry was created
+- Actions – quick access to: `Show`, `Edit`, or `Delete` the entry
+
+🔍 Actions on a single entry:
+- Show – reveals the actual password in plain text
+- Edit – opens an edit form where the user can modify the service name, username, password, or assigned group
+- Delete – deletes the entry after a confirmation dialog to prevent accidental loss
+
+➕ Adding new passwords<br>
+Users can add new password entries using multiple methods:
+- `Ctrl + N` keyboard shortcut
+- clicking the plus icon in the top toolbar
+- Menu: `Management -> Add Password`<br>
+This action opens a form where the user inputs password data.
+
+📝 Editing existing passwords<br>
+Passwords can be edited using:
+- `Ctrl + E` keyboard shortcut
+- clicking the edit icon in the top toolbar
+- Menu: `Management -> Edit Password`<br>
+When triggered, the user is first asked to select the entry to be edited. After selecting it, the same input form as for adding a new password is shown.
+
+🗑️ Deleting passwords<br>
+Passwords can be deleting using:
+- `Ctrl + Del` keyboard shortcut
+- click the trash icon in the toolbar
+- Menu: `Management -> Delete Password`<br>
+Each deletion requires confirmation to avoid data loss.
+
+Additionally, users can remove all password entries at once by selecting: `Management -> Delete All Passwords`<br>
+This action is also protected by confirmation dialogs to prevent unintentional mass deletion.
+
+### Group management
+Groups provide a convenient way to organize password entries based on user preferences. Each password can be assigned to a specific group, making it easier to categorize and manage entries within the application.
+
+By default, the application comes with four pre-defined groups:
+- Work
+- Personal
+- Banking
+- Email
+
+➕ Adding groups
+Group creation is integrated directly into the Add and Edit Password forms. When a user enters a new group name, the application checks whether the name is unique. Duplicate group names are not allowed.
+
+✏️ Editing or 🗑️ Deleting groups
+Users can modify or remove existing groups through dedicated dialog windows. These dialogs work similarly to the ones used for editing or deleting password entries, allowing the user to select a group from a list.
+
+> [!WARNING]
+> A group cannot be deleted if it still contains at least one password entry.
+
+### Generate passwords
+To enhance security, users can generate strong, random passwords directly within the application. This feature is especially useful when creating credentials for new services, ensuring that passwords are difficult to guess or brute-force. The generated password consists of 24 random characters. It includes a mix of uppercase letters, lowercase letters, digits, and special characters for increased complexity. Passwords are generated directly from the Add or Edit Password forms using a built-in button. This approach encourages good security practices by avoiding the reuse of weak or predictable passwords. Once generated, the password can be saved to the appropriate entry, or the user can generate another one with a single click.
+
+> [!TIP]
+> It’s recommended to use the password generator for all new entries to maximize account safety.
+
+### Password encryption
+All passwords stored in the application are encrypted using the __`ChaCha20-Poly1305`__ authenticated encryption algorithm, which is known for its performance and high security. The encryption process is built using the libsodium `library` and follows modern cryptographic practices.
+
+#### 🔐 How it works:
+#### 1. Salt generation
+For each encryption operation, a unique salt is generated to ensure that derived keys are different even if the same password is used again:
+```cpp
+QByteArray salt(crypto_pwhash_SALTBYTES, 0);
+randombytes_buf(salt.data(), salt.size());
+```
+
+#### 2. Key derivation
+A secure encryption key is derived from the user's master password and the generated salt using a password hashing function. This ensures that each user profile has a unique encryption key, even if the same password is used across multiple profiles.
+
+#### 3. Nonce initialization
+A random nonce is created for each encryption operation to guarantee that the same plaintext encrypted multiple times will yield different ciphertexts:
+```cpp
+QByteArray nonceOut;
+nonceOut.resize(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
+randombytes_buf(nonceOut.data(), nonceOut.size());
+```
+
+#### 4. Encryption with libsodium
+The final step uses `crypto_aead_xchacha20poly1305_ietf_encrypt` to perform authenticated encryption:
+```cpp
+crypto_aead_xchacha20poly1305_ietf_encrypt(
+   reinterpret_cast<unsigned char *>(cipherText.data()), &cipherLen,
+   reinterpret_cast<const unsigned char *>(plainText.data()), plainText.size(),
+   nullptr, 0,
+   nullptr,
+   reinterpret_cast<const unsigned char *>(nonceOut.constData()),
+   reinterpret_cast<const unsigned char *>(m_key.constData())
+);
+```
+
+The result is a ciphertext that includes authentication tags to verify integrity. The `nonce` and `salt` must be stored alongside the ciphertext to correctly decrypt it later.
+
+#### 5. 🗄️ Database storage
+Encrypted data is stored in the PostgreSQL database using the `bytea` type. For each password entry, the following three binary fields are saved:
+- cipherText — the encrypted password
+- salt — used to derive the encryption key
+- nonce — required for proper decryption
+
+This separation ensures secure, deterministic decryption only when the correct master password is provided.
+
+> [!WARNING]
+> The encryption key is never stored — it is derived in memory from the user's master password and the stored salt each time the application is launched.
+
+### Reorder password entries
+The password list displayed in the application can be sorted in two different ways:
+- attribute-based sorting – ascending or descending order based on a selected column (e.g., service name, group)
+- custom order – new entries are always added to the end of the list, and the user can manually rearrange the orde.
+
+When using custom order, users can move selected entries according to their own preferences. This can be done in several ways:
+- Move up by one position:
+   - `Ctrl + ↑` keyboard shortcut
+   - click the up arrow icon in the toolbar
+   - Menu: `Table -> Move password up`
+- Move down by one position:
+   - `Ctrl + ↓` keyboard shortcut
+   - click the down arrow icon in the toolbar
+   - Menu: `Table -> Move password down`
+- Move to the beginning of the list:
+   - `Ctrl + Shift + ↑` keyboard shortcut
+   - click the rewind icon in the toolbar
+   - Menu: `Table -> Move password to the beginning`
+- Move to the end of the list:
+   - `Ctrl + Shift + ↓` keyboard shortcut
+   - click the fast-forward icon in the toolbar
+   - Menu: `Table -> Move password to the end`
+   
+Once a password entry has been moved, a message appears in the status bar: `Order has been changed - don't forget to save`. To save the new order use:
+- `Ctrl + S` keyboard shortcut
+- click the save icon in the toolbar
+- Menu: `Table -> Save password position`<br>
+
+> [!IMPORTANT]
+> You cannot reorder entries while attribute-based sorting is active. You must switch back to the `Sort by your own items` option first.
+
+> [!WARNING]
+> If you modify the order but try to switch to attribute-based sorting without saving, a dialog will appear prompting you to save the changes first.
+  
+### Import and export password data
+The application supports importing and exporting password data to facilitate backup, migration, or bulk entry.
+
+#### Import Passwords
+Passwords can be imported via:
+- Menu: `Management -> Import Password...`
+
+This will open a file selection dialog. The supported file formats for import are:
+- CSV
+- JSON
+- XML
+
+Sample input files and format structure examples can be found in the `services` module:
+- [`test_file.csv`](./services/test_file.csv)
+- [`test_file.json`](./services/test_file.json)
+- [`test_file.xml`](./services/test_file.xml)
+
+> [!IMPORTANT]
+> Before importing, make sure that all password groups referenced in the import file already exist in the application.
+If a group does not exist, the import will fail. You must create any missing groups manually beforehand.
+
+#### Export Passwords
+Passwords can be exported via:
+- Menu: `Management -> Export Passwords...`
+
+A dialog window will appear, allowing you to:
+- select which passwords to export
+- choose the output format(s): CSV, JSON, or XML
+- specify the file name(s) for the exported data
+
+This feature is particularly useful for creating backups or transferring data between different instances of the application.
+
+
+<p align="center">
+  <!-- <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/list-of-tasks.jpg" alt="List of tasks" title="List of tasks" height="800" align="center"> -->
+</p>
+<!-- This setup provides a clear and informative overview of all tasks, helping users to easily track, prioritize, and manage their work -->

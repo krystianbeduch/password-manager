@@ -236,16 +236,16 @@ To fix this, follow these steps to add PostgreSQL to your system PATH:
 
 #### Step-by-step:
 1. Locate the PostgreSQL installation directory
-- By default, it should be something like: `C:\Program Files\PostgreSQL\16`<br> (the number 16 refers to the installed version).
+   - By default, it should be something like: `C:\Program Files\PostgreSQL\16`<br> (the number 16 refers to the installed version).
 
 2. Enter the bin subdirectory
-- This directory contains the `psql.exe` and other necessary executables.
+   - This directory contains the `psql.exe` and other necessary executables.
 
 3. Copy the full path to the bin directory
-- Click the address bar at the top of the File Explorer window and copy the full directory path.
+   - Click the address bar at the top of the File Explorer window and copy the full directory path.
 
 4. Open the System Environment Variables settings
-- Press the Windows key or click Start and search for: `Edit the system environment variables`
+   - Press the Windows key or click Start and search for: `Edit the system environment variables`
 
 5. In the window that appears, click the `Environment Variables...` button
 6. In the "System variables" section, locate and select the variable named `Path`, then click `Edit...`

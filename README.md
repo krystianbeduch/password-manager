@@ -20,8 +20,8 @@ The entire project is modular in structure and built using the CMake build syste
    - [Group management](#group-management)
    - [Generate password](#generate-password)
    - [Password encryption](#password-encryption)
-   - [Reorder password entries](#reorder-password-entries)
    - [Import and export password data](#import-and-export-password-data)
+   - [Reorder password entries](#reorder-password-entries)
   
 ## Application functionality
 - User authentication (login to the application)
@@ -29,8 +29,8 @@ The entire project is modular in structure and built using the CMake build syste
 - Assign passwords to user-defined groups
 - Generate strong random passwords
 - Store all passwords in encrypted form in a local PostgreSQL database
-- Reorder password entries based on user preferences
 - Import and export password data to/from CSV, JSON, and XML files
+- Reorder password entries based on user preferences
 
 ## Technology
 - Qt 6.9.0
@@ -131,7 +131,7 @@ The entire project is modular in structure and built using the CMake build syste
 ## Functional description
 ### User authentication
 When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the:
-- [x] Create new profile checkbox.
+- [x] Create new profile<br>
 Creating a new profile is equivalent to erasing all existing data. This means that if the user has forgotten their previous password, there is no way to recover the old data, and they must accept its loss.
 
 After creating a new profile, all existing tables in the database are cleared and reinitialized with default values. These include:
@@ -167,15 +167,18 @@ Users can add new password entries using multiple methods:
 - `Ctrl + N` keyboard shortcut
 - clicking the plus icon in the top toolbar
 - Menu: `Management -> Add Password`<br>
+
 This action opens a form where the user inputs password data.
-
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_adding_new_password.png" alt="Adding new password" title="Adding new password">
-
+<p align="center">
+   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_adding_new_password.png" alt="Adding new password" title="Adding new password">
+</p>
+   
 📝 Editing existing password<br>
 Passwords can be edited using:
 - `Ctrl + E` keyboard shortcut
 - clicking the edit icon in the top toolbar
 - Menu: `Management -> Edit Password`<br>
+
 When triggered, the user is first asked to select the entry to be edited. After selecting it, the same input form as for adding a new password is shown.
 
 <p align="center">
@@ -188,10 +191,11 @@ Passwords can be deleting using:
 - `Ctrl + Del` keyboard shortcut
 - click the trash icon in the toolbar
 - Menu: `Management -> Delete Password`<br>
+
 Each deletion requires confirmation to avoid data loss.
-
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_delete_action.png" alt="Deleting password" title="Deleting password">
-
+<p align="center">
+   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/password_management_delete_action.png" alt="Deleting password" title="Deleting password">
+</p>
 Additionally, users can remove all password entries at once by selecting: `Management -> Delete All Passwords`<br>
 This action is also protected by confirmation dialogs to prevent unintentional mass deletion.
 
@@ -216,7 +220,9 @@ Users can modify or remove existing groups through dedicated dialog windows. The
 ### Generate password
 To enhance security, users can generate strong, random passwords directly within the application. This feature is especially useful when creating credentials for new services, ensuring that passwords are difficult to guess or brute-force. The generated password consists of 24 random characters. It includes a mix of uppercase letters, lowercase letters, digits, and special characters for increased complexity. Passwords are generated directly from the Add or Edit Password forms using a built-in button. This approach encourages good security practices by avoiding the reuse of weak or predictable passwords. Once generated, the password can be saved to the appropriate entry, or the user can generate another one with a single click.
 
+<p align="center">
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/generate_passwords.png" alt="Generate password" title="Generate password">
+</p>
 
 > [!TIP]
 > It’s recommended to use the password generator for all new entries to maximize account safety.
@@ -269,6 +275,40 @@ This separation ensures secure, deterministic decryption only when the correct m
 > [!WARNING]
 > The encryption key is never stored — it is derived in memory from the user's master password and the stored salt each time the application is launched.
 
+### Import and export password data
+The application supports importing and exporting password data to facilitate backup, migration, or bulk entry.
+
+#### Import passwords
+Passwords can be imported via:
+- Menu: `Management -> Import Password...`
+
+This will open a file selection dialog. The supported file formats for import are:
+- CSV
+- JSON
+- XML
+
+Sample input files and format structure examples can be found in the `services` module:
+- [`test_file.csv`](./services/test_file.csv)
+- [`test_file.json`](./services/test_file.json)
+- [`test_file.xml`](./services/test_file.xml)
+
+> [!IMPORTANT]
+> Before importing, make sure that all password groups referenced in the import file already exist in the application.
+If a group does not exist, the import will fail. You must create any missing groups manually beforehand.
+
+<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/import_passwords.png" alt="Import passwords" title="Import passwords">
+
+#### Export passwords
+Passwords can be exported via:
+- Menu: `Management -> Export Passwords...`
+
+A dialog window will appear, allowing you to:
+- select which passwords to export
+- choose the output format(s): CSV, JSON, or XML
+- specify the file name(s) for the exported data
+
+This feature is particularly useful for creating backups or transferring data between different instances of the application.
+
 ### Reorder password entries
 The password list displayed in the application can be sorted in two different ways:
 - attribute-based sorting – ascending or descending order based on a selected column (e.g., service name, group)
@@ -306,40 +346,6 @@ Once a password entry has been moved, a message appears in the status bar: `Orde
 
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_custom_order.png" alt="Reorder password entries - custom order" title="Reorder password entries - custom order">
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_sort_by_group_asc.png" alt="Reorder password entries - sort by group asc" title="Reorder password entries - sort by group asc">
-
-### Import and export password data
-The application supports importing and exporting password data to facilitate backup, migration, or bulk entry.
-
-#### Import passwords
-Passwords can be imported via:
-- Menu: `Management -> Import Password...`
-
-This will open a file selection dialog. The supported file formats for import are:
-- CSV
-- JSON
-- XML
-
-Sample input files and format structure examples can be found in the `services` module:
-- [`test_file.csv`](./services/test_file.csv)
-- [`test_file.json`](./services/test_file.json)
-- [`test_file.xml`](./services/test_file.xml)
-
-> [!IMPORTANT]
-> Before importing, make sure that all password groups referenced in the import file already exist in the application.
-If a group does not exist, the import will fail. You must create any missing groups manually beforehand.
-
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/import_passwords.png" alt="Import passwords" title="Import passwords">
-
-#### Export passwords
-Passwords can be exported via:
-- Menu: `Management -> Export Passwords...`
-
-A dialog window will appear, allowing you to:
-- select which passwords to export
-- choose the output format(s): CSV, JSON, or XML
-- specify the file name(s) for the exported data
-
-This feature is particularly useful for creating backups or transferring data between different instances of the application.
 
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/export_passwords.png" alt="Export passwords" title="Export passwords">
 

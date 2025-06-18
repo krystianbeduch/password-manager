@@ -130,7 +130,9 @@ The entire project is modular in structure and built using the CMake build syste
 
 ## Functional description
 ### User authentication
-When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the `Create new profile` checkbox. Creating a new profile is equivalent to erasing all existing data. This means that if the user has forgotten their previous password, there is no way to recover the old data, and they must accept its loss.
+When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the:
+- [x] Create new profile checkbox.
+Creating a new profile is equivalent to erasing all existing data. This means that if the user has forgotten their previous password, there is no way to recover the old data, and they must accept its loss.
 
 After creating a new profile, all existing tables in the database are cleared and reinitialized with default values. These include:
 - 4 default groups: Work, Personal, Banking, Email

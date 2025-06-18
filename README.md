@@ -155,21 +155,21 @@ The main window of the application displays a table containing the user's saved 
 - Edit – opens an edit form where the user can modify the service name, username, password, or assigned group
 - Delete – deletes the entry after a confirmation dialog to prevent accidental loss
 
-➕ Adding New Passwords<br>
+➕ Adding new passwords<br>
 Users can add new password entries using multiple methods:
 - `Ctrl + N` keyboard shortcut
 - clicking the plus icon in the top toolbar
 - Menu: `Management -> Add Password`<br>
 This action opens a form where the user inputs password data.
 
-📝 Editing Existing Passwords<br>
+📝 Editing existing passwords<br>
 Passwords can be edited using:
 - `Ctrl + E` keyboard shortcut
 - clicking the edit icon in the top toolbar
 - Menu: `Management -> Edit Password`<br>
 When triggered, the user is first asked to select the entry to be edited. After selecting it, the same input form as for adding a new password is shown.
 
-🗑️ Deleting Passwords<br>
+🗑️ Deleting passwords<br>
 Passwords can be deleting using:
 - `Ctrl + Del` keyboard shortcut
 - click the trash icon in the toolbar
@@ -188,10 +188,10 @@ By default, the application comes with four pre-defined groups:
 - Banking
 - Email
 
-➕ Adding Groups
+➕ Adding groups
 Group creation is integrated directly into the Add and Edit Password forms. When a user enters a new group name, the application checks whether the name is unique. Duplicate group names are not allowed.
 
-✏️ Editing or 🗑️ Deleting Groups
+✏️ Editing or 🗑️ Deleting groups
 Users can modify or remove existing groups through dedicated dialog windows. These dialogs work similarly to the ones used for editing or deleting password entries, allowing the user to select a group from a list.
 
 > [!WARNING]
@@ -207,17 +207,17 @@ To enhance security, users can generate strong, random passwords directly within
 All passwords stored in the application are encrypted using the __`ChaCha20-Poly1305`__ authenticated encryption algorithm, which is known for its performance and high security. The encryption process is built using the libsodium `library` and follows modern cryptographic practices.
 
 #### 🔐 How it works:
-#### 1. Salt Generation
+#### 1. Salt generation
 For each encryption operation, a unique salt is generated to ensure that derived keys are different even if the same password is used again:
 ```cpp
 QByteArray salt(crypto_pwhash_SALTBYTES, 0);
 randombytes_buf(salt.data(), salt.size());
 ```
 
-#### 2. Key Derivation
+#### 2. Key derivation
 A secure encryption key is derived from the user's master password and the generated salt using a password hashing function. This ensures that each user profile has a unique encryption key, even if the same password is used across multiple profiles.
 
-#### 3. Nonce Initialization
+#### 3. Nonce initialization
 A random nonce is created for each encryption operation to guarantee that the same plaintext encrypted multiple times will yield different ciphertexts:
 ```cpp
 nonceOut.resize(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
@@ -239,7 +239,7 @@ crypto_aead_xchacha20poly1305_ietf_encrypt(
 
 The result is a ciphertext that includes authentication tags to verify integrity. The `nonce` and `salt` must be stored alongside the ciphertext to correctly decrypt it later.
 
-#### 5. 🗄️ Database Storage
+#### 5. 🗄️ Database storage
 Encrypted data is stored in the PostgreSQL database using the `bytea` type. For each password entry, the following three binary fields are saved:
 - cipherText — the encrypted password
 - salt — used to derive the encryption key

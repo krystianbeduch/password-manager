@@ -206,8 +206,8 @@ To enhance security, users can generate strong, random passwords directly within
 ### Password encryption
 All passwords stored in the application are encrypted using the __`ChaCha20-Poly1305`__ authenticated encryption algorithm, which is known for its performance and high security. The encryption process is built using the libsodium `library` and follows modern cryptographic practices.
 
-🔐 How it works:
-#### 1. Salt Generation
+#### 🔐 How it works:
+##### 1. Salt Generation
 For each encryption operation, a unique salt is generated to ensure that derived keys are different even if the same password is used again:
 ```cpp
 QByteArray salt(crypto_pwhash_SALTBYTES, 0);

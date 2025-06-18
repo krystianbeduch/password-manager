@@ -81,5 +81,8 @@ CMakeLists.txt.user*
 .uic/
 /build*/
 
-# Config DB file
-config.json
+# Database config file
+db_config.json
+
+# Delete ignore from icon script
+!app_icon.rc

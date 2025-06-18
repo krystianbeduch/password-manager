@@ -128,6 +128,156 @@ The entire project is modular in structure and built using the CMake build syste
 ## Database schema
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/database/db_schema.png" alt="Database schema" title="Database schema" height="350">
 
+## Setup
+You can configure and run the project in two ways: by using a development environment or via a prebuilt release package.
+
+## Method I – Manual setup using Qt Creator
+### 1. Install Qt environment
+- Download and install [Qt](https://www.qt.io/download-dev)
+- Make sure to install a compatible Qt version (e.g., Qt 6.x)
+
+### 2. Download or clone the project
+- Option 1: Download the ZIP file from GitHub and extract it
+- Option 2: Clone the repository:
+```bash
+git clone https://github.com/krystianbeduch/password-manager.git
+```
+
+### 3. Open the project in Qt Creator
+- Open the `CMakeLists.txt` file from the root directory
+- Configure the compiler
+- Qt Creator will load the entire project automatically
+
+### 4. Set up PostgreSQL
+- Download and install [PostgreSQL](https://www.postgresql.org/download/) (recommended version: 16 or higher)
+- The default superuser is `postgres`, with the default password set to `root`, and the default port is `5432`
+> [!NOTE]
+> Password and port is set during installation
+
+- Create a new database using the following SQL command (you can use psql or graphical client `pgAdmin`). The name of the base is arbitrary
+```sql
+CREATE DATABASE password_manger;
+```
+
+### 5. Create the database configuration file
+- In the `database` directory, create a file named `db_config.json`
+- Define the following configuration (adjust the values if necessary):
+```json
+{
+   "database": {
+      "host": "localhost",
+      "port": 5432,
+      "db_name": "password_manager",
+      "username": "postgres",
+      "password": "root"
+   }
+}
+```
+> [!NOTE]
+> Ensure that the file name and location are correct, and that the application has access to read this file at runtime.
+
+### 6. Run the application
+- If the environment and the database have been properly configured, the application should launch successfully
+- Upon the first launch, you nned to create a new account
+- For more details, see the [User authentication](#user-authentication) section
+
+## Method II – Use prebuilt release
+You can run the application using a precompiled release version available for download.
+> [!NOTE]
+> The following instructions are also available in the `README.txt` file included with the release.
+
+### 1. Download the prebuilt release
+- Download the latest compiled version of `Password Manager` from the Releases section
+- Extract the ZIP archive to any directory on your system
+
+### 2. Install and configure PostgreSQL
+- To use the Password Manager application, you must have a properly configured local PostgreSQL database
+- Download PostgreSQL from the official website:
+   - https://www.postgresql.org/download/
+   - https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+- The minimum recommended version is PostgreSQL 16
+- During the installation pay attention:
+   - on the installation path - it is best to leave the default one in the `Program Files` directory
+   - on the password for the postgres superuser - you should enter the password `root`.
+   - the port on which the database will run - leave the default `5432`
+
+If you specify a different password or port, the script and application will not work without modifying the configuration files.
+
+### 3. Database setup
+Once PostgreSQL is installed, you need to configure the database. You have two options:
+
+#### Option A – Automatic configuration:
+- Run the included `init_database.bat` script
+- After successful execution, you should see a message similar to this:
+```bash
+Creating database password_manager...
+Creating schema public (if it doesn't exist)...
+CREATE SCHEMA
+Granting permissions on schema public to user postgres...
+GRANT
+Done!
+Press any key to continue . . .
+```
+
+#### Option B – Manual configuration:
+If you prefer to create the database manually, launch the `pgAdmin` client and create the database in the GUI or via SQL command:
+```sql
+CREATE DATABASE password_manger;
+```
+
+### 4. Fixing 'psql' is not recognized as an internal or external command error
+If you selected option A, and the following error message appears when you run the script:
+```bash
+'psql' is not recognized as an internal or external command
+```
+...it means that the `psql` command-line tool (PostgreSQL client) is not found in the system's PATH variable.
+
+To fix this, follow these steps to add PostgreSQL to your system PATH:
+
+#### Step-by-step:
+#### 1. Locate the PostgreSQL installation directory
+By default, it should be something like:<br>
+`C:\Program Files\PostgreSQL\16`<br>
+(the number 16 refers to the installed version).
+
+#### 2. Enter the bin subdirectory
+This directory contains the `psql.exe` and other necessary executables.
+
+#### 3. Copy the full path to the `bin` directory
+Click the address bar at the top of the File Explorer window and copy the full directory path.
+
+#### 4. Open the System Environment Variables settings
+Press the Windows key or click Start and search for:<br>
+`Edit the system environment variables`
+
+#### 5. In the window that appears, click the `Environment Variables...` button
+
+#### 6. In the "System variables" section, locate and select the variable named `Path`, then click `Edit...`
+
+#### 7. Click `New` and paste the copied PostgreSQL bin directory path
+
+#### 8. Confirm by clicking `OK` in all windows to apply the changes
+
+#### 9. Restart the `init_database.bat` script
+After the PATH has been updated, the system should recognize the psql command and the script should run without errors.
+
+
+
+
+- Option 1: Download the ZIP file from github and extract it
+- Option 2: Clone the repository:
+```bash
+git clone https://github.com/krystianbeduch/todo-list.git
+```
+
+### 3. Open the project in Android Studio
+- Select `Open` and choose the project folder
+- Wait for Gradle to finish syncing all dependencies
+
+### 4. Run the application
+- Ensure you have a connected __emulator__ or __physical Android device__ with __debugging enabled__
+- Press __Run__ (`Shift + F10` or the green button <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/green-play-button.png" alt="Green button" title="Green button" height="20">) to launch the app
+
 ## Functional description
 ### User authentication
 When launching the application, a login dialog appears prompting the user to enter an access password. If the user does not remember the password or is using the application for the first time, they can check the:
@@ -308,6 +458,9 @@ A dialog window will appear, allowing you to:
 - specify the file name(s) for the exported data
 
 This feature is particularly useful for creating backups or transferring data between different instances of the application.
+<p align="center">
+   <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/export_passwords.png" alt="Export passwords" title="Export passwords">
+</p>
 
 ### Reorder password entries
 The password list displayed in the application can be sorted in two different ways:
@@ -346,10 +499,3 @@ Once a password entry has been moved, a message appears in the status bar: `Orde
 
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_custom_order.png" alt="Reorder password entries - custom order" title="Reorder password entries - custom order">
 <img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/reorder_password_entries_sort_by_group_asc.png" alt="Reorder password entries - sort by group asc" title="Reorder password entries - sort by group asc">
-
-<img src="https://github.com/krystianbeduch/password-manager/blob/main/readme_images/export_passwords.png" alt="Export passwords" title="Export passwords">
-
-<p align="center">
-  <!-- <img src="https://github.com/krystianbeduch/todo-list/blob/main/readme-images/list-of-tasks.jpg" alt="List of tasks" title="List of tasks" height="800" align="center"> -->
-</p>
-<!-- This setup provides a clear and informative overview of all tasks, helping users to easily track, prioritize, and manage their work -->

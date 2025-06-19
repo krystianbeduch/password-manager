@@ -182,7 +182,7 @@ CREATE DATABASE password_manger;
 - For more details, see the [User authentication](#user-authentication) section
 
 ## Method II – Use prebuilt release
-You can run the application using a precompiled release version available for download.
+You can run the application using a precompiled release version available for [download](https://github.com/krystianbeduch/password-manager/releases/download/v1.0/password_manager.zip)
 > [!NOTE]
 > The following instructions are also available in the `README.txt` file included with the release.
 

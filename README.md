@@ -14,6 +14,8 @@ The entire project is modular in structure and built using the CMake build syste
 3. [Project structure](#project-structure)
 4. [Database schema](#database-schema)
 5. [Setup](#setup)
+   - [Method I – Manual setup using Qt Creator](#method-i--manual-setup-using-qt-creator)
+   - [Method II – Using the prebuilt release package](#method-ii--using-the-prebuilt-release-package)
 6. [Functional description](#functional-description)
    - [User authentication](#user-authentication)
    - [Password management](#password-management)
